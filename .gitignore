@@ -8,4 +8,7 @@ captures
 .cxx
 local.properties
 xcuserdata
-.kotlin
+.kotlin/
+# 忽略 .kotlin 目录
+#git rm -r --cached .kotlin
+#git commit -m "Ignore .kotlin folder"

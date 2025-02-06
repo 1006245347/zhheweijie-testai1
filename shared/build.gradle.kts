@@ -67,7 +67,7 @@ kotlin {
             implementation(libs.precompose.viewmodel)
 
             //异步图片加载   //这个版本还缺其他？
-            implementation(libs.coil3.core)
+            implementation(libs.coil3.svg)
             implementation(libs.coil3.ktor)
             implementation(libs.coil3.compose) //这个地址太坑了，官网没更新出来
 
@@ -105,20 +105,11 @@ kotlin {
             //文件选择器
             implementation(libs.file.picker)
         }
-//        commonTest.dependencies {
-//            implementation(libs.kotlin.test)
-//        }
 
         androidMain.dependencies {
             //引入本地Android aar库
             implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar", "*.aar"))))
 //            implementation(files("../androidApp/libs/TbsFileSdk_dwg_universal_release_1.0.5.6000030.20231109143411.aar"))
-
-//            api(libs.compose.ui)
-//            api(libs.compose.ui.tooling.preview)
-//            api(libs.androidx.activity.compose)
-//            api(libs.appCompat)
-//            api(libs.compose.material3)
 
             implementation(libs.androidx.perference)
 
@@ -128,6 +119,7 @@ kotlin {
 
             //android平台引擎
             implementation(libs.ktor.client.android)
+            implementation(libs.ktor.client.okhttp)
 
             //mmvm
             implementation(libs.androidx.lifecycle)
@@ -137,9 +129,9 @@ kotlin {
 
             implementation(libs.datastore.preferences)
 
-            //图片库加载，超长图moo
-            implementation(libs.coil3.video)
-            implementation(libs.coil3.gif)
+            //图片库加载，超长图moo //新版没有：？
+//            implementation(libs.coil3.video)
+//            implementation(libs.coil3.gif)
 
             //远程日志上报
             implementation(libs.android.bugly)

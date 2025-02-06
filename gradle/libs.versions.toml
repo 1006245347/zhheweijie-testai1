@@ -1,9 +1,9 @@
 [versions]
 agp = "8.3.0"
 kotlin = "2.0.20"
+compose-compiler = "1.5.4"
 compose = "1.7.6"
 kotlinxDatetime = "0.6.1"
-#compose-compiler = "1.5.4"
 compose-material3 = "1.3.1"
 activityCompose = "1.9.2"
 compose-plugin= "1.7.3"
@@ -15,14 +15,14 @@ koin = "3.5.6"
 mokoMvvmVersion = "0.16.1"
 androidLifecycleVersion = "2.2.0"
 stately = "2.0.6"
-ktor = "2.3.12"
+ktor = "3.0.3"
 uuid = "0.8.4"
 kermit = "2.0.3"
 settings = "1.1.1"
 mokopermission = "0.18.0"
 perference = "1.2.0"
 permissionX = "1.8.0"
-coil3 = "3.0.0-alpha06"
+coil3 = "3.0.0-alpha10"
 windowSize = "0.5.0"
 sheet = "0.1.2"
 pagingCommonVersion = "3.3.0-alpha02-0.5.1"
@@ -39,8 +39,6 @@ lifecycleRuntimeKtx = "2.7.0"
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
 appCompat = { module = "androidx.appcompat:appcompat", version.ref = "androidAppCompatVersion" }
 androidx-lifecycle = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
-#composeMaterial = { module = "androidx.compose.material:material", version.ref = "composeMaterialVersion" }
-kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 buildkonfig-gradle-plugin = { module = "com.codingfeline.buildkonfig:buildkonfig-gradle-plugin", version.ref = "buildkonfigGradlePlugin" }
 core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "coreSplashscreen" }
 android-driver = { module = "app.cash.sqldelight:android-driver", version.ref = "sqlDelight" }
@@ -64,23 +62,28 @@ precompose-viewmodel = { module = "moe.tlaster:precompose-viewmodel", version.re
 mokoMvvmCore = { module = "dev.icerock.moko:mvvm-core", version.ref = "mokoMvvmVersion" }
 mokoMvvmCompose = { module = "dev.icerock.moko:mvvm-compose", version.ref = "mokoMvvmVersion" }
 lifecycle-extension = { module = "androidx.lifecycle:lifecycle-extensions", version.ref = "androidLifecycleVersion" }
-ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
-ktor-client-android = { module = "io.ktor:ktor-client-android", version.ref = "ktor" }
-ktor-client-ios = { module = "io.ktor:ktor-client-darwin", version.ref = "ktor" }
-ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
-ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
-ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
-ktor-client-cio = { module = "io.ktor:ktor-client-cio", version.ref = "ktor" }
-ktor-client-logging = { module = "io.ktor:ktor-client-logging", version.ref = "ktor" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines-core" }
 uuid = { module = "com.benasher44:uuid", version.ref = "uuid" }
 logger-kermit = { module = "co.touchlab:kermit", version.ref = "kermit" }
 multiplatform-settings = { module = "com.russhwolf:multiplatform-settings", version.ref = "settings" }
-coil3-core = { module = "io.coil-kt.coil3:coil", version.ref = "coil3" }
+
+#ktor网络连接
+ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
+ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
+ktor-client-android = { module = "io.ktor:ktor-client-android", version.ref = "ktor" }
+ktor-client-ios = { module = "io.ktor:ktor-client-darwin", version.ref = "ktor" }
+ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
+ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
+ktor-client-cio = { module = "io.ktor:ktor-client-cio", version.ref = "ktor" }
+ktor-client-logging = { module = "io.ktor:ktor-client-logging", version.ref = "ktor" }
+
+#coil3-core = { module = "io.coil-kt.coil3:coil", version.ref = "coil3" }
 coil3-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil3" }
-coil3-ktor = { module = "io.coil-kt.coil3:coil-network-ktor", version.ref = "coil3" }
-coil3-video = { module = "io.coil-kt.coil3:coil-video", version.ref = "coil3" }
-coil3-gif = { module = "io.coil-kt.coil3:coil-gif", version.ref = "coil3" }
+coil3-svg = { module = "io.coil-kt.coil3:coil-svg", version.ref = "coil3" }
+coil3-ktor = { module = "io.coil-kt.coil3:coil-network-ktor2", version.ref = "coil3" }
+#coil3-video = { module = "io.coil-kt.coil3:coil-video", version.ref = "coil3" }
+#coil3-gif = { module = "io.coil-kt.coil3:coil-gif", version.ref = "coil3" }
+
 windowSize = { module = "dev.chrisbanes.material3:material3-window-size-class-multiplatform", version.ref = "windowSize" }
 bottomSheet = { module = "com.github.skydoves:flexible-bottomsheet-material3", version.ref = "sheet" }
 paging-compose = { module = "app.cash.paging:paging-compose-common", version.ref = "pagingCommonVersion" }
