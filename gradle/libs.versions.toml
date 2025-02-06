@@ -1,23 +1,95 @@
 [versions]
 agp = "8.3.0"
 kotlin = "2.0.20"
-compose = "1.5.4"
-compose-compiler = "1.5.4"
-compose-material3 = "1.1.2"
+compose = "1.7.6"
+kotlinxDatetime = "0.6.1"
+#compose-compiler = "1.5.4"
+compose-material3 = "1.3.1"
 activityCompose = "1.9.2"
-compose-plugin= "1.7.0-beta02"
+compose-plugin= "1.7.3"
+androidAppCompatVersion = "1.7.0"
+sqlDelight = "2.0.2"
+buildkonfigGradlePlugin = "0.15.1"
+ksp = "2.0.20-1.0.24"
+koin = "3.5.6"
+mokoMvvmVersion = "0.16.1"
+androidLifecycleVersion = "2.2.0"
+stately = "2.0.6"
+ktor = "2.3.12"
+uuid = "0.8.4"
+kermit = "2.0.3"
+settings = "1.1.1"
+mokopermission = "0.18.0"
+perference = "1.2.0"
+permissionX = "1.8.0"
+coil3 = "3.0.0-alpha06"
+windowSize = "0.5.0"
+sheet = "0.1.2"
+pagingCommonVersion = "3.3.0-alpha02-0.5.1"
+precompose = "1.6.0"
+okio = "3.9.0"
+bugly = "4.1.9"
+file = "0.6.1"
+coroutines-core = "1.8.1"
+coreSplashscreen = "1.0.1"
+datastorePreferences = "1.1.1"
+lifecycleRuntimeKtx = "2.7.0"
 
 [libraries]
-kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
+appCompat = { module = "androidx.appcompat:appcompat", version.ref = "androidAppCompatVersion" }
+androidx-lifecycle = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
+#composeMaterial = { module = "androidx.compose.material:material", version.ref = "composeMaterialVersion" }
+kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
+buildkonfig-gradle-plugin = { module = "com.codingfeline.buildkonfig:buildkonfig-gradle-plugin", version.ref = "buildkonfigGradlePlugin" }
+core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "coreSplashscreen" }
+android-driver = { module = "app.cash.sqldelight:android-driver", version.ref = "sqlDelight" }
+native-driver = { module = "app.cash.sqldelight:native-driver", version.ref = "sqlDelight" }
+coroutines-extensions = { module = "app.cash.sqldelight:coroutines-extensions", version.ref = "sqlDelight" }
+datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }
 compose-ui = { module = "androidx.compose.ui:ui", version.ref = "compose" }
 compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "compose" }
 compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "compose" }
-compose-foundation = { module = "androidx.compose.foundation:foundation", version.ref = "compose" }
 compose-material3 = { module = "androidx.compose.material3:material3", version.ref = "compose-material3" }
-appCompat = { module = "androidx.appcompat:appcompat", version.ref = "androidAppCompatVersion" }
 
-
+koin-android = { module = "io.insert-koin:koin-android", version.ref = "koin" }
+koin-androidx-compose = { module = "io.insert-koin:koin-androidx-compose", version.ref = "koin" }
+koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
+stately-common = { module = "co.touchlab:stately-common", version.ref = "stately" }
+mokopermission = { module = "dev.icerock.moko:permissions", version.ref = "mokopermission" }
+mokopermission-compose = { module = "dev.icerock.moko:permissions-compose", version.ref = "mokopermission" }
+precompose-navigator = { module = "moe.tlaster:precompose", version.ref = "precompose" }
+precompose-koin = { module = "moe.tlaster:precompose-koin", version.ref = "precompose" }
+precompose-viewmodel = { module = "moe.tlaster:precompose-viewmodel", version.ref = "precompose" }
+mokoMvvmCore = { module = "dev.icerock.moko:mvvm-core", version.ref = "mokoMvvmVersion" }
+mokoMvvmCompose = { module = "dev.icerock.moko:mvvm-compose", version.ref = "mokoMvvmVersion" }
+lifecycle-extension = { module = "androidx.lifecycle:lifecycle-extensions", version.ref = "androidLifecycleVersion" }
+ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
+ktor-client-android = { module = "io.ktor:ktor-client-android", version.ref = "ktor" }
+ktor-client-ios = { module = "io.ktor:ktor-client-darwin", version.ref = "ktor" }
+ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
+ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
+ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
+ktor-client-cio = { module = "io.ktor:ktor-client-cio", version.ref = "ktor" }
+ktor-client-logging = { module = "io.ktor:ktor-client-logging", version.ref = "ktor" }
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines-core" }
+uuid = { module = "com.benasher44:uuid", version.ref = "uuid" }
+logger-kermit = { module = "co.touchlab:kermit", version.ref = "kermit" }
+multiplatform-settings = { module = "com.russhwolf:multiplatform-settings", version.ref = "settings" }
+coil3-core = { module = "io.coil-kt.coil3:coil", version.ref = "coil3" }
+coil3-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil3" }
+coil3-ktor = { module = "io.coil-kt.coil3:coil-network-ktor", version.ref = "coil3" }
+coil3-video = { module = "io.coil-kt.coil3:coil-video", version.ref = "coil3" }
+coil3-gif = { module = "io.coil-kt.coil3:coil-gif", version.ref = "coil3" }
+windowSize = { module = "dev.chrisbanes.material3:material3-window-size-class-multiplatform", version.ref = "windowSize" }
+bottomSheet = { module = "com.github.skydoves:flexible-bottomsheet-material3", version.ref = "sheet" }
+paging-compose = { module = "app.cash.paging:paging-compose-common", version.ref = "pagingCommonVersion" }
+okio-core = { module = "com.squareup.okio:okio", version.ref = "okio" }
+android-bugly = { module = "com.tencent.bugly:crashreport", version.ref = "bugly" }
+file-picker = { module = "io.github.vinceglb:filekit-compose", version.ref = "file" }
+permissionX-android = { module = "com.guolindev.permissionx:permissionx", version.ref = "permissionX" }
+kotlin-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinxDatetime" }
+androidx-perference = { module = "androidx.preference:preference-ktx", version.ref = "perference" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
@@ -27,3 +99,7 @@ kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref =
 kotlinCocoapods = { id = "org.jetbrains.kotlin.native.cocoapods", version.ref = "kotlin" }
 jetbrainsCompose = { id = "org.jetbrains.compose", version.ref = "compose-plugin" }
 kotlinxSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+buildKonfig = { id = "com.codingfeline.buildkonfig", version.ref = "buildkonfigGradlePlugin" }
+sqlDelight = { id = "app.cash.sqldelight", version.ref = "sqlDelight" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }

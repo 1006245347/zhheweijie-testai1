@@ -4,7 +4,13 @@ import java.time.format.DateTimeFormatter
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.kotlinAndroid)
+    alias(libs.plugins.compose.compiler)
     alias(libs.plugins.ksp)
+}
+
+//处理依赖库重复问题
+configurations.all {
+    resolutionStrategy.force("androidx.compose.ui:ui-test-junit4-android:1.7.6")
 }
 
 android {
@@ -16,29 +22,60 @@ android {
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
+
+//        ndk { //设置支持的SO库架构（开发者可以根据需要，选择一个或多个平台的so）
+//            abiFilters += listOf("armeabi", "armeabi-v7a", "arm64-v8a")
+//        }
     }
     buildFeatures {
         compose = true
     }
-    composeOptions {
-        kotlinCompilerExtensionVersion = libs.versions.compose.compiler.get()
-    }
+
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
     buildTypes {
+        getByName("debug") {
+            //签名
+            signingConfig = signingConfigs.getByName("debug")
+        }
+        register("alpha") {
+            //继承debug配置
+            initWith(getByName("debug"))
+            //混淆
+//            isMinifyEnabled = true //有混淆无法编译？
+//            proguardFiles(
+//                getDefaultProguardFile("proguard-android-optimize.txt"),
+//                "proguard-rules.pro"
+//            )
+            //移除无用的resource文件
+//            isShrinkResources = true
+
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+        }
         getByName("release") {
-            isMinifyEnabled = false
+            //继承alpha配置
+            initWith(getByName("alpha"))
+            //关闭debug
+//            isDebuggable = false
+
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "17"
     }
 
     signingConfigs {
@@ -63,7 +100,6 @@ android {
         }
     }
 
-
     sourceSets {
         getByName("main") {
             jniLibs.srcDirs("libs")
@@ -85,7 +121,7 @@ val copyAndRenameApkTask by tasks.registering(Copy::class) {
     val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmm")
     val createTime = LocalDateTime.now().format(formatter)
     val gitHash = providers.exec {
-        commandLine("git", "rev-parse","--short","HEAD")
+        commandLine("git", "rev-parse", "--short", "HEAD")
     }.standardOutput.asText.get()
     val destDir = File(rootDir, "apkBackup/compose_${versionName}")
     from("release/androidApp-release.apk")
@@ -107,10 +143,11 @@ val copyAndRenameApkTask by tasks.registering(Copy::class) {
 dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar", "*.aar"))))
     implementation(projects.shared)
+    debugImplementation(libs.compose.ui.tooling)
+
     implementation(libs.compose.ui)
     implementation(libs.compose.ui.tooling.preview)
-    implementation(libs.compose.material3)
     implementation(libs.androidx.activity.compose)
-    debugImplementation(libs.compose.ui.tooling)
     implementation(libs.appCompat)
+    implementation(libs.compose.material3)
 }
