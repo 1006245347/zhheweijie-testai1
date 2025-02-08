@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.hwj.ai.global.Greeting
+import com.hwj.ai.ui.components.TestPage
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,7 +29,8 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun GreetingView(text: String) {
-    Text(text = text)
+//    Text(text = text)
+    TestPage()
 }
 
 @Preview

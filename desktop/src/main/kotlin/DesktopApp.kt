@@ -28,6 +28,8 @@ import org.koin.core.Koin
 
 lateinit var koin: Koin
 
+//编译运行命令 ./gradlew :desktop:run
+
 fun main() {
     koin = initKoin()
     koin.loadModules(
@@ -45,7 +47,7 @@ fun main() {
             ),
         ) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                TestPage()
+                TestPage() //入口界面
             }
         }
     }
