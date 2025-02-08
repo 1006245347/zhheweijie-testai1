@@ -1,4 +1,7 @@
-package com.hwj.ai
+package com.hwj.ai.global
+
+import com.hwj.ai.Platform
+import com.hwj.ai.getPlatform
 
 class Greeting {
     private val platform: Platform = getPlatform()
@@ -7,3 +10,4 @@ class Greeting {
         return "Hello, ${platform.name}!"
     }
 }
+

@@ -1,10 +1,11 @@
 import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidLibrary)
-    alias(libs.plugins.kotlinxSerialization)//kotlinxSerialization
+    alias(libs.plugins.kotlinxSerialization)
     alias(libs.plugins.kotlinCocoapods)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.jetbrainsCompose)
@@ -16,17 +17,14 @@ plugins {
 kotlin {
     androidTarget {
         compilations.all {
-//            kotlinOptions {
-//                jvmTarget = "17"
-//            }
-            compileTaskProvider.configure{
-                compilerOptions{
+            compileTaskProvider.configure {
+                compilerOptions {
                     jvmTarget.set(JvmTarget.JVM_17)
                 }
-             }
+            }
         }
     }
-    
+
     listOf(
         iosX64(),
         iosArm64(),
@@ -34,9 +32,12 @@ kotlin {
     ).forEach {
         it.binaries.framework {
             baseName = "shared"
-            isStatic = true
+            isStatic = false
+//            linkerOpts("-Xbinary=bundleId=com.yourcompany.shared")
         }
     }
+
+    jvm()
 
     sourceSets {
         commonMain.dependencies {
@@ -49,6 +50,14 @@ kotlin {
             implementation(compose.components.resources)
             implementation(compose.materialIconsExtended)
 
+            implementation(libs.androidx.lifecycle.viewmodel.compose)
+            implementation(libs.androidx.navigation.compose)
+            implementation(libs.kotlinX.serializationJson)
+            implementation(libs.sqlDelight.runtime)
+            implementation(libs.sqldelight.extensions)
+            implementation(libs.primitive.adapters)
+            implementation(libs.stdlib)
+
             //支持多平台的网络库
             implementation(libs.ktor.client.core) //网络请求
             implementation(libs.ktor.client.content.negotiation)
@@ -59,7 +68,8 @@ kotlin {
             implementation(libs.kotlin.datetime)
 
             //依赖注入
-            implementation(libs.koin.core)
+            api(libs.koin.core)
+            implementation(libs.koin.compose)
 
             //另一个导航
             implementation(libs.precompose.navigator)
@@ -75,20 +85,20 @@ kotlin {
             implementation(libs.kotlinx.coroutines.core)
 
             //权限 compose multiplatform https://github.com/icerockdev/moko-permissions
-            implementation(libs.mokopermission)
-            implementation(libs.mokopermission.compose)
             implementation(libs.stately.common)
             implementation(libs.mokoMvvmCore)
             implementation(libs.mokoMvvmCompose)
 
-            //多平台uuid https://github.com/benasher44/uuid/tree/master 不知道怎么用
+            //多平台uuid https://github.com/benasher44/uuid/tree/master
             implementation(libs.uuid)
 
             //日志库
-            implementation(libs.logger.kermit)
+//            implementation(libs.logger.kermit)
+            api(libs.napier)
 
             //key-value存储
-            implementation(libs.multiplatform.settings)
+            api(libs.multiplatform.settings)
+            api(libs.multiplatformSettings.coroutines)
 
             //页面自适配判断库
             implementation(libs.windowSize)
@@ -112,6 +122,11 @@ kotlin {
 //            implementation(files("../androidApp/libs/TbsFileSdk_dwg_universal_release_1.0.5.6000030.20231109143411.aar"))
 
             implementation(libs.androidx.perference)
+            implementation(libs.accompanist.systemUIController)
+            implementation(libs.androidx.core)
+
+            implementation(libs.mokopermission)
+            implementation(libs.mokopermission.compose)
 
             // Koin
             api(libs.koin.android)
@@ -121,7 +136,6 @@ kotlin {
             implementation(libs.ktor.client.android)
             implementation(libs.ktor.client.okhttp)
 
-            //mmvm
             implementation(libs.androidx.lifecycle)
             implementation(libs.lifecycle.extension)
 
@@ -141,27 +155,59 @@ kotlin {
 
             // SQL
             implementation(libs.android.driver)
-            implementation(libs.coroutines.extensions)
         }
 
         iosMain.dependencies {
+            implementation(libs.mokopermission)
+            implementation(libs.mokopermission.compose)
+
             //网络库，提供iOS平台引擎
             implementation(libs.ktor.client.ios)
 
             //sql
             api(libs.native.driver)
+
+            @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
+            implementation(compose.components.resources)
         }
 
-        targets.all {
+        jvmMain.dependencies {
+            implementation(libs.sqlite.driver)
+            implementation(libs.kotlinx.coroutines.swing)
+            // Toaster for Windows
+            implementation(libs.toast4j)
+            // JNA for Linux
+            implementation("de.jangassen:jfa:1.2.0") {
+                // not excluding this leads to a strange error during build:
+                // > Could not find jna-5.13.0-jpms.jar (net.java.dev.jna:jna:5.13.0)
+                exclude(group = "net.java.dev.jna", module = "jna")
+            }
+
+            // JNA for Windows
+            implementation(libs.jna)
+        }
+
+//        targets.all {
 //            compilations.all {
-//                compilerOptions.configure {
-//                    freeCompilerArgs.add("-Xexpect-actual-classes")
+//                compileTaskProvider.configure {
+//                    compilerOptions {
+//                        freeCompilerArgs.add("-Xexpect-actual-classes")
+//
+//                    }
 //                }
 //            }
-            compilations.all{
-                compileTaskProvider.configure{
-                    compilerOptions{
-                        freeCompilerArgs.add("-Xexpect-actual-classes")
+//        }
+    }
+
+    targets.withType<org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget> {
+        binaries.withType<org.jetbrains.kotlin.gradle.plugin.mpp.Framework> {
+            @OptIn(ExperimentalKotlinGradlePluginApi::class)
+            transitiveExport = true
+            compilations.all {
+//                kotlinOptions.freeCompilerArgs += arrayOf("-linker-options", "-lsqlite3")
+                compileTaskProvider.configure {
+                    compilerOptions {
+                        freeCompilerArgs.addAll(listOf("-linker-options", "-lsqlite3","-Xexpect-actual-classes"))
                     }
                 }
             }
@@ -170,8 +216,10 @@ kotlin {
 
     cocoapods {  //cocoapods类似gradle管理包构建依赖，这里集成日志库
         version = "1.0"
-        summary = "Sample for Kmm"
-        homepage = "https://www.touchlab.co"
+        summary = "Some description for a Kotlin/Native module"
+        homepage = "Link to a Kotlin/Native module homepage"
+        ios.deploymentTarget = "14.1"
+//        podfile = project.file("../ios/Podfile")
         framework {
             baseName = "LiteLibs"
             isStatic = true
@@ -189,16 +237,12 @@ android {
         minSdk = 24
     }
     compileOptions {
-        sourceCompatibility =JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
     buildFeatures {
         buildConfig = true
     }
-
-//    composeOptions {
-//        kotlinCompilerExtensionVersion = libs.versions.kotlinComposeCompiler.get()
-//    }
 
     kotlin {
         jvmToolchain(17)
@@ -213,25 +257,16 @@ buildkonfig {
         buildConfigField(
             STRING,
             "OPENAI_API_KEY",
-//            gradleLocalProperties(project.rootDir, providers).getProperty("openai_api_key")//openai_api_key
-//            gradleLocalProperties(project.rootDir, providers).getProperty("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")//openai_api_key
-//            "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"
             "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"
         )
-
-        buildConfigField(
-            STRING,
-            "ADMOB_REWARDED_AD_ID",
-//            gradleLocalProperties(project.rootDir, providers).getProperty("admob_rewarded_ad_id")//admob_rewarded_ad_id
-            "12"
-        )
+        buildConfigField(STRING, "DeepSeek_API_Key", "sk-d4c1947d19bb4b68ac3daac22d23985c")
     }
 }
 
 sqldelight {
     databases {
         create("Database") {
-            packageName.set("com.hwj.ai")
+            packageName.set("com.hwj.ai.common")
             schemaOutputDirectory.set(file("src/commonMain/sqldelight/databases"))
         }
     }

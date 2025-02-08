@@ -1,5 +1,5 @@
 [versions]
-agp = "8.3.0"
+agp = "8.5.0"
 kotlin = "2.0.20"
 compose-compiler = "1.5.4"
 compose = "1.7.6"
@@ -11,7 +11,7 @@ androidAppCompatVersion = "1.7.0"
 sqlDelight = "2.0.2"
 buildkonfigGradlePlugin = "0.15.1"
 ksp = "2.0.20-1.0.24"
-koin = "3.5.6"
+koin = "4.0.0"
 mokoMvvmVersion = "0.16.1"
 androidLifecycleVersion = "2.2.0"
 stately = "2.0.6"
@@ -19,7 +19,7 @@ ktor = "3.0.3"
 uuid = "0.8.4"
 kermit = "2.0.3"
 settings = "1.1.1"
-mokopermission = "0.18.0"
+mokopermission = "0.18.1"
 perference = "1.2.0"
 permissionX = "1.8.0"
 coil3 = "3.0.0-alpha10"
@@ -34,38 +34,85 @@ coroutines-core = "1.8.1"
 coreSplashscreen = "1.0.1"
 datastorePreferences = "1.1.1"
 lifecycleRuntimeKtx = "2.7.0"
+coreKtx = "1.10.1"
+jna = "5.15.0"
+toast4j="0.2.0"
+kotlinxCoroutinesSwing = "1.10.1"
+kotlinxSerializationJson = "1.7.3"
+desugar_jdk_libs="2.1.3"
+accompanist-systemUIController = "0.36.0"
+androidx-lifecycle = "2.8.4"
+androidx-navigation = "2.8.0-alpha10"
+napier="2.7.1"
 
 [libraries]
-androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
-appCompat = { module = "androidx.appcompat:appcompat", version.ref = "androidAppCompatVersion" }
-androidx-lifecycle = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
+#UI框架相关
 buildkonfig-gradle-plugin = { module = "com.codingfeline.buildkonfig:buildkonfig-gradle-plugin", version.ref = "buildkonfigGradlePlugin" }
 core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "coreSplashscreen" }
-android-driver = { module = "app.cash.sqldelight:android-driver", version.ref = "sqlDelight" }
-native-driver = { module = "app.cash.sqldelight:native-driver", version.ref = "sqlDelight" }
-coroutines-extensions = { module = "app.cash.sqldelight:coroutines-extensions", version.ref = "sqlDelight" }
+androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
+androidx-core = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines-core" }
+kotlinx-coroutines-swing = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-swing", version.ref = "kotlinxCoroutinesSwing" }
+kotlinX-serializationJson = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "kotlinxSerializationJson" }
+
+uuid = { module = "com.benasher44:uuid", version.ref = "uuid" }
+windowSize = { module = "dev.chrisbanes.material3:material3-window-size-class-multiplatform", version.ref = "windowSize" }
+bottomSheet = { module = "com.github.skydoves:flexible-bottomsheet-material3", version.ref = "sheet" }
+paging-compose = { module = "app.cash.paging:paging-compose-common", version.ref = "pagingCommonVersion" }
+kotlin-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinxDatetime" }
+toast4j = { module = "de.mobanisto:toast4j", version.ref = "toast4j" }
+jna = { module = "net.java.dev.jna:jna", version.ref = "jna" }
+desugar_jdk_libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugar_jdk_libs" }
+androidx-lifecycle-viewmodel-compose = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "androidx-lifecycle" }
+androidx-navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "androidx-navigation" }
+accompanist-systemUIController = { module = "com.google.accompanist:accompanist-systemuicontroller", version.ref = "accompanist-systemUIController" }
+napier = { module = "io.github.aakira:napier", version.ref = "napier" }
+stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
+
+#Android特有
+androidx-perference = { module = "androidx.preference:preference-ktx", version.ref = "perference" }
+androidx-lifecycle = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
+appCompat = { module = "androidx.appcompat:appcompat", version.ref = "androidAppCompatVersion" }
+lifecycle-extension = { module = "androidx.lifecycle:lifecycle-extensions", version.ref = "androidLifecycleVersion" }
+android-bugly = { module = "com.tencent.bugly:crashreport", version.ref = "bugly" }
+permissionX-android = { module = "com.guolindev.permissionx:permissionx", version.ref = "permissionX" }
+
+#数据处理
+file-picker = { module = "io.github.vinceglb:filekit-compose", version.ref = "file" }
+okio-core = { module = "com.squareup.okio:okio", version.ref = "okio" }
 datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }
+logger-kermit = { module = "co.touchlab:kermit", version.ref = "kermit" }
+multiplatform-settings = { module = "com.russhwolf:multiplatform-settings", version.ref = "settings" }
+multiplatformSettings-coroutines = { module = "com.russhwolf:multiplatform-settings-coroutines", version.ref = "settings" }
+
 compose-ui = { module = "androidx.compose.ui:ui", version.ref = "compose" }
 compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "compose" }
 compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "compose" }
 compose-material3 = { module = "androidx.compose.material3:material3", version.ref = "compose-material3" }
 
+#依赖注入
 koin-android = { module = "io.insert-koin:koin-android", version.ref = "koin" }
 koin-androidx-compose = { module = "io.insert-koin:koin-androidx-compose", version.ref = "koin" }
 koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
+koin-compose = { module = "io.insert-koin:koin-compose", version.ref = "koin" }
 stately-common = { module = "co.touchlab:stately-common", version.ref = "stately" }
+
+#权限申请，兼容Android
 mokopermission = { module = "dev.icerock.moko:permissions", version.ref = "mokopermission" }
 mokopermission-compose = { module = "dev.icerock.moko:permissions-compose", version.ref = "mokopermission" }
+mokoMvvmCompose = { module = "dev.icerock.moko:mvvm-compose", version.ref = "mokoMvvmVersion" }
 precompose-navigator = { module = "moe.tlaster:precompose", version.ref = "precompose" }
 precompose-koin = { module = "moe.tlaster:precompose-koin", version.ref = "precompose" }
 precompose-viewmodel = { module = "moe.tlaster:precompose-viewmodel", version.ref = "precompose" }
 mokoMvvmCore = { module = "dev.icerock.moko:mvvm-core", version.ref = "mokoMvvmVersion" }
-mokoMvvmCompose = { module = "dev.icerock.moko:mvvm-compose", version.ref = "mokoMvvmVersion" }
-lifecycle-extension = { module = "androidx.lifecycle:lifecycle-extensions", version.ref = "androidLifecycleVersion" }
-kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines-core" }
-uuid = { module = "com.benasher44:uuid", version.ref = "uuid" }
-logger-kermit = { module = "co.touchlab:kermit", version.ref = "kermit" }
-multiplatform-settings = { module = "com.russhwolf:multiplatform-settings", version.ref = "settings" }
+
+#数据库
+android-driver = { module = "app.cash.sqldelight:android-driver", version.ref = "sqlDelight" }
+native-driver = { module = "app.cash.sqldelight:native-driver", version.ref = "sqlDelight" }
+sqldelight-extensions = { module = "app.cash.sqldelight:coroutines-extensions", version.ref = "sqlDelight" }
+sqlDelight-runtime = { module = "app.cash.sqldelight:runtime", version.ref = "sqlDelight" }
+primitive-adapters = { module = "app.cash.sqldelight:primitive-adapters", version.ref = "sqlDelight" }
+sqlite-driver = { module = "app.cash.sqldelight:sqlite-driver", version.ref = "sqlDelight" }
 
 #ktor网络连接
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
@@ -84,24 +131,15 @@ coil3-ktor = { module = "io.coil-kt.coil3:coil-network-ktor2", version.ref = "co
 #coil3-video = { module = "io.coil-kt.coil3:coil-video", version.ref = "coil3" }
 #coil3-gif = { module = "io.coil-kt.coil3:coil-gif", version.ref = "coil3" }
 
-windowSize = { module = "dev.chrisbanes.material3:material3-window-size-class-multiplatform", version.ref = "windowSize" }
-bottomSheet = { module = "com.github.skydoves:flexible-bottomsheet-material3", version.ref = "sheet" }
-paging-compose = { module = "app.cash.paging:paging-compose-common", version.ref = "pagingCommonVersion" }
-okio-core = { module = "com.squareup.okio:okio", version.ref = "okio" }
-android-bugly = { module = "com.tencent.bugly:crashreport", version.ref = "bugly" }
-file-picker = { module = "io.github.vinceglb:filekit-compose", version.ref = "file" }
-permissionX-android = { module = "com.guolindev.permissionx:permissionx", version.ref = "permissionX" }
-kotlin-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinxDatetime" }
-androidx-perference = { module = "androidx.preference:preference-ktx", version.ref = "perference" }
-
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 androidLibrary = { id = "com.android.library", version.ref = "agp" }
 kotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlinCocoapods = { id = "org.jetbrains.kotlin.native.cocoapods", version.ref = "kotlin" }
-jetbrainsCompose = { id = "org.jetbrains.compose", version.ref = "compose-plugin" }
+jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlinxSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+jetbrainsCompose = { id = "org.jetbrains.compose", version.ref = "compose-plugin" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 buildKonfig = { id = "com.codingfeline.buildkonfig", version.ref = "buildkonfigGradlePlugin" }
 sqlDelight = { id = "app.cash.sqldelight", version.ref = "sqlDelight" }

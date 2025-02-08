@@ -7,7 +7,9 @@ plugins {
     alias(libs.plugins.kotlinCocoapods) apply false
     alias(libs.plugins.compose.compiler) apply false
     alias(libs.plugins.buildKonfig) apply false
+    alias(libs.plugins.jetbrainsCompose)
     alias(libs.plugins.ksp) apply false
+    alias(libs.plugins.jvm) apply false
 }
 
 

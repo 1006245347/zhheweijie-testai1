@@ -1,0 +1,27 @@
+import kotlin.Boolean;
+import kotlin.Int;
+import kotlin.Long;
+import kotlin.String;
+
+CREATE TABLE HistoryEntity (
+   id INTEGER AS Int PRIMARY KEY AUTOINCREMENT,
+   show_text TEXT,
+   left_number TEXT,
+   right_number TEXT,
+   operator TEXT AS String,
+   result TEXT,
+   create_time INTEGER
+);
+
+getAllHistory:
+SELECT * FROM HistoryEntity;
+
+insertHistory:
+INSERT INTO HistoryEntity(show_text, left_number, right_number, operator, result, create_time)
+VALUES ?;
+
+deleteHistory:
+DELETE FROM HistoryEntity WHERE HistoryEntity.id == ?;
+
+deleteAllHistory:
+DELETE FROM HistoryEntity;

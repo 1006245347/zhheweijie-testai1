@@ -1,14 +1,14 @@
 Pod::Spec.new do |spec|
     spec.name                     = 'shared'
     spec.version                  = '1.0'
-    spec.homepage                 = 'https://www.touchlab.co'
+    spec.homepage                 = 'Link to a Kotlin/Native module homepage'
     spec.source                   = { :http=> ''}
     spec.authors                  = ''
     spec.license                  = ''
-    spec.summary                  = 'Sample for Kmm'
+    spec.summary                  = 'Some description for a Kotlin/Native module'
     spec.vendored_frameworks      = 'build/cocoapods/framework/LiteLibs.framework'
     spec.libraries                = 'c++'
-                
+    spec.ios.deployment_target    = '14.1'
                 
                 
     if !Dir.exist?('build/cocoapods/framework/LiteLibs.framework') || Dir.empty?('build/cocoapods/framework/LiteLibs.framework')

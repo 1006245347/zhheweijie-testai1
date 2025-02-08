@@ -11,6 +11,7 @@ plugins {
 //处理依赖库重复问题
 configurations.all {
     resolutionStrategy.force("androidx.compose.ui:ui-test-junit4-android:1.7.6")
+        .force("androidx.compose.ui:ui-test-android:1.7.6")
 }
 
 android {
@@ -21,7 +22,7 @@ android {
         minSdk = 24
         targetSdk = 34
         versionCode = 1
-        versionName = "1.0"
+        versionName = properties["version"] as String
 
 //        ndk { //设置支持的SO库架构（开发者可以根据需要，选择一个或多个平台的so）
 //            abiFilters += listOf("armeabi", "armeabi-v7a", "arm64-v8a")
@@ -154,4 +155,5 @@ dependencies {
     implementation(libs.androidx.activity.compose)
     implementation(libs.appCompat)
     implementation(libs.compose.material3)
+    coreLibraryDesugaring(libs.desugar.jdk.libs)
 }
