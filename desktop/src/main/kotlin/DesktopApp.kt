@@ -29,7 +29,11 @@ import org.koin.core.Koin
 lateinit var koin: Koin
 
 //编译运行命令 ./gradlew :desktop:run
-
+//打包命令 ./gradlew packageDistributionForCurrentOS
+//安装包路径 build/compose/binaries/main/
+//build/compose/binaries/main/exe/
+//build/compose/binaries/main/deb/
+//Ubuntu/Debian: MyApp-1.0.0.deb
 fun main() {
     koin = initKoin()
     koin.loadModules(
@@ -52,3 +56,4 @@ fun main() {
         }
     }
 }
+
