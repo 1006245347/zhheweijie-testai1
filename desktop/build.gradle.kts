@@ -33,7 +33,7 @@ compose.desktop {
     application {
         mainClass = "DesktopAppKt"
         nativeDistributions {
-            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
+            targetFormats(TargetFormat.Dmg, TargetFormat.Exe, TargetFormat.Deb)
 
             packageName = "hwjAi"
             packageVersion = project.version as String
