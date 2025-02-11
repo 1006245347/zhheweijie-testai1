@@ -1,4 +1,4 @@
-package com.hwj.ai.ui.components
+package com.hwj.ai.ui.global
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.Text

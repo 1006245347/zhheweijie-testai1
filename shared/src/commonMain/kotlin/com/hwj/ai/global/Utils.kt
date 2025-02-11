@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.joelkanyi.focusbloom.core.utils
+package com.hwj.ai.global
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -79,6 +79,15 @@ fun min(): LocalTime {
 
 fun max(): LocalTime {
     return LocalTime(23, 59, 59, 999999999)
+}
+
+//获取时间戳
+fun getMills():Long{
+    return  Clock.System.now().toEpochMilliseconds()
+}
+
+fun getNowTime():LocalDateTime{
+   return Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
 }
 
 @JvmInline
@@ -489,10 +498,3 @@ fun Int.formattedNumber(): String {
     }"
 }
 
-@Composable
-inline fun <reified T : ViewModel> koinViewModel(): T {
-    val scope = currentKoinScope()
-    return viewModel {
-        scope.get<T>()
-    }
-}

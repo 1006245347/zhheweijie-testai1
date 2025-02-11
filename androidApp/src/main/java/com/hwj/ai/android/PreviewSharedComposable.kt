@@ -2,7 +2,11 @@ package com.hwj.ai.android
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
+import com.hwj.ai.models.ConversationModel
 import com.hwj.ai.test.testPreview1
+import com.hwj.ai.ui.chat.TextInputIn
+import com.hwj.ai.ui.global.AppBar
+import com.hwj.ai.ui.global.AppDrawerIn
 
 
 /**
@@ -20,8 +24,25 @@ fun PreviewSharedComposable() {
 //预览手机端界面
 @Composable
 fun PreviewMobile() {
-    testPreview1()
+//    testPreview1()
+//    AppBar(onClickMenu = {})
+    AppDrawerIn(
+        onChatClicked = {},
+        onNewChatClicked = {},
+        onIconClicked = {},
+        conversationViewModel = {},
+        deleteConversation = {},
+        conversationState = mutableListOf(),
+        currentConversationState = String(),
+        onConversation = { _: ConversationModel -> }
+
+    )
+
+//    TextInputIn(
+//        sendMessage = {}
+//    )
 }
+
 
 //预览桌面端界面
 @Composable

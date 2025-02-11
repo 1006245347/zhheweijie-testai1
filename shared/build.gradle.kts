@@ -114,6 +114,16 @@ kotlin {
 
             //文件选择器
             implementation(libs.file.picker)
+
+//            //富文本
+//            implementation(libs.richtext.core)
+//            implementation(libs.richtext.material)
+//            implementation(libs.richtext.material3)
+//            https://github.com/MohamedRejeb/compose-rich-editor
+            implementation(libs.rich.editor)
+
+            //首次引导使用 https://github.com/svenjacobs/reveal
+            implementation(libs.reveal)
         }
 
         androidMain.dependencies {
@@ -155,6 +165,7 @@ kotlin {
 
             // SQL
             implementation(libs.android.driver)
+
         }
 
         iosMain.dependencies {
@@ -185,18 +196,8 @@ kotlin {
 
             // JNA for Windows
             implementation(libs.jna)
-        }
 
-//        targets.all {
-//            compilations.all {
-//                compileTaskProvider.configure {
-//                    compilerOptions {
-//                        freeCompilerArgs.add("-Xexpect-actual-classes")
-//
-//                    }
-//                }
-//            }
-//        }
+        }
     }
 
     targets.withType<org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget> {
@@ -204,7 +205,6 @@ kotlin {
             @OptIn(ExperimentalKotlinGradlePluginApi::class)
             transitiveExport = true
             compilations.all {
-//                kotlinOptions.freeCompilerArgs += arrayOf("-linker-options", "-lsqlite3")
                 compileTaskProvider.configure {
                     compilerOptions {
                         freeCompilerArgs.addAll(listOf("-linker-options", "-lsqlite3","-Xexpect-actual-classes"))
