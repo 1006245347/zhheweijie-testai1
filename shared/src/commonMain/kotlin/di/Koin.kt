@@ -1,11 +1,19 @@
 package di
 
 import com.hwj.ai.createHttpClient
+import com.hwj.ai.data.local.PreferenceLocalDataSource
+import com.hwj.ai.data.local.SettingsFactory
 import com.hwj.ai.data.repository.ConversationRepository
 import com.hwj.ai.data.repository.LLMRepository
+import com.hwj.ai.data.repository.LocalDataRepository
 import com.hwj.ai.data.repository.MessageRepository
 import com.hwj.ai.data.repository.SettingsRepository
 import com.hwj.ai.ui.viewmodel.ConversationViewModel
+import com.hwj.ai.ui.viewmodel.MainViewModel
+import com.hwj.ai.ui.viewmodel.WelcomeScreenModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import org.koin.core.Koin
 import org.koin.core.context.startKoin
 import org.koin.core.module.Module
@@ -13,6 +21,10 @@ import org.koin.core.module.dsl.factoryOf
 import org.koin.dsl.KoinAppDeclaration
 import org.koin.dsl.module
 
+/**
+ * @author by jason-何伟杰，2025/2/12
+ * des: 依赖注入 https://www.jianshu.com/p/bccb93a78cee
+ */
 fun initKoin(appDeclaration: KoinAppDeclaration = {}) = startKoin {
     appDeclaration()
     modules(
@@ -29,14 +41,27 @@ fun initKoin(): Koin {
 //factory每次都会创建新实例，而single是单例
 val mainModule = module {
     single { createHttpClient(10000) }
+//    factoryOf(::PreferenceLocalDataSource)
+    single { PreferenceLocalDataSource(get()) }
+    single {
+        val factory: SettingsFactory = get()
+        factory.createSettings()
+    }
+    factory { CoroutineScope(SupervisorJob() + Dispatchers.Default) }
+
     single { LLMRepository(get()) }
     single { ConversationRepository() }
     single { MessageRepository() }
     single { SettingsRepository() }
+//    singleOf(::LocalDataRepository)
+    single { LocalDataRepository(get()) }
 }
 
 val modelModule = module {
     factoryOf(::ConversationViewModel)
+//    factoryOf(::WelcomeScreenModel)
+    single { WelcomeScreenModel(get()) }
+    single { MainViewModel() }
 }
 
 /**

@@ -10,7 +10,8 @@ data class MessageModel(
     var conversationId: String = "",
     var question: String = "",
     var answer: String = "",
-    var createdAt: LocalDateTime = getNowTime(),
+//    var createdAt: LocalDateTime = getNowTime(),
+    var createdAt: Any?=null
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

@@ -23,8 +23,12 @@ import androidx.compose.ui.text.capitalize
 import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
+import io.github.aakira.napier.Napier
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit
@@ -38,7 +42,9 @@ import kotlinx.datetime.minus
 import kotlinx.datetime.plus
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
-import org.koin.compose.currentKoinScope
+import moe.tlaster.precompose.viewmodel.ViewModel
+import moe.tlaster.precompose.viewmodel.viewModelScope
+
 import kotlin.jvm.JvmInline
 
 @Composable
@@ -82,12 +88,12 @@ fun max(): LocalTime {
 }
 
 //获取时间戳
-fun getMills():Long{
-    return  Clock.System.now().toEpochMilliseconds()
+fun getMills(): Long {
+    return Clock.System.now().toEpochMilliseconds()
 }
 
-fun getNowTime():LocalDateTime{
-   return Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+fun getNowTime(): LocalDateTime {
+    return Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
 }
 
 @JvmInline
@@ -291,21 +297,20 @@ fun getLast52Weeks(): List<Pair<String, List<LocalDate>>> {
     for (i in 0..51) {
         val week = getPreviousWeek(firstDateOfNextWeek = weeks.last().second.first())
         weeks += "${
-        week.first().month.name.lowercase().capitalize(Locale.current).substring(
-            0,
-            3,
-        )
-        } ${week.first().dayOfMonth} ${if (week.first().year != thisYear) week.first().year else ""}" +
-            " - ${
-            week.last().month.name.lowercase().capitalize(Locale.current).substring(
+            week.first().month.name.lowercase().capitalize(Locale.current).substring(
                 0,
                 3,
             )
-            } ${week.last().dayOfMonth} ${if (week.last().year != thisYear) week.last().year else ""}" to week
+        } ${week.first().dayOfMonth} ${if (week.first().year != thisYear) week.first().year else ""}" +
+                " - ${
+                    week.last().month.name.lowercase().capitalize(Locale.current).substring(
+                        0,
+                        3,
+                    )
+                } ${week.last().dayOfMonth} ${if (week.last().year != thisYear) week.last().year else ""}" to week
     }
     return weeks
 }
-
 
 
 fun List<Float>.aAllEntriesAreZero(): Boolean {
@@ -314,12 +319,12 @@ fun List<Float>.aAllEntriesAreZero(): Boolean {
 
 fun LocalDate.prettyFormat(): String {
     return "${this.dayOfMonth}${
-    when (this.dayOfMonth) {
-        1, 21, 31 -> "st"
-        2, 22 -> "nd"
-        3, 23 -> "rd"
-        else -> "th"
-    }
+        when (this.dayOfMonth) {
+            1, 21, 31 -> "st"
+            2, 22 -> "nd"
+            3, 23 -> "rd"
+            else -> "th"
+        }
     }, ${this.month.name.lowercase().capitalize(Locale.current).substring(0, 3)} ${this.year}"
 }
 
@@ -340,7 +345,7 @@ fun prettyTimeDifference(start: LocalDateTime, end: LocalDateTime, timeFormat: I
             end.hour
         }
         "$startHourTo12HourSystem:${start.minute.formattedZeroMinutes()} ${if (start.hour > 12) "PM" else "AM"} - ${
-        endHourTo12HourSystem
+            endHourTo12HourSystem
         }:${end.minute.formattedZeroMinutes()} ${if (end.hour > 12) "PM" else "AM"}"
     } else {
         "${start.hour}:${start.minute.formattedZeroMinutes()} - ${end.hour}:${end.minute.formattedZeroMinutes()}"
@@ -371,7 +376,7 @@ fun LocalTime.formattedTimeBasedOnTimeFormat(timeFormat: Int): String {
             this.hour
         }
         "$hourTo12HourSystem:${
-        this.minute.formattedZeroMinutes()
+            this.minute.formattedZeroMinutes()
         } ${if (this.hour > 12) "PM" else "AM"}"
     } else {
         "${this.hour}:${this.minute.formattedZeroMinutes()}"
@@ -434,11 +439,11 @@ fun Long.toTimer(): String {
     val minutes = seconds / 60
     val hours = minutes / 60
     return "${
-    if (hours > 0) {
-        hours.formattedZeroMinutes() + ":"
-    } else {
-        ""
-    }
+        if (hours > 0) {
+            hours.formattedZeroMinutes() + ":"
+        } else {
+            ""
+        }
     }${(minutes - (hours * 60)).formattedZeroMinutes()}:${(seconds - (minutes * 60)).formattedZeroMinutes()}"
 }
 
@@ -466,7 +471,6 @@ fun Int.toMillis(): Long {
 }
 
 
-
 fun String.pickFirstName(): String {
     return this.split(" ").first()
 }
@@ -489,12 +493,50 @@ fun LocalDateTime.calculateEndTime(
 
 fun Int.formattedNumber(): String {
     return "$this${
-    when (this) {
-        1, 21, 31 -> "st"
-        2, 22 -> "nd"
-        3, 23 -> "rd"
-        else -> "th"
-    }
+        when (this) {
+            1, 21, 31 -> "st"
+            2, 22 -> "nd"
+            3, 23 -> "rd"
+            else -> "th"
+        }
     }"
 }
 
+fun printD(log: String?, tag: String = logTAG) {
+    if (log.isNullOrEmpty()) {
+        Napier.d("log_null", tag = tag)
+    } else {
+        Napier.d(log, tag = tag)
+    }
+}
+
+fun printE(log: String?, tag: String = logTAG) {
+    if (log.isNullOrEmpty()) {
+        Napier.e("log_null", tag = tag)
+    } else {
+        Napier.e(log, tag = tag)
+    }
+}
+
+fun printE(throws: Throwable, tag: String = logTAG) {
+    Napier.e(throwable = throws, tag = tag) { "error>" }
+}
+
+fun ViewModel.workInSub(
+    defaultDispatcher: CoroutineDispatcher =
+        Dispatchers.Default, block: suspend CoroutineScope.() -> Unit
+) {
+    viewModelScope.launch(defaultDispatcher) {
+        block()
+    }
+}
+
+fun ViewModel.delayWork(
+    delayMills: Long = 2000, defaultDispatcher: CoroutineDispatcher =
+        Dispatchers.Default, block: suspend CoroutineScope.() -> Unit
+) {
+    workInSub(defaultDispatcher) {
+        delay(delayMills)
+        block()
+    }
+}

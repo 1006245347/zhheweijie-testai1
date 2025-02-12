@@ -12,18 +12,16 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.chatgptlite.wanted.models.MessageModel
-import com.chatgptlite.wanted.ui.common.AppBar
-import com.chatgptlite.wanted.ui.theme.*
-import com.halilibo.richtext.markdown.Markdown
-import com.halilibo.richtext.ui.CodeBlockStyle
-import com.halilibo.richtext.ui.RichText
-import com.halilibo.richtext.ui.RichTextStyle
-import com.halilibo.richtext.ui.material3.SetupMaterial3RichText
-import java.util.Date
+import com.hwj.ai.global.BackGroundMessageGPT
+import com.hwj.ai.global.BackGroundMessageHuman
+import com.hwj.ai.global.ColorTextGPT
+import com.hwj.ai.global.ColorTextHuman
+import com.hwj.ai.global.ThemeChatLite
+import com.hwj.ai.models.MessageModel
+import com.mohamedrejeb.richeditor.model.rememberRichTextState
+import com.mohamedrejeb.richeditor.ui.material3.RichTextEditor
 
 @Composable
 fun MessageCard(message: MessageModel, isHuman: Boolean = false, isLast: Boolean = false) {
@@ -64,68 +62,19 @@ fun HumanMessageCard(message: MessageModel) {
 
 @Composable
 fun BotMessageCard(message: MessageModel) {
-    ChatGPTLiteTheme {
-        SetupMaterial3RichText {
-            RichText(
-                modifier = Modifier.padding(horizontal = 18.dp, vertical = 12.dp),
-                style = RichTextStyle(
-                    codeBlockStyle = CodeBlockStyle(
-                        textStyle = TextStyle(
-                            fontFamily = FontFamily.Default,
-                            fontWeight = FontWeight.Normal,
-                            fontSize = 13.sp,
-                            color = ColorTextGPT,
-                        ),
-                        wordWrap = true,
-                        modifier = Modifier.background(
-                            color = Color.Black,
-                            shape = RoundedCornerShape(6.dp)
-                        )
-                    )
-                )
-            ) {
-                Markdown(
-                    message.answer.trimIndent()
-                )
-            }
-        }
+    val state =rememberRichTextState()
+    ThemeChatLite {
+        RichTextEditor(state=state,
+            modifier = Modifier.padding(horizontal = 18.dp, vertical = 12.dp),
+            textStyle = TextStyle(
+                fontFamily = FontFamily.Default,
+                fontWeight = FontWeight.Normal,
+                fontSize = 13.sp,
+                color = ColorTextGPT
+            ),
+        )
     }
+    state.setMarkdown(message.answer.trimIndent())
+
 }
 
-@Preview(showBackground = true)
-@Composable
-fun MessageCardPreviewHuman() {
-
-    MessageCard(
-        message =  MessageModel(
-            id = "",
-            conversationId = "",
-            question = "question text field by Human ",
-            answer = "question text field by Human ",
-            createdAt = Date()
-
-        ),
-        isHuman = true,
-        isLast= false
-
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun MessageCardPreviewBot() {
-
-    MessageCard(
-        message =  MessageModel(
-            id = "",
-            conversationId = "",
-            question = "answer text field by Bot ",
-            answer = "answer text field by Bot ",
-            createdAt = Date()
-
-        ),
-        isHuman = false,
-        isLast= false
-
-    )
-}

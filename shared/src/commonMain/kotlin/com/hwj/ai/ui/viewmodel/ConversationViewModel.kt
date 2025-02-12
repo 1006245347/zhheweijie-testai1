@@ -17,12 +17,11 @@ import kotlinx.coroutines.flow.*
 /**
  * Used to communicate between screens.
  */
-
-class ConversationViewModel  (
+class ConversationViewModel(
     private val conversationRepo: ConversationRepository,
     private val messageRepo: MessageRepository,
     private val openAIRepo: LLMRepository,
-) :moe.tlaster.precompose.viewmodel.ViewModel(){ //换掉这个viewModel
+) : moe.tlaster.precompose.viewmodel.ViewModel() { //换掉这个viewModel
     private val _currentConversation: MutableStateFlow<String> =
         MutableStateFlow(getMills().toString())
     private val _conversations: MutableStateFlow<MutableList<ConversationModel>> = MutableStateFlow(
@@ -41,7 +40,6 @@ class ConversationViewModel  (
     val isFabExpanded: StateFlow<Boolean> get() = _isFabExpanded
 
     private var stopReceivingResults = false
-
 
 
     suspend fun initialize() {
@@ -136,7 +134,7 @@ class ConversationViewModel  (
 
         val messagesMap: HashMap<String, MutableList<MessageModel>> =
 //            _messages.value.clone() as HashMap<String, MutableList<MessageModel>>
-        _messages.value.mapValues { entry->entry.value.toMutableList() } as HashMap<String, MutableList<MessageModel>>
+            _messages.value.mapValues { entry -> entry.value.toMutableList() } as HashMap<String, MutableList<MessageModel>>
         return messagesMap[conversationId]!!
     }
 
@@ -145,7 +143,7 @@ class ConversationViewModel  (
 
         val messagesMap: HashMap<String, MutableList<MessageModel>> =
 //            _messages.value.clone() as HashMap<String, MutableList<MessageModel>>
-            _messages.value.mapValues { entry->entry.value.toMutableList() } as HashMap<String, MutableList<MessageModel>>
+            _messages.value.mapValues { entry -> entry.value.toMutableList() } as HashMap<String, MutableList<MessageModel>>
         var response: String = ""
 
         for (message in messagesMap[conversationId]!!.reversed()) {
@@ -164,7 +162,7 @@ class ConversationViewModel  (
 
         val messagesMap: HashMap<String, MutableList<MessageModel>> =
 //            _messages.value.clone() as HashMap<String, MutableList<MessageModel>>
-            _messages.value.mapValues { entry->entry.value.toMutableList() } as HashMap<String, MutableList<MessageModel>>
+            _messages.value.mapValues { entry -> entry.value.toMutableList() } as HashMap<String, MutableList<MessageModel>>
         val response: MutableList<MessageTurbo> = mutableListOf(
             MessageTurbo(
                 role = TurboRole.system, content = "Markdown style if exists code"
@@ -198,7 +196,8 @@ class ConversationViewModel  (
 
     private suspend fun fetchMessages() {
         if (_currentConversation.value.isEmpty() ||
-            _messages.value[_currentConversation.value] != null) return
+            _messages.value[_currentConversation.value] != null
+        ) return
 
         val flow: Flow<List<MessageModel>> = messageRepo.fetchMessages(_currentConversation.value)
 
@@ -219,14 +218,16 @@ class ConversationViewModel  (
     private fun setMessages(messages: MutableList<MessageModel>) {
         val messagesMap: HashMap<String, MutableList<MessageModel>> =
 //            _messages.value.clone() as HashMap<String, MutableList<MessageModel>>
-            _messages.value.mapValues { entry->entry.value.toMutableList() } as HashMap<String, MutableList<MessageModel>>
+            _messages.value.mapValues { entry -> entry.value.toMutableList() } as HashMap<String, MutableList<MessageModel>>
         messagesMap[_currentConversation.value] = messages
 
         _messages.value = messagesMap
     }
+
     fun stopReceivingResults() {
         stopReceivingResults = true
     }
+
     private fun setFabExpanded(expanded: Boolean) {
         _isFabExpanded.value = expanded
     }

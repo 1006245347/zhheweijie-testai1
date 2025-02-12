@@ -12,3 +12,5 @@ const val urlToAvatarGPT = "https://gptapk.com/wp-content/uploads/2023/02/chatgp
 const val urlToGithub = "https://github.com/lambiengcode"
 
 const val conversationTestTag = "ConversationTestTag"
+
+const val logTAG="hwj"

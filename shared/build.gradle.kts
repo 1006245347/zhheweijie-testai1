@@ -51,7 +51,7 @@ kotlin {
             implementation(compose.materialIconsExtended)
 
             implementation(libs.androidx.lifecycle.viewmodel.compose)
-            implementation(libs.androidx.navigation.compose)
+//            implementation(libs.androidx.navigation.compose)
             implementation(libs.kotlinX.serializationJson)
             implementation(libs.sqlDelight.runtime)
             implementation(libs.sqldelight.extensions)
@@ -69,7 +69,7 @@ kotlin {
 
             //依赖注入
             api(libs.koin.core)
-            implementation(libs.koin.compose)
+//            implementation(libs.koin.compose)
 
             //另一个导航
             implementation(libs.precompose.navigator)
@@ -98,7 +98,7 @@ kotlin {
 
             //key-value存储
             api(libs.multiplatform.settings)
-            api(libs.multiplatformSettings.coroutines)
+            api(libs.multiplatform.coroutines)
 
             //页面自适配判断库
             implementation(libs.windowSize)
@@ -139,8 +139,8 @@ kotlin {
             implementation(libs.mokopermission.compose)
 
             // Koin
-            api(libs.koin.android)
-            api(libs.koin.androidx.compose)
+//            api(libs.koin.android)
+//            api(libs.koin.androidx.compose)
 
             //android平台引擎
             implementation(libs.ktor.client.android)
@@ -151,7 +151,9 @@ kotlin {
 
             api(libs.core.splashscreen)
 
+            //实现本地数据存储
             implementation(libs.datastore.preferences)
+            implementation(libs.multiplatform.datastore)
 
             //图片库加载，超长图moo //新版没有：？
 //            implementation(libs.coil3.video)
@@ -165,6 +167,7 @@ kotlin {
 
             // SQL
             implementation(libs.android.driver)
+
 
         }
 
@@ -206,7 +209,7 @@ kotlin {
             transitiveExport = true
             compilations.all {
                 compileTaskProvider.configure {
-                    compilerOptions {
+                    compilerOptions {//-Xexpect-actual-classes
                         freeCompilerArgs.addAll(listOf("-linker-options", "-lsqlite3","-Xexpect-actual-classes"))
                     }
                 }
@@ -282,5 +285,7 @@ kotlin.sourceSets.all {
     languageSettings.optIn("androidx.compose.foundation.ExperimentalFoundationApi")
     languageSettings.optIn("kotlinx.coroutines.ExperimentalCoroutinesApi")
     languageSettings.optIn("kotlin.time.ExperimentalTime")
+    languageSettings.optIn("kotlin.Experimental")
+    languageSettings.optIn("kotlin.RequiresOptIn")
 }
 

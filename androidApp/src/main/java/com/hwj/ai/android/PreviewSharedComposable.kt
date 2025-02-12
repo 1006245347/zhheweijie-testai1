@@ -2,7 +2,10 @@ package com.hwj.ai.android
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
+import com.chatgptlite.wanted.ui.conversations.components.MessageCard
+import com.hwj.ai.global.getNowTime
 import com.hwj.ai.models.ConversationModel
+import com.hwj.ai.models.MessageModel
 import com.hwj.ai.test.testPreview1
 import com.hwj.ai.ui.chat.TextInputIn
 import com.hwj.ai.ui.global.AppBar
@@ -48,4 +51,39 @@ fun PreviewMobile() {
 @Composable
 fun PreviewDesktop() {
 
+}
+
+@Preview(showBackground = true)
+@Composable
+fun MessageCardPreviewHuman() {
+    MessageCard(
+        message = MessageModel(
+            id = "",
+            conversationId = "",
+            question = "question text field by Human ",
+            answer = "question text field by Human ",
+            createdAt = null
+        ),
+        isHuman = true,
+        isLast = false
+
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun MessageCardPreviewBot() {
+    MessageCard(
+        message = MessageModel(
+            id = "",
+            conversationId = "",
+            question = "answer text field by Bot ",
+            answer = "answer text field by Bot ",
+            createdAt = null
+
+        ),
+        isHuman = false,
+        isLast = false
+
+    )
 }

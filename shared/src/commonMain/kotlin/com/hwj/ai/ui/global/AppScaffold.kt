@@ -16,16 +16,15 @@ fun AppScaffold(
     onChatClicked: (String) -> Unit,
     onNewChatClicked: () -> Unit,
     onIconClicked: () -> Unit = {},
-    conversationViewModel: ConversationViewModel ,
     content: @Composable () -> Unit,
 ) {
     val scope = rememberCoroutineScope()
-
+    val conversationViewModel = koinViewModel(ConversationViewModel::class)
     scope.launch {
         conversationViewModel.initialize()
     }
 
-    val model= koinViewModel(ConversationViewModel::class)
+    val model = koinViewModel(ConversationViewModel::class)
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {

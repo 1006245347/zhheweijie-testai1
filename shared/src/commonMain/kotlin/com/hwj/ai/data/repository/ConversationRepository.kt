@@ -1,26 +1,27 @@
 package com.hwj.ai.data.repository
 
+import com.hwj.ai.data.local.fakeConversations
 import com.hwj.ai.models.ConversationModel
 
 /**
  * @author by jason-何伟杰，2025/2/11
  * des:对话增删保存本地
  */
-class ConversationRepository()  {
+class ConversationRepository() {
 
-    fun fetchConversations():MutableList<ConversationModel>{
-        return mutableListOf()
+    fun fetchConversations(): MutableList<ConversationModel> {
+        return fakeConversations.toMutableList()
     }
 
-    fun newConversation(conversationModel: ConversationModel):ConversationModel{
+    fun newConversation(conversationModel: ConversationModel): ConversationModel {
         //add
         return conversationModel
     }
 
-    fun deleteConversation(conversationId: String){}
+    fun deleteConversation(conversationId: String) {}
 
-    fun getFirstConversation():ConversationModel?{
+    fun getFirstConversation(): ConversationModel? {
 
-        return null
+        return fakeConversations[0]
     }
 }
