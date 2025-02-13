@@ -2,12 +2,9 @@ package com.hwj.ai.models
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.addAll
 import kotlinx.serialization.json.buildJsonArray
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
-import kotlinx.serialization.json.putJsonArray
-import kotlinx.serialization.json.putJsonObject
 
 
 data class TextCompletionsParam(
@@ -20,7 +17,7 @@ data class TextCompletionsParam(
     @SerialName("n")
     val n: Int = 1,
     @SerialName("stream")
-    var stream: Boolean = true,
+    var stream: Boolean = true, //流式结果
     @SerialName("maxTokens")
     val maxTokens: Int = 2048,
     @SerialName("model")

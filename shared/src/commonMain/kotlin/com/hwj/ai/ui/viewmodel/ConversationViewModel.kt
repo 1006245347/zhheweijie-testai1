@@ -7,6 +7,7 @@ import com.hwj.ai.data.repository.LLMRepository
 import com.hwj.ai.data.repository.MessageRepository
 import com.hwj.ai.global.getMills
 import com.hwj.ai.global.getNowTime
+import com.hwj.ai.global.thinking
 import com.hwj.ai.models.ConversationModel
 import com.hwj.ai.models.MessageModel
 import com.hwj.ai.models.MessageTurbo
@@ -72,7 +73,7 @@ class ConversationViewModel(
 
         val newMessageModel: MessageModel = MessageModel(
             question = message,
-            answer = "Let me thinking...",
+            answer = thinking,
             conversationId = _currentConversation.value,
         )
 
@@ -83,7 +84,7 @@ class ConversationViewModel(
         currentListMessage.add(0, newMessageModel)
         setMessages(currentListMessage)
 
-        // Execute API OpenAI
+        // Execute API OpenAI ,返回数据
         val flow: Flow<String> = openAIRepo.textCompletionsWithStream(
             TextCompletionsParam(
                 promptText = getPrompt(_currentConversation.value),
@@ -150,7 +151,7 @@ class ConversationViewModel(
         for (message in messagesMap[conversationId]!!.reversed()) {
             response += """Human:${message.question.trim()}
                 |Bot:${
-                if (message.answer == "Let me thinking...") ""
+                if (message.answer == thinking) ""
                 else message.answer.trim()
             }""".trimMargin()
         }
@@ -166,14 +167,14 @@ class ConversationViewModel(
             _messages.value.mapValues { entry -> entry.value.toMutableList() } as HashMap<String, MutableList<MessageModel>>
         val response: MutableList<MessageTurbo> = mutableListOf(
             MessageTurbo(
-                role = TurboRole.system, content = "Markdown style if exists code"
+                role = TurboRole.system, content = "Markdown style if exists code" //提示词
             )
         )
 
         for (message in messagesMap[conversationId]!!.reversed()) {
             response.add(MessageTurbo(content = message.question))
 
-            if (message.answer != "Let me thinking...") {
+            if (message.answer != thinking) {
                 response.add(MessageTurbo(content = message.answer, role = TurboRole.user))
             }
         }

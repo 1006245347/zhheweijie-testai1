@@ -40,9 +40,8 @@ fun initKoin(): Koin {
 //依赖注入目的是为了对象创建解耦，对象不在new具体的类，而是根据模版依赖生成
 //factory每次都会创建新实例，而single是单例
 val mainModule = module {
-    single { createHttpClient(10000) }
+    single { createHttpClient(60000) }
     factoryOf(::PreferenceLocalDataSource)
-//    single { PreferenceLocalDataSource(get()) } //修改这？
     single {
         val factory: SettingsFactory = get()
         factory.createSettings()
@@ -57,7 +56,6 @@ val mainModule = module {
 
     factoryOf(::ConversationViewModel)
     factory { WelcomeScreenModel(get()) }
-//    single { WelcomeScreenModel(get()) }
     single { MainViewModel() }
 }
 

@@ -2,9 +2,11 @@ package com.hwj.ai
 
 import android.content.Context
 import com.hwj.ai.global.OsStatus
+import com.hwj.ai.global.baseHostUrl
 import com.russhwolf.settings.Settings
 import com.russhwolf.settings.SharedPreferencesSettings
 import io.ktor.client.HttpClient
+import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
@@ -24,10 +26,11 @@ class AndroidPlatform : Platform {
  actual fun getPlatform(): Platform = AndroidPlatform()
 
  actual fun createHttpClient(timeout: Long?): HttpClient {
-    return HttpClient {
+    return HttpClient (CIO){
         defaultRequest {
-            url.takeFrom(URLBuilder().takeFrom("http://wfserver.gree.com/"))
+            url.takeFrom(URLBuilder().takeFrom(baseHostUrl))
         }
+
         install(HttpTimeout) {
             timeout?.let {
                 requestTimeoutMillis = timeout
@@ -42,14 +45,16 @@ class AndroidPlatform : Platform {
         install(Logging) {
 //                level = LogLevel.BODY
 //            level=LogLevel.HEADERS
-            level= LogLevel.INFO
-//            level = LogLevel.NONE //接口日志屏蔽
+//            level= LogLevel.INFO
+            level = LogLevel.NONE //接口日志屏蔽
             logger = object : io.ktor.client.plugins.logging.Logger {
                 override fun log(message: String) {
                     println(message)
                 }
             }
         }
+        //允许分块处理
+        expectSuccess=true
     }
 }
 

@@ -22,6 +22,7 @@ class ConversationRepository() {
 
     fun getFirstConversation(): ConversationModel? {
 
-        return fakeConversations[0]
+//        return fakeConversations[0]
+        return null
     }
 }

@@ -34,6 +34,7 @@ fun MessageCard(message: MessageModel, isHuman: Boolean = false, isLast: Boolean
         Box(
             modifier = Modifier
                 .widthIn(0.dp, 260.dp) //mention max width here
+                .wrapContentHeight()
                 .background(
                     if (isHuman) BackGroundMessageHuman else BackGroundMessageGPT,
                     shape = RoundedCornerShape(12.dp)
@@ -78,22 +79,22 @@ fun BotMessageCard(message: MessageModel) {
 //    state.setMarkdown(message.answer.trimIndent())
 
 
-//    Text(text=message.answer, fontSize = 13.sp,color= ColorTextGPT,
-//        modifier = Modifier.padding(horizontal = 18.dp, vertical = 12.dp))
+    Text(text=message.answer, fontSize = 13.sp,color= ColorTextGPT,
+        modifier = Modifier.padding(horizontal = 18.dp, vertical = 12.dp))
 
-    val state = rememberRichTextState()
-    ThemeChatLite {
-        RichTextEditor(
-            state = state.apply {
-                setText(message.answer.trimIndent())
-            }, modifier = Modifier.padding(horizontal = 18.dp, vertical = 12.dp),
-            textStyle = TextStyle(
-                fontFamily = FontFamily.Default,
-                fontWeight = FontWeight.Normal,
-                fontSize = 13.sp,
-                color = ColorTextGPT
-            )
-        )
-    }
+//    val state = rememberRichTextState()
+//    ThemeChatLite {
+//        RichTextEditor(
+//            state = state.apply {
+//                setText(message.answer.trimIndent())
+//            }, modifier = Modifier.padding(horizontal = 18.dp, vertical = 12.dp),
+//            textStyle = TextStyle(
+//                fontFamily = FontFamily.Default,
+//                fontWeight = FontWeight.Normal,
+//                fontSize = 13.sp,
+//                color = ColorTextGPT
+//            )
+//        )
+//    }
 }
 

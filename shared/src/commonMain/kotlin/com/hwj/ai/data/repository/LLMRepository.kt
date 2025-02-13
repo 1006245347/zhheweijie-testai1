@@ -1,20 +1,25 @@
 package com.hwj.ai.data.repository
 
+import com.hwj.ai.global.LLM_API_KEY
 import com.hwj.ai.global.baseHostUrl
+import com.hwj.ai.global.printD
+import com.hwj.ai.global.printE
 import com.hwj.ai.global.urlChatCompletions
 import com.hwj.ai.models.TextCompletionsParam
 import com.hwj.ai.models.toJson
 import io.ktor.client.HttpClient
+import io.ktor.client.plugins.HttpRequestTimeoutException
 import io.ktor.client.request.headers
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsChannel
+import io.ktor.client.utils.DEFAULT_HTTP_BUFFER_SIZE
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.append
-import io.ktor.utils.io.cancel
-import io.ktor.utils.io.readRemaining
+import io.ktor.utils.io.pool.ByteArrayPool
+import io.ktor.utils.io.readUTF8Line
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.Flow
@@ -22,60 +27,58 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.withContext
 
 class LLMRepository(
-    private val client: HttpClient,
-//    private val apiUrl: String
+    private val client: HttpClient
 ) {
 
     fun textCompletionsWithStream(params: TextCompletionsParam): Flow<String> =
         callbackFlow {
             withContext(Dispatchers.IO) {
-                try {
 
-                    val response: HttpResponse = client.post(baseHostUrl+ urlChatCompletions) {
+                var response: HttpResponse? = null
+
+                try {
+                    response = client.post(baseHostUrl + urlChatCompletions) {
                         headers {
                             append(HttpHeaders.ContentType, ContentType.Application.Json)
+                            append(HttpHeaders.Authorization, "Bearer $LLM_API_KEY")
                         }
                         setBody(params.toJson())
                     }
-                    val channel = response.bodyAsChannel()
+                } catch (e: HttpRequestTimeoutException) {
+                    printE("接口超时")
+                }
+                response?.bodyAsChannel()?.let { channel ->
+                    val buffer = ByteArray(DEFAULT_HTTP_BUFFER_SIZE)
                     try {
-                        val sb = StringBuilder()
-                        channel.readRemaining().let { remaining ->
-                            while (!remaining.exhausted()) {
-                                val byte = remaining.readByte()
-                                if (byte == "\n".toByte()) {
-                                    val line = sb.toString()
-                                    if (line == "data: [DONE]") {
-                                        close()
-                                    } else if (line.startsWith("data:")) {
-                                        try {
-                                            val value = if (params.isChatCompletions) {
-                                                lookupDataFromResponseTurbo(line)
-                                            } else {
-                                                lookupDataFromResponse(line)
-                                            }
-                                            if (value.isNotEmpty()) {
-                                                trySend(value)
-                                            }
-                                        } catch (e: Exception) {
-                                        }
-                                    }
-                                    sb.clear()
-                                } else {
-                                    sb.append(byte.toChar())
+                        while (!channel.isClosedForRead) {
+
+                            val event = channel.readUTF8Line()?.trim()
+                            event?.takeIf {
+                                it.startsWith("data:")
+                            }?.let {
+//                                val json = it.removePrefix("data:")
+////                                printD(json)
+//                                if (json!="[DONE]") {
+//                                    trySend(json)
+//                                }
+                                //这个输出没有问题，而且是拆词数据
+                                val value = lookupDataFromResponseTurbo(it)
+                                if (value.isNotEmpty()) {
+                                    printD(value)
+                                    trySend(value)
                                 }
                             }
                         }
-                    } catch (e: Exception) {
+
                     } finally {
-                        channel.cancel()//有必要？
+                        ByteArrayPool.recycle(buffer)
                         close()
                     }
-                } catch (_: Exception) {
-                    trySend("Failure! Try again")
-                    close()
                 }
             }
+
+
+            close()
         }
 
     private fun lookupDataFromResponse(jsonString: String): String {
@@ -105,4 +108,5 @@ class LLMRepository(
 
         return " "
     }
+
 }

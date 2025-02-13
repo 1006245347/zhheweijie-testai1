@@ -16,8 +16,12 @@ class MessageRepository() {
 
         //test
         flowOf(
-            fakeMessages
+//            fakeMessages
         )
+        //real
+//        callbackFlow {
+//
+//        }
 
 
     fun createMessage(message: MessageModel): MessageModel {
