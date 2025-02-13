@@ -3,12 +3,8 @@ package com.hwj.ai.android
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import com.chatgptlite.wanted.ui.conversations.components.MessageCard
-import com.hwj.ai.global.getNowTime
 import com.hwj.ai.models.ConversationModel
 import com.hwj.ai.models.MessageModel
-import com.hwj.ai.test.testPreview1
-import com.hwj.ai.ui.chat.TextInputIn
-import com.hwj.ai.ui.global.AppBar
 import com.hwj.ai.ui.global.AppDrawerIn
 
 

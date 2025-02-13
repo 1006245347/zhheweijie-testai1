@@ -21,6 +21,7 @@ import moe.tlaster.precompose.PreComposeApp
 import moe.tlaster.precompose.koin.koinViewModel
 import moe.tlaster.precompose.navigation.Navigator
 import moe.tlaster.precompose.navigation.rememberNavigator
+import org.koin.compose.KoinContext
 
 /**
  * @author by jason-何伟杰，2025/2/12
@@ -29,20 +30,21 @@ import moe.tlaster.precompose.navigation.rememberNavigator
 @Composable
 fun App(navigator: Navigator, setViews: @Composable () -> Unit = {}) {
 
-//    val welcomeScreenModel = koinViewModel(WelcomeScreenModel::class)
+    val welcomeScreenModel = koinViewModel(WelcomeScreenModel::class)
 
     Box(modifier = Modifier.fillMaxSize()) {
-//        printD("model>$welcomeScreenModel")
-//    val screen = welcomeScreenModel.uiState.let { uiState ->
-//        when (uiState) {
-//            AppUiState.Loading -> null
-//            is AppUiState.Success -> when (uiState.isWelcomeShown) {
-//                true -> ChatScreen(navigator)
-//                false -> WelcomeScreen(navigator)
-//            }
-//        }
-//    }
-        ChatScreen(navigator)
+        printD("OS>${getPlatform()}")
+        printD("model>$welcomeScreenModel")
+        val screen = welcomeScreenModel.uiState.let { uiState ->
+            when (uiState) {
+                AppUiState.Loading -> null
+                is AppUiState.Success -> when (uiState.isWelcomeShown) {
+                    true -> ChatScreen(navigator)
+                    false -> WelcomeScreen(navigator)
+                }
+            }
+        }
+//        ChatScreen(navigator)
     }
 
 
@@ -66,7 +68,9 @@ fun App(navigator: Navigator, setViews: @Composable () -> Unit = {}) {
 @Composable
 fun PlatformAppStart() {
     PreComposeApp {
-        val navigator = rememberNavigator()
-        NavigateRoute(navigator) //进Welcome
+        KoinContext {
+            val navigator = rememberNavigator()
+            NavigateRoute(navigator) //进Welcome
+        }
     }
 }

@@ -8,7 +8,7 @@ import com.russhwolf.settings.coroutines.FlowSettings
 import com.russhwolf.settings.datastore.DataStoreSettings
 
 actual class SettingsFactory(
-    private val context: Context,
+    private val context: Context
 ) {
     actual fun createSettings(): FlowSettings =
         DataStoreSettings(context.dataStore)

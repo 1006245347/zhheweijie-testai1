@@ -68,8 +68,8 @@ kotlin {
             implementation(libs.kotlin.datetime)
 
             //依赖注入
-            api(libs.koin.core)
-//            implementation(libs.koin.compose)
+            api(libs.koin.core) //在desktopApp引入了
+            implementation(libs.koin.compose)
 
             //另一个导航
             implementation(libs.precompose.navigator)
@@ -92,8 +92,7 @@ kotlin {
             //多平台uuid https://github.com/benasher44/uuid/tree/master
             implementation(libs.uuid)
 
-            //日志库
-//            implementation(libs.logger.kermit)
+            //日志库,需要初始化
             api(libs.napier)
 
             //key-value存储
@@ -139,8 +138,8 @@ kotlin {
             implementation(libs.mokopermission.compose)
 
             // Koin
-//            api(libs.koin.android)
-//            api(libs.koin.androidx.compose)
+            api(libs.koin.android)
+            api(libs.koin.androidx.compose)
 
             //android平台引擎
             implementation(libs.ktor.client.android)
@@ -226,9 +225,6 @@ kotlin {
         framework {
             baseName = "LiteLibs"
             isStatic = true
-
-            // Only if you want to talk to Kermit from Swift
-            export("co.touchlab:kermit-simple:2.0.3")
         }
     }
 }

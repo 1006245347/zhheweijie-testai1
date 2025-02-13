@@ -12,20 +12,20 @@ import kotlinx.coroutines.withContext
  */
 class LocalDataRepository(
     private val dataSource: PreferenceLocalDataSource,
-    private val defaultDispatcher: CoroutineDispatcher = Dispatchers.Default
+//    private val defaultDispatcher: CoroutineDispatcher = Dispatchers.Default
 ) {
 
-    suspend fun welcomeShown(): Boolean = withContext(defaultDispatcher) {
+    suspend fun welcomeShown(): Boolean = withContext(Dispatchers.Default) {
         dataSource.welcomeShown()
     }
 
     fun inAppReviewShown(): Flow<Boolean> = dataSource.inAppReviewShown()
 
-    suspend fun setWelcomeShown(): Unit = withContext(defaultDispatcher) {
+    suspend fun setWelcomeShown(): Unit = withContext(Dispatchers.Default) {
         dataSource.setWelcomeShown()
     }
 
-    suspend fun setInAppReviewShown(): Unit = withContext(defaultDispatcher) {
+    suspend fun setInAppReviewShown(): Unit = withContext(Dispatchers.Default) {
         dataSource.setInAppReviewShown()
     }
 }

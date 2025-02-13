@@ -9,6 +9,7 @@ enum class OsStatus {
     IOS,
     WINDOWS,
     MACOS,
-    LINUX
+    LINUX,
+    UNKNOWN
 }
 

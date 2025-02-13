@@ -25,6 +25,7 @@ import moe.tlaster.precompose.navigation.Navigator
 
 @Composable
 fun ChatScreen(navigator: Navigator) {
+
     val mainViewModel = koinViewModel(MainViewModel::class)
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val drawerOpen by mainViewModel.drawerShouldBeOpened.collectAsState()

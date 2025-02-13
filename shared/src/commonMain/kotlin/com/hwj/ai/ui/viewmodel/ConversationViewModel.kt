@@ -13,6 +13,7 @@ import com.hwj.ai.models.MessageTurbo
 import com.hwj.ai.models.TextCompletionsParam
 import com.hwj.ai.models.TurboRole
 import kotlinx.coroutines.flow.*
+import moe.tlaster.precompose.viewmodel.ViewModel
 
 /**
  * Used to communicate between screens.
@@ -21,7 +22,7 @@ class ConversationViewModel(
     private val conversationRepo: ConversationRepository,
     private val messageRepo: MessageRepository,
     private val openAIRepo: LLMRepository,
-) : moe.tlaster.precompose.viewmodel.ViewModel() { //换掉这个viewModel
+) : ViewModel() { //换掉这个viewModel
     private val _currentConversation: MutableStateFlow<String> =
         MutableStateFlow(getMills().toString())
     private val _conversations: MutableStateFlow<MutableList<ConversationModel>> = MutableStateFlow(
@@ -199,6 +200,7 @@ class ConversationViewModel(
             _messages.value[_currentConversation.value] != null
         ) return
 
+        //调用接口获取大模型数据
         val flow: Flow<List<MessageModel>> = messageRepo.fetchMessages(_currentConversation.value)
 
         flow.collectLatest {

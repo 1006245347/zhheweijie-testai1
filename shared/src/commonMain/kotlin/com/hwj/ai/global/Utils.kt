@@ -502,6 +502,7 @@ fun Int.formattedNumber(): String {
     }"
 }
 
+//desktop端日志在 terminal显示
 fun printD(log: String?, tag: String = logTAG) {
     if (log.isNullOrEmpty()) {
         Napier.d("log_null", tag = tag)
@@ -540,3 +541,4 @@ fun ViewModel.delayWork(
         block()
     }
 }
+

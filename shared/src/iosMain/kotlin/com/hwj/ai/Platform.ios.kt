@@ -1,5 +1,6 @@
 package com.hwj.ai
 
+import com.hwj.ai.global.OsStatus
 import com.russhwolf.settings.NSUserDefaultsSettings
 import com.russhwolf.settings.Settings
 import io.ktor.client.HttpClient
@@ -16,6 +17,8 @@ import platform.UIKit.UIDevice
 
 class IOSPlatform: Platform {
     override val name: String = UIDevice.currentDevice.systemName() + " " + UIDevice.currentDevice.systemVersion
+    override val os: OsStatus
+        get() = OsStatus.IOS
 }
 
 actual fun getPlatform(): Platform = IOSPlatform()
@@ -45,9 +48,4 @@ actual fun createHttpClient(timeout: Long?): HttpClient {
     }
 }
 
-actual class MultiplatformSettingsWrapper {
-    actual fun createSettings(): Settings {
-        val delegate = NSUserDefaults.standardUserDefaults
-        return NSUserDefaultsSettings(delegate)
-    }
-}
+

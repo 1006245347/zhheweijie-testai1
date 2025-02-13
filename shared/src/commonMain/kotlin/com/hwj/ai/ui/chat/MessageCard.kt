@@ -7,7 +7,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -62,19 +61,39 @@ fun HumanMessageCard(message: MessageModel) {
 
 @Composable
 fun BotMessageCard(message: MessageModel) {
-    val state =rememberRichTextState()
+    //在desktop存在崩溃
+//    val state = rememberRichTextState()
+//    ThemeChatLite {
+//        RichTextEditor(
+//            state = state,
+//            modifier = Modifier.padding(horizontal = 18.dp, vertical = 12.dp),
+//            textStyle = TextStyle(
+//                fontFamily = FontFamily.Default,
+//                fontWeight = FontWeight.Normal,
+//                fontSize = 13.sp,
+//                color = ColorTextGPT
+//            ),
+//        )
+//    }
+//    state.setMarkdown(message.answer.trimIndent())
+
+
+//    Text(text=message.answer, fontSize = 13.sp,color= ColorTextGPT,
+//        modifier = Modifier.padding(horizontal = 18.dp, vertical = 12.dp))
+
+    val state = rememberRichTextState()
     ThemeChatLite {
-        RichTextEditor(state=state,
-            modifier = Modifier.padding(horizontal = 18.dp, vertical = 12.dp),
+        RichTextEditor(
+            state = state.apply {
+                setText(message.answer.trimIndent())
+            }, modifier = Modifier.padding(horizontal = 18.dp, vertical = 12.dp),
             textStyle = TextStyle(
                 fontFamily = FontFamily.Default,
                 fontWeight = FontWeight.Normal,
                 fontSize = 13.sp,
                 color = ColorTextGPT
-            ),
+            )
         )
     }
-    state.setMarkdown(message.answer.trimIndent())
-
 }
 

@@ -41,8 +41,8 @@ fun initKoin(): Koin {
 //factory每次都会创建新实例，而single是单例
 val mainModule = module {
     single { createHttpClient(10000) }
-//    factoryOf(::PreferenceLocalDataSource)
-    single { PreferenceLocalDataSource(get()) }
+    factoryOf(::PreferenceLocalDataSource)
+//    single { PreferenceLocalDataSource(get()) } //修改这？
     single {
         val factory: SettingsFactory = get()
         factory.createSettings()
@@ -53,15 +53,16 @@ val mainModule = module {
     single { ConversationRepository() }
     single { MessageRepository() }
     single { SettingsRepository() }
-//    singleOf(::LocalDataRepository)
     single { LocalDataRepository(get()) }
+
+    factoryOf(::ConversationViewModel)
+    factory { WelcomeScreenModel(get()) }
+//    single { WelcomeScreenModel(get()) }
+    single { MainViewModel() }
 }
 
 val modelModule = module {
-    factoryOf(::ConversationViewModel)
-//    factoryOf(::WelcomeScreenModel)
-    single { WelcomeScreenModel(get()) }
-    single { MainViewModel() }
+
 }
 
 /**

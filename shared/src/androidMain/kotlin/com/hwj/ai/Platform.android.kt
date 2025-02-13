@@ -1,6 +1,7 @@
 package com.hwj.ai
 
 import android.content.Context
+import com.hwj.ai.global.OsStatus
 import com.russhwolf.settings.Settings
 import com.russhwolf.settings.SharedPreferencesSettings
 import io.ktor.client.HttpClient
@@ -13,12 +14,11 @@ import io.ktor.http.URLBuilder
 import io.ktor.http.takeFrom
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
-import org.koin.core.module.Module
-import org.koin.core.module.dsl.singleOf
-import org.koin.dsl.module
 
 class AndroidPlatform : Platform {
     override val name: String = "Android ${android.os.Build.VERSION.SDK_INT}"
+    override val os: OsStatus
+        get() = OsStatus.ANDROID
 }
 
  actual fun getPlatform(): Platform = AndroidPlatform()
@@ -50,14 +50,6 @@ class AndroidPlatform : Platform {
                 }
             }
         }
-    }
-}
-
-actual class MultiplatformSettingsWrapper(private val context: Context) {
-
-    actual fun createSettings(): Settings {
-        val delegate = context.getSharedPreferences("hwj_preference", Context.MODE_PRIVATE)
-        return SharedPreferencesSettings(delegate)
     }
 }
 
