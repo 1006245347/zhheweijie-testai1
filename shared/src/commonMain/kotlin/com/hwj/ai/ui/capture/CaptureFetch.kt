@@ -1,10 +1,13 @@
 package com.hwj.ai.ui.capture
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -15,6 +18,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.unit.dp
 import com.hwj.ai.checkSystem
@@ -41,6 +45,10 @@ fun CaptureFetch() {
         printD("capture>null")
     }
 }
+
+
+
+
 
 
 @Composable
@@ -87,4 +95,9 @@ fun testWindows() {
         }
         image?.let { Image(it, contentDescription = null) }
     }
+}
+
+@Composable
+fun test2(){
+
 }

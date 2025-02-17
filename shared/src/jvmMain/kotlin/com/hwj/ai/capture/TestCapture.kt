@@ -63,7 +63,8 @@ fun TestCapture() {
     }
 
     if (showScreenshot) {
-        ScreenshotWindow(
+//        ScreenshotWindow(
+        ShotCapture(
             onDismiss = { showScreenshot = false },
             onSave = { path, thumbnail ->
                 // 处理保存后的回调（可选）
@@ -119,7 +120,7 @@ fun ScreenshotWindow(
                     onDragEnd = {
                         state.isSelecting = false
                         subScope.launch {
-                        captureSelection(state, screenBounds)
+                            captureSelection(state, screenBounds)
                         }
                     }
                 )
@@ -190,7 +191,7 @@ private suspend fun captureSelection(
 }
 
 // 保存截图实现
-private fun saveScreenshot(
+ fun saveScreenshot(
     state: ScreenshotState,
     onSave: (String, ImageBitmap) -> Unit
 ) {
@@ -219,7 +220,7 @@ private fun generateThumbnail(bitmap: ImageBitmap): ImageBitmap {
 }
 
 // 菜单位置计算
-private fun calculateMenuPosition(
+ fun calculateMenuPosition(
     rect: Rect,
     density: androidx.compose.ui.unit.Density
 ): Offset {
@@ -236,7 +237,7 @@ fun ImageBitmap.toAwtImage(): BufferedImage {
     // 创建 BufferedImage 对象
     val bufferedImage = BufferedImage(
         this.width,
-    this.height,
+        this.height,
         BufferedImage.TYPE_INT_ARGB
     )
 
