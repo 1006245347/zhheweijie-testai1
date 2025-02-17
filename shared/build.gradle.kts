@@ -19,7 +19,7 @@ kotlin {
         compilations.all {
             compileTaskProvider.configure {
                 compilerOptions {
-                    jvmTarget.set(JvmTarget.JVM_17)
+                    jvmTarget.set(JvmTarget.JVM_21)
                 }
             }
         }
@@ -37,7 +37,20 @@ kotlin {
         }
     }
 
-    jvm()
+    jvm{
+//        compilations.all {
+//            kotlinOptions {
+//                jvmTarget = "17" // 设置为你需要的 JDK 版本
+//            }
+//        }
+        compilations.all{
+            compileTaskProvider.configure {
+                compilerOptions{
+                    jvmTarget.set(JvmTarget.JVM_21) //这修改jdk
+                }
+            }
+        }
+    }
 
     sourceSets {
         commonMain.dependencies {
@@ -123,6 +136,9 @@ kotlin {
 
             //首次引导使用 https://github.com/svenjacobs/reveal
             implementation(libs.reveal)
+
+            //截图windows
+            implementation(libs.capture.shot)
         }
 
         androidMain.dependencies {
@@ -198,7 +214,6 @@ kotlin {
 
             // JNA for Windows
             implementation(libs.jna)
-
         }
     }
 
@@ -236,16 +251,22 @@ android {
         minSdk = 24
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+//        sourceCompatibility = JavaVersion.VERSION_17
+//        targetCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.toVersion(libs.versions.java.get())
+        targetCompatibility = JavaVersion.toVersion(libs.versions.java.get())
     }
     buildFeatures {
         buildConfig = true
     }
 
     kotlin {
-        jvmToolchain(17)
+//        jvmToolchain(17)
+        jvmToolchain(libs.versions.java.get().toInt())
     }
+}
+dependencies {
+    implementation(libs.androidx.ui.graphics.android)
 }
 
 

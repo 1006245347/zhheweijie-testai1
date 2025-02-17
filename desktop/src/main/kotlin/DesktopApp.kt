@@ -1,10 +1,14 @@
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.application
+import androidx.compose.ui.window.rememberWindowState
 import com.hwj.ai.PlatformWindowStart
+import com.hwj.ai.capture.TestCapture
 import di.initKoin
 import io.github.aakira.napier.DebugAntilog
 import io.github.aakira.napier.Napier
 import org.koin.core.Koin
-
+import java.awt.Window
 
 lateinit var koin: Koin
 
@@ -39,8 +43,11 @@ fun main() {
 //            }
 //        }
 //    }
+
     return application {
         PlatformWindowStart { exitApplication() }
     }
 }
+
+
 

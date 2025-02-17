@@ -17,15 +17,7 @@ class DesktopPlatform : Platform {
         get() = checkSystem()
 }
 
-fun checkSystem(): OsStatus {
-    val os = System.getProperty("os.name").lowercase()
-    return when {
-        os.contains("mac") -> OsStatus.MACOS
-        os.contains("win") -> OsStatus.WINDOWS
-        os.contains("nix") || os.contains("nux") || os.contains("ubu") -> OsStatus.LINUX
-        else -> OsStatus.UNKNOWN
-    }
-}
+
 
 actual fun getPlatform(): Platform = DesktopPlatform()
 

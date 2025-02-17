@@ -9,6 +9,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowPosition
 import androidx.compose.ui.window.rememberWindowState
+import com.hwj.ai.capture.TestCapture
+import com.hwj.ai.ui.capture.CaptureFetch
 import moe.tlaster.precompose.ProvidePreComposeLocals
 
 @Composable
@@ -23,7 +25,8 @@ fun PlatformWindowStart(onCloseRequest: () -> Unit) {
     ) {
         ProvidePreComposeLocals {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                PlatformAppStart()
+//                PlatformAppStart()
+                CaptureFetch()
             }
         }
     }

@@ -1,7 +1,10 @@
 [versions]
 agp = "8.5.0"
-kotlin = "2.0.20"
+#ksp = "2.0.20-1.0.24"
+kotlin ="2.1.0"
+ksp = "2.1.0-1.0.29"
 compose-compiler = "1.5.4"
+java="21"
 compose = "1.7.6"
 kotlinxDatetime = "0.6.0"
 compose-material3 = "1.3.1"
@@ -10,14 +13,12 @@ compose-plugin= "1.7.3"
 androidAppCompatVersion = "1.7.0"
 sqlDelight = "2.0.2"
 buildkonfigGradlePlugin = "0.15.1"
-ksp = "2.0.20-1.0.24"
 koin = "4.0.0"
 mokoMvvmVersion = "0.16.1"
 androidLifecycleVersion = "2.2.0"
 stately = "2.0.6"
 ktor = "3.0.3"
 uuid = "0.8.4"
-kermit = "2.0.3"
 settings = "1.1.1"
 mokopermission = "0.18.1"
 perference = "1.2.0"
@@ -31,7 +32,7 @@ precompose = "1.7.0-alpha01" #预发布
 okio = "3.9.0"
 bugly = "4.1.9"
 file = "0.6.1"
-coroutines-core = "1.8.1"
+coroutines-core = "1.10.1"
 coreSplashscreen = "1.0.1"
 datastorePreferences = "1.1.1"
 lifecycleRuntimeKtx = "2.7.0"
@@ -48,6 +49,8 @@ napier="2.7.1"
 richtext="1.0.0-alpha02"
 richedit="1.0.0-rc10"
 reveal="3.2.0"
+capture="0.3.0"
+uiGraphicsAndroid = "1.7.8"
 
 [libraries]
 #UI框架相关
@@ -79,6 +82,7 @@ stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin"
 rich-editor={ module="com.mohamedrejeb.richeditor:richeditor-compose",version.ref="richedit"}
 
 reveal={module="com.svenjacobs.reveal:reveal-core",version.ref="reveal"}
+capture-shot={ module="ir.mahozad.multiplatform:comshot",version.ref="capture"}
 
 #Android特有
 androidx-perference = { module = "androidx.preference:preference-ktx", version.ref = "perference" }
@@ -92,7 +96,6 @@ permissionX-android = { module = "com.guolindev.permissionx:permissionx", versio
 file-picker = { module = "io.github.vinceglb:filekit-compose", version.ref = "file" }
 okio-core = { module = "com.squareup.okio:okio", version.ref = "okio" }
 datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }
-logger-kermit = { module = "co.touchlab:kermit", version.ref = "kermit" }
 multiplatform-settings = { module = "com.russhwolf:multiplatform-settings", version.ref = "settings" }
 multiplatform-coroutines = { module = "com.russhwolf:multiplatform-settings-coroutines", version.ref = "settings" }
 multiplatform-datastore = { module = "com.russhwolf:multiplatform-settings-datastore", version.ref = "settings" }
@@ -140,6 +143,7 @@ ktor-client-logging = { module = "io.ktor:ktor-client-logging", version.ref = "k
 coil3-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil3" }
 coil3-svg = { module = "io.coil-kt.coil3:coil-svg", version.ref = "coil3" }
 coil3-ktor = { module = "io.coil-kt.coil3:coil-network-ktor2", version.ref = "coil3" }
+androidx-ui-graphics-android = { group = "androidx.compose.ui", name = "ui-graphics-android", version.ref = "uiGraphicsAndroid" }
 #coil3-video = { module = "io.coil-kt.coil3:coil-video", version.ref = "coil3" }
 #coil3-gif = { module = "io.coil-kt.coil3:coil-gif", version.ref = "coil3" }
 
