@@ -1,6 +1,8 @@
 package com.hwj.ai
 
+import androidx.compose.runtime.Composable
 import com.hwj.ai.global.OsStatus
+import com.hwj.ai.models.MessageModel
 import io.ktor.client.HttpClient
 
 interface Platform {
@@ -12,6 +14,8 @@ expect fun getPlatform(): Platform
 
 expect fun createHttpClient(timeout: Long?): HttpClient
 
+@Composable
+expect fun BotMessageCard(message: MessageModel)
 
 fun checkSystem(): OsStatus {
 //    val os = System.getProperty("os.name").lowercase()

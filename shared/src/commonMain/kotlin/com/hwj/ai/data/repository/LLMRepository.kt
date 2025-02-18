@@ -15,6 +15,7 @@ import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsChannel
 import io.ktor.client.utils.DEFAULT_HTTP_BUFFER_SIZE
+import io.ktor.client.utils.DEFAULT_HTTP_POOL_SIZE
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.append
@@ -26,6 +27,10 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.withContext
 
+/**
+ * @author by jason-何伟杰，2025/1/18
+ * des:大模型数据接口
+ */
 class LLMRepository(
     private val client: HttpClient
 ) {
@@ -48,7 +53,8 @@ class LLMRepository(
                     printE("接口超时")
                 }
                 response?.bodyAsChannel()?.let { channel ->
-                    val buffer = ByteArray(DEFAULT_HTTP_BUFFER_SIZE)
+//                    val buffer = ByteArray(DEFAULT_HTTP_BUFFER_SIZE)
+                    val buffer = ByteArray(DEFAULT_HTTP_POOL_SIZE)
                     try {
                         while (!channel.isClosedForRead) {
 
@@ -64,7 +70,8 @@ class LLMRepository(
                                 //这个输出没有问题，而且是拆词数据
                                 val value = lookupDataFromResponseTurbo(it)
                                 if (value.isNotEmpty()) {
-                                    printD(value)
+//                                    printD(value) //乱码了
+//                                    printD("c>>$it")
                                     trySend(value)
                                 }
                             }

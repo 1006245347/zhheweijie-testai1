@@ -1,6 +1,9 @@
 package com.hwj.ai
 
+import androidx.compose.runtime.Composable
 import com.hwj.ai.global.OsStatus
+import com.hwj.ai.models.MessageModel
+import com.hwj.ai.ui.chat.BotCommonCard
 import com.russhwolf.settings.NSUserDefaultsSettings
 import com.russhwolf.settings.Settings
 import io.ktor.client.HttpClient
@@ -48,4 +51,7 @@ actual fun createHttpClient(timeout: Long?): HttpClient {
     }
 }
 
-
+@Composable
+actual fun BotMessageCard(message: MessageModel){
+    BotCommonCard(message)
+}

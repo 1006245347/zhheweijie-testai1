@@ -1,8 +1,22 @@
 package com.hwj.ai
 
 import android.content.Context
+import androidx.compose.foundation.layout.padding
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.hwj.ai.global.ColorTextGPT
 import com.hwj.ai.global.OsStatus
+import com.hwj.ai.global.ThemeChatLite
 import com.hwj.ai.global.baseHostUrl
+import com.hwj.ai.models.MessageModel
+import com.hwj.ai.ui.chat.BotCommonCard
+import com.mohamedrejeb.richeditor.model.rememberRichTextState
+import com.mohamedrejeb.richeditor.ui.material3.RichTextEditor
 import com.russhwolf.settings.Settings
 import com.russhwolf.settings.SharedPreferencesSettings
 import io.ktor.client.HttpClient
@@ -57,4 +71,30 @@ class AndroidPlatform : Platform {
         expectSuccess=true
     }
 }
+
+@Composable
+actual fun BotMessageCard(message: MessageModel){
+    //默认
+//    BotCommonCard(message)
+
+        val state = rememberRichTextState()
+    ThemeChatLite {
+        RichTextEditor(
+            state = state,
+            modifier = Modifier.padding(horizontal = 18.dp, vertical = 12.dp),
+            textStyle = TextStyle(
+                fontFamily = FontFamily.Default,
+                fontWeight = FontWeight.Normal,
+                fontSize = 13.sp,
+                color = ColorTextGPT
+            ),
+        )
+    }
+    state.setMarkdown(message.answer.trimIndent())
+
+}
+
+
+
+
 

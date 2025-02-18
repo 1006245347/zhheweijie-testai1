@@ -1,14 +1,10 @@
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
-import androidx.compose.ui.window.rememberWindowState
 import com.hwj.ai.PlatformWindowStart
-import com.hwj.ai.capture.TestCapture
 import di.initKoin
 import io.github.aakira.napier.DebugAntilog
 import io.github.aakira.napier.Napier
 import org.koin.core.Koin
-import java.awt.Window
 
 lateinit var koin: Koin
 
@@ -18,6 +14,9 @@ lateinit var koin: Koin
 //build/compose/binaries/main/exe/
 //build/compose/binaries/main/deb/
 //Ubuntu/Debian: MyApp-1.0.0.deb
+
+//control +  option +O
+
 fun main() {
     //日志
     Napier.base(DebugAntilog())
@@ -44,7 +43,10 @@ fun main() {
 //        }
 //    }
 
+
+
     return application {
+
         PlatformWindowStart { exitApplication() }
     }
 }

@@ -7,6 +7,7 @@ import com.hwj.ai.data.repository.LLMRepository
 import com.hwj.ai.data.repository.MessageRepository
 import com.hwj.ai.global.getMills
 import com.hwj.ai.global.getNowTime
+import com.hwj.ai.global.printD
 import com.hwj.ai.global.thinking
 import com.hwj.ai.models.ConversationModel
 import com.hwj.ai.models.MessageModel
@@ -91,6 +92,8 @@ class ConversationViewModel(
                 messagesTurbo = getMessagesParamsTurbo(_currentConversation.value)
             )
         )
+
+
         var answerFromGPT: String = ""
         // When flow collecting updateLocalAnswer including FAB behavior expanded.
         // On completion FAB == false
@@ -102,6 +105,7 @@ class ConversationViewModel(
                 return@collect
             }
             answerFromGPT += value
+//            printD(answerFromGPT) 中文乱码
             updateLocalAnswer(answerFromGPT.trim())
             setFabExpanded(true)
         }

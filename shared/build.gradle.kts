@@ -63,6 +63,8 @@ kotlin {
             implementation(compose.components.resources)
             implementation(compose.materialIconsExtended)
 
+            implementation(compose.preview)//能行？
+
             implementation(libs.androidx.lifecycle.viewmodel.compose)
 //            implementation(libs.androidx.navigation.compose)
             implementation(libs.kotlinX.serializationJson)
@@ -139,6 +141,8 @@ kotlin {
 
             //截图windows
             implementation(libs.capture.shot)
+
+
         }
 
         androidMain.dependencies {
@@ -214,6 +218,8 @@ kotlin {
 
             // JNA for Windows
             implementation(libs.jna)
+            //加上可以用预览注解
+            implementation(compose.desktop.common)
         }
     }
 
@@ -265,10 +271,6 @@ android {
         jvmToolchain(libs.versions.java.get().toInt())
     }
 }
-dependencies {
-    implementation(libs.androidx.ui.graphics.android)
-}
-
 
 buildkonfig {
     packageName = "com.hwj.ai"

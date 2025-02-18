@@ -2,7 +2,7 @@ package com.hwj.ai.android
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
-import com.chatgptlite.wanted.ui.conversations.components.MessageCard
+import com.hwj.ai.ui.chat.MessageCard
 import com.hwj.ai.models.ConversationModel
 import com.hwj.ai.models.MessageModel
 import com.hwj.ai.ui.global.AppDrawerIn

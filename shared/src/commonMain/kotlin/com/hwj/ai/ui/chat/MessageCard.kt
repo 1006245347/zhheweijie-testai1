@@ -1,4 +1,4 @@
-package com.chatgptlite.wanted.ui.conversations.components
+package com.hwj.ai.ui.chat
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -13,6 +13,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.hwj.ai.BotMessageCard
 import com.hwj.ai.global.BackGroundMessageGPT
 import com.hwj.ai.global.BackGroundMessageHuman
 import com.hwj.ai.global.ColorTextGPT
@@ -61,7 +62,7 @@ fun HumanMessageCard(message: MessageModel) {
 }
 
 @Composable
-fun BotMessageCard(message: MessageModel) {
+fun BotCommonCard(message: MessageModel) {
     //在desktop存在崩溃
 //    val state = rememberRichTextState()
 //    ThemeChatLite {
@@ -79,22 +80,22 @@ fun BotMessageCard(message: MessageModel) {
 //    state.setMarkdown(message.answer.trimIndent())
 
 
-    Text(text=message.answer, fontSize = 13.sp,color= ColorTextGPT,
-        modifier = Modifier.padding(horizontal = 18.dp, vertical = 12.dp))
+//    Text(text=message.answer, fontSize = 13.sp,color= ColorTextGPT,
+//        modifier = Modifier.padding(horizontal = 18.dp, vertical = 12.dp))
 
-//    val state = rememberRichTextState()
-//    ThemeChatLite {
-//        RichTextEditor(
-//            state = state.apply {
-//                setText(message.answer.trimIndent())
-//            }, modifier = Modifier.padding(horizontal = 18.dp, vertical = 12.dp),
-//            textStyle = TextStyle(
-//                fontFamily = FontFamily.Default,
-//                fontWeight = FontWeight.Normal,
-//                fontSize = 13.sp,
-//                color = ColorTextGPT
-//            )
-//        )
-//    }
+    val state = rememberRichTextState()
+    ThemeChatLite {
+        RichTextEditor(
+            state = state.apply {
+                setText(message.answer.trimIndent())
+            }, modifier = Modifier.padding(horizontal = 18.dp, vertical = 12.dp),
+            textStyle = TextStyle(
+                fontFamily = FontFamily.Default,
+                fontWeight = FontWeight.Normal,
+                fontSize = 13.sp,
+                color = ColorTextGPT
+            )
+        )
+    }
 }
 

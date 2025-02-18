@@ -38,21 +38,17 @@ import kotlin.time.measureTimedValue
 @Composable
 fun CaptureFetch() {
     if (checkSystem() == OsStatus.WINDOWS) {
-        testWindows()
+        testCapture1()
     } else if (checkSystem() == OsStatus.MACOS) {
-        testWindows()
+        testCapture1()
     }else{
         printD("capture>null")
     }
 }
 
 
-
-
-
-
 @Composable
-fun testWindows() {
+fun testCapture1() {
     // To check UI responsiveness
     var counter by remember { mutableIntStateOf(0) }
     LaunchedEffect(Unit) {
@@ -97,7 +93,4 @@ fun testWindows() {
     }
 }
 
-@Composable
-fun test2(){
 
-}

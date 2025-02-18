@@ -117,7 +117,7 @@ fun AppDrawer(
         DrawerItemHeader("Settings")
         ChatItem("Settings", Icons.Filled.Settings, false) { onChatClicked("Settings") }
         ProfileItem(
-            "lambiengcode (author)",
+            "deplove (author)",
             urlToImageAuthor,
         ) {
 //            UrlLauncher().openUrl(context = context, urlToGithub)

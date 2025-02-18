@@ -171,3 +171,8 @@ fun testShot(){
         )
     }
 }
+
+@Composable
+fun testCapture2(){
+    TestCapture2()
+}
