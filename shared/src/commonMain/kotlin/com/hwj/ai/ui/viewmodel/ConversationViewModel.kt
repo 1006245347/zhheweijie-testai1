@@ -92,8 +92,7 @@ class ConversationViewModel(
                 messagesTurbo = getMessagesParamsTurbo(_currentConversation.value)
             )
         )
-
-
+        
         var answerFromGPT: String = ""
         // When flow collecting updateLocalAnswer including FAB behavior expanded.
         // On completion FAB == false

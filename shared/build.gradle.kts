@@ -63,8 +63,6 @@ kotlin {
             implementation(compose.components.resources)
             implementation(compose.materialIconsExtended)
 
-            implementation(compose.preview)//能行？
-
             implementation(libs.androidx.lifecycle.viewmodel.compose)
 //            implementation(libs.androidx.navigation.compose)
             implementation(libs.kotlinX.serializationJson)
@@ -130,9 +128,6 @@ kotlin {
             implementation(libs.file.picker)
 
 //            //富文本
-//            implementation(libs.richtext.core)
-//            implementation(libs.richtext.material)
-//            implementation(libs.richtext.material3)
 //            https://github.com/MohamedRejeb/compose-rich-editor
             implementation(libs.rich.editor)
 
@@ -141,8 +136,6 @@ kotlin {
 
             //截图windows
             implementation(libs.capture.shot)
-
-
         }
 
         androidMain.dependencies {
@@ -187,7 +180,12 @@ kotlin {
             // SQL
             implementation(libs.android.driver)
 
-
+            //markdown,富文本
+            implementation(libs.richtext.core)
+            implementation(libs.richtext.markdown)
+            implementation(libs.richtext.mark)
+            implementation(libs.richtext.material)
+            implementation(libs.richtext.material3)
         }
 
         iosMain.dependencies {
@@ -220,6 +218,13 @@ kotlin {
             implementation(libs.jna)
             //加上可以用预览注解
             implementation(compose.desktop.common)
+
+            //markdown
+            implementation(libs.richtext.core)
+            implementation(libs.richtext.markdown)
+            implementation(libs.richtext.mark)
+            implementation(libs.richtext.material)
+            implementation(libs.richtext.material3)
         }
     }
 

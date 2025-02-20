@@ -10,7 +10,8 @@ import com.hwj.ai.models.ConversationModel
 class ConversationRepository() {
 
     fun fetchConversations(): MutableList<ConversationModel> {
-        return fakeConversations.toMutableList()
+//        return fakeConversations.toMutableList()
+    return mutableListOf()
     }
 
     fun newConversation(conversationModel: ConversationModel): ConversationModel {

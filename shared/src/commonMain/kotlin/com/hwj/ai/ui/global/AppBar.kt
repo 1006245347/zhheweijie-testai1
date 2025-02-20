@@ -47,7 +47,7 @@ fun AppBar(onClickMenu: () -> Unit) {
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
-                                text = "ChatGPT",
+                                text = "Chat BOT",
                                 textAlign = TextAlign.Center,
                                 fontSize = 16.5.sp,
                                 fontWeight = FontWeight.SemiBold,

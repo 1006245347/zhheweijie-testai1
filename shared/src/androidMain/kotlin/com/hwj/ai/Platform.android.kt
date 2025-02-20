@@ -91,10 +91,5 @@ actual fun BotMessageCard(message: MessageModel){
         )
     }
     state.setMarkdown(message.answer.trimIndent())
-
 }
-
-
-
-
 

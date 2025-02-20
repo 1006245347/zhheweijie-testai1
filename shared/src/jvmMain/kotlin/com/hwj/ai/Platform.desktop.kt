@@ -1,17 +1,27 @@
 package com.hwj.ai
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.input.rememberTextFieldState
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.halilibo.richtext.commonmark.Markdown
+import com.halilibo.richtext.ui.CodeBlockStyle
+import com.halilibo.richtext.ui.RichTextScope
+import com.halilibo.richtext.ui.RichTextStyle
 import com.hwj.ai.global.ColorTextGPT
 import com.hwj.ai.global.OsStatus
+import com.hwj.ai.global.ThemeChatLite
+import com.hwj.ai.global.printD
 import com.hwj.ai.models.MessageModel
-import com.hwj.ai.ui.chat.BotCommonCard
 import com.mohamedrejeb.richeditor.model.rememberRichTextState
 import com.mohamedrejeb.richeditor.ui.material3.RichTextEditor
 import io.ktor.client.HttpClient
@@ -29,7 +39,6 @@ class DesktopPlatform : Platform {
     override val os: OsStatus
         get() = checkSystem()
 }
-
 
 
 actual fun getPlatform(): Platform = DesktopPlatform()
@@ -60,27 +69,70 @@ actual fun createHttpClient(timeout: Long?): HttpClient {
 }
 
 @Composable
-actual fun BotMessageCard(message: MessageModel){
-//    BotCommonCard(message)
-    testBotMsgCard(message)
+actual fun BotMessageCard(message: MessageModel) {
+//    BotCommonCard(message)//默认
+//    testBotMsgCard(message)
+    testBotMsgCard2(message)
+//    testBotMsgCard3(message)
 }
 
 @Composable
-fun testBotMsgCard(message: MessageModel){
+fun testBotMsgCard(message: MessageModel) {
 
     //是因为一次性数据太多导致的蹦?
-        val state = rememberRichTextState()
-        RichTextEditor(
-            state = state,
-            modifier = Modifier.padding(horizontal = 18.dp, vertical = 12.dp),
+    val state = rememberRichTextState()
+    RichTextEditor(
+        state = state,
+        modifier = Modifier.padding(horizontal = 18.dp, vertical = 12.dp),
+        textStyle = TextStyle(
+            fontFamily = FontFamily.Default,
+            fontWeight = FontWeight.Normal,
+            fontSize = 13.sp,
+            color = ColorTextGPT
+        ),
+    )
+
+    state.setMarkdown(message.answer.trimIndent())
+}
+
+@Composable
+fun testBotMsgCard2(message: MessageModel) {
+    printD("msg>${message.answer.trimIndent()}")
+    var richTextStyle = RichTextStyle(
+        codeBlockStyle = CodeBlockStyle(
             textStyle = TextStyle(
                 fontFamily = FontFamily.Default,
                 fontWeight = FontWeight.Normal,
                 fontSize = 13.sp,
                 color = ColorTextGPT
             ),
+            wordWrap = true,
+            modifier = Modifier.background(color = Color.Black, shape = RoundedCornerShape(6.dp))
         )
+    )
+//    var textState= rememberTextFieldState(message.answer.trimIndent())
+    ThemeChatLite {
 
-    state.setMarkdown(message.answer.trimIndent())
+        com.halilibo.richtext.ui.material.RichText(
+            modifier = Modifier.padding(
+                horizontal = 18.dp,
+                vertical = 12.dp
+            ),
+            style = richTextStyle,
+            ) {
+
+//            Markdown(content = textState.text.toString())
+            Markdown(message.answer.trimIndent())
+        }
+    }
+}
+
+@Composable
+fun testBotMsgCard3(message: MessageModel) {
+    Text(
+        text = message.answer, fontSize = 13.sp, color = ColorTextGPT,
+        modifier = Modifier.padding(horizontal = 18.dp, vertical = 12.dp)
+    )
+
 }
 
