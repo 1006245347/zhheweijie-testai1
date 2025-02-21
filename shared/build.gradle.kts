@@ -135,7 +135,7 @@ kotlin {
             implementation(libs.reveal)
 
             //截图windows
-            implementation(libs.capture.shot)
+//            implementation(libs.capture.shot)
         }
 
         androidMain.dependencies {

@@ -1,13 +1,11 @@
 package com.hwj.ai.ui.capture
 
+//import ir.mahozad.multiplatform.comshot.captureToImage
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -18,16 +16,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.unit.dp
 import com.hwj.ai.checkSystem
-import com.hwj.ai.global.NotificationsManager
 import com.hwj.ai.global.OsStatus
 import com.hwj.ai.global.printD
-import ir.mahozad.multiplatform.comshot.captureToImage
 import kotlinx.coroutines.delay
-import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import org.jetbrains.compose.resources.painterResource
 import testai1.shared.generated.resources.Res
 import testai1.shared.generated.resources.ic_big_logo
@@ -80,10 +74,10 @@ fun testCapture1() {
         Text(text = "Counter to check responsiveness: $counter")
         Button(
             onClick = {
-                val timedValue = measureTimedValue { captureToImage(composable) }
-                time = timedValue.duration
-                image = timedValue.value
-                padding++
+//                val timedValue = measureTimedValue { captureToImage(composable) }
+//                time = timedValue.duration
+//                image = timedValue.value
+//                padding++
                 // ImageIO.write(image.toAwtImage(), "PNG", Path("output.png").outputStream())
             }
         ) {

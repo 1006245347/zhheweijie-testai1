@@ -34,7 +34,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import com.hwj.ai.global.cHalfGrey80717171
 import com.hwj.ai.global.printD
-import ir.mahozad.multiplatform.comshot.captureToImage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlin.time.measureTimedValue
@@ -79,10 +78,10 @@ fun ShotCapture(
                         state.isSelecting = false
                         /* 触发截图 */
                         val timeValue = measureTimedValue {
-                            captureToImage { newBox }
+//                            captureToImage { newBox }
                         }
                         printD("cost>${timeValue.duration}")
-                        state.screenshotBitmap = timeValue.value
+//                        state.screenshotBitmap = timeValue.value
                     }
                 }
             )

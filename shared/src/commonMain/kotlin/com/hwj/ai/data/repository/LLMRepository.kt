@@ -9,13 +9,17 @@ import com.hwj.ai.models.TextCompletionsParam
 import com.hwj.ai.models.toJson
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.HttpRequestTimeoutException
+import io.ktor.client.plugins.sse.SSESession
+import io.ktor.client.plugins.sse.sseSession
 import io.ktor.client.request.headers
 import io.ktor.client.request.post
+import io.ktor.client.request.preparePost
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsChannel
+import io.ktor.client.statement.bodyAsText
+import io.ktor.client.statement.content
 import io.ktor.client.utils.DEFAULT_HTTP_BUFFER_SIZE
-import io.ktor.client.utils.DEFAULT_HTTP_POOL_SIZE
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.append
@@ -25,6 +29,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.withContext
 
 /**
@@ -34,57 +40,102 @@ import kotlinx.coroutines.withContext
 class LLMRepository(
     private val client: HttpClient
 ) {
-
     fun textCompletionsWithStream(params: TextCompletionsParam): Flow<String> =
+//        callbackFlow {
+//            withContext(Dispatchers.IO) {
+//                var response: HttpResponse? = null
+//                response = client.post (baseHostUrl+ urlChatCompletions){
+//                    headers {
+//                            append(HttpHeaders.ContentType, ContentType.Application.Json)
+//                            append(HttpHeaders.Authorization, "Bearer $LLM_API_KEY")
+//                            //加入stream输出,每个包以data:开头，不然字符全拼接乱的
+//                            append(HttpHeaders.Accept, ContentType.Text.EventStream)
+//                            //json返回一串无序
+////                            append(HttpHeaders.Accept, ContentType.Application.Json)
+//                        }
+//                    setBody(params.toJson())
+//                }
+//
+//
+//                response.bodyAsText().lineSequence().forEach { line->
+//                    if (line.isNotBlank()) {
+//                        printD("line>$line")
+//                        line.takeIf { it.startsWith("data:") }?.let {
+//                                val value = lookupDataFromResponseTurbo(it)
+//                                if (value.isNotEmpty()) {
+//                                    trySend(value)
+//                                }
+//                            }
+//                    }
+//                }
+//            }
+//
+//            close()
+//        }
+
+
+        //换下Okhttp
+
+
         callbackFlow {
             withContext(Dispatchers.IO) {
-
                 var response: HttpResponse? = null
-
+//https://github.com/ktorio/ktor-documentation/blob/3.1.0/codeSnippets/snippets/client-sse/src/main/kotlin/com.example/Application.kt
+//直接sse是get请求，这不对呀
                 try {
-                    response = client.post(baseHostUrl + urlChatCompletions) {
+                    printD("post-start>")
+                    response = client.preparePost(baseHostUrl + urlChatCompletions) {
                         headers {
                             append(HttpHeaders.ContentType, ContentType.Application.Json)
                             append(HttpHeaders.Authorization, "Bearer $LLM_API_KEY")
+                            //加入stream输出,每个包以data:开头，不然字符全拼接乱的
+                            append(HttpHeaders.Accept, ContentType.Text.EventStream)
+                            //json返回一串无序
+//                            append(HttpHeaders.Accept, ContentType.Application.Json)
                         }
                         setBody(params.toJson())
-                    }
+                    }.execute()
                 } catch (e: HttpRequestTimeoutException) {
                     printE("接口超时")
                 }
-                response?.bodyAsChannel()?.let { channel ->
-//                    val buffer = ByteArray(DEFAULT_HTTP_BUFFER_SIZE)
-                    val buffer = ByteArray(DEFAULT_HTTP_POOL_SIZE)
-                    try {
-                        while (!channel.isClosedForRead) {
 
-                            val event = channel.readUTF8Line()?.trim()
-                            event?.takeIf {
-                                it.startsWith("data:")
-                            }?.let {
-//                                val json = it.removePrefix("data:")
-////                                printD(json)
-//                                if (json!="[DONE]") {
-//                                    trySend(json)
-//                                }
-                                //这个输出没有问题，而且是拆词数据
+                val buffer = ByteArray(DEFAULT_HTTP_BUFFER_SIZE)
+                val channel = response?.bodyAsChannel()
+                try {
+                    channel?.let {
+                        printD("channel-start>")
+                        while (!channel.isClosedForRead) {
+                            val line = withContext(Dispatchers.IO) {
+                                channel.readUTF8Line()
+                            } ?: continue
+                            line.takeIf { it.startsWith("data:") }?.let {
+                                printD("line>$it")
+                                if (it.contains("data: [DONE]")) {
+                                    printD("channel-end>")
+                                    close()
+                                }
                                 val value = lookupDataFromResponseTurbo(it)
                                 if (value.isNotEmpty()) {
-//                                    printD(value) //乱码了
-//                                    printD("c>>$it")
-                                    trySend(value)
+                                    trySend(value).isSuccess
+//                                    emit(value)
                                 }
                             }
                         }
-
-                    } finally {
-                        ByteArrayPool.recycle(buffer)
+                    } ?: run {
+                        printD("channel-null")
                         close()
                     }
+                } catch (e: Exception) {
+                    printE(e)
+                    trySend("Failure! Try again.")
+//                    emit("Failure")
+                } finally {
+                    ByteArrayPool.recycle(buffer)
+//                    close()
                 }
             }
 
-
+            printD("callback-end")
             close()
         }
 

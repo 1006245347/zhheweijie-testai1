@@ -30,6 +30,7 @@ import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
+import io.ktor.client.plugins.sse.SSE
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 
@@ -59,15 +60,22 @@ actual fun createHttpClient(timeout: Long?): HttpClient {
         install(Logging) {
 //                level = LogLevel.ALL
             level = LogLevel.INFO //接口日志屏蔽
-            logger = object : Logger {
-                override fun log(message: String) {
-                    println(message)
-                }
-            }
+//            logger = object : Logger {
+//                override fun log(message: String) {
+//                    println(message)
+//                }
+//            }
         }
     }
 }
-
+actual fun createSSEClient(): HttpClient {
+    return HttpClient {
+        install(SSE) {
+            showCommentEvents()
+            showRetryEvents()
+        }
+    }
+}
 @Composable
 actual fun BotMessageCard(message: MessageModel) {
 //    BotCommonCard(message)//默认
@@ -112,7 +120,6 @@ fun testBotMsgCard2(message: MessageModel) {
     )
 //    var textState= rememberTextFieldState(message.answer.trimIndent())
     ThemeChatLite {
-
         com.halilibo.richtext.ui.material.RichText(
             modifier = Modifier.padding(
                 horizontal = 18.dp,
@@ -120,7 +127,6 @@ fun testBotMsgCard2(message: MessageModel) {
             ),
             style = richTextStyle,
             ) {
-
 //            Markdown(content = textState.text.toString())
             Markdown(message.answer.trimIndent())
         }
@@ -133,6 +139,5 @@ fun testBotMsgCard3(message: MessageModel) {
         text = message.answer, fontSize = 13.sp, color = ColorTextGPT,
         modifier = Modifier.padding(horizontal = 18.dp, vertical = 12.dp)
     )
-
 }
 

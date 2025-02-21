@@ -11,5 +11,5 @@ actual fun sharedPlatformModule(): Module = module {
 //    singleOf(::SettingsFactory)
     single { SettingsFactory(context=get()) }
     single { NotificationsManager(context = get()) }
-    single { DatabaseDriverFactory(context = get()) }
+    single { DatabaseDriverFactory(context = get()) } //数据库
 }

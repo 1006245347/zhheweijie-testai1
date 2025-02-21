@@ -14,6 +14,8 @@ expect fun getPlatform(): Platform
 
 expect fun createHttpClient(timeout: Long?): HttpClient
 
+expect fun createSSEClient(): HttpClient
+
 @Composable
 expect fun BotMessageCard(message: MessageModel)
 

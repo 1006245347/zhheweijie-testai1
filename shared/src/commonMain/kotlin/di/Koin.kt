@@ -1,6 +1,7 @@
 package di
 
 import com.hwj.ai.createHttpClient
+import com.hwj.ai.createSSEClient
 import com.hwj.ai.data.local.PreferenceLocalDataSource
 import com.hwj.ai.data.local.SettingsFactory
 import com.hwj.ai.data.repository.ConversationRepository
@@ -41,6 +42,7 @@ fun initKoin(): Koin {
 //factory每次都会创建新实例，而single是单例
 val mainModule = module {
     single { createHttpClient(60000) }
+//    single { createSSEClient() }
     factoryOf(::PreferenceLocalDataSource)
     single {
         val factory: SettingsFactory = get()
@@ -53,14 +55,12 @@ val mainModule = module {
     single { MessageRepository() }
     single { SettingsRepository() }
     single { LocalDataRepository(get()) }
-
-    factoryOf(::ConversationViewModel)
-    factory { WelcomeScreenModel(get()) }
-    single { MainViewModel() }
 }
 
 val modelModule = module {
-
+    factoryOf(::ConversationViewModel)
+    factory { WelcomeScreenModel(get()) }
+    single { MainViewModel() }
 }
 
 /**

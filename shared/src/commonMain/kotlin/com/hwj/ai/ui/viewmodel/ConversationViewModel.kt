@@ -103,8 +103,8 @@ class ConversationViewModel(
                 setFabExpanded(false)
                 return@collect
             }
+//            printD("collect>$value")
             answerFromGPT += value
-//            printD(answerFromGPT) 中文乱码
             updateLocalAnswer(answerFromGPT.trim())
             setFabExpanded(true)
         }
