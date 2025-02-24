@@ -12,6 +12,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
@@ -46,18 +48,27 @@ fun ChatScreen(navigator: Navigator) {
             scope.launch {
                 drawerState.close()
             }
-        }else{
+        } else {
             focusManager.clearFocus()
         }
     }
+    val darkTheme = remember(key1 = "darkTheme") {
+        mutableStateOf(true)
+    }
 
-    Surface(color= MaterialTheme.colorScheme.background) {
-        AppScaffold(drawerState=drawerState,
-            onChatClicked = {},
-            onNewChatClicked = {},
-            onIconClicked = {}){
-            Column (modifier = Modifier.fillMaxSize()){
-                AppBar(onClickMenu = { scope.launch { drawerState.open() }})
+    Surface(color = MaterialTheme.colorScheme.background) {
+        AppScaffold(drawerState = drawerState,
+            onChatClicked = {
+                scope.launch { drawerState.close() }
+            },
+            onNewChatClicked = {
+                scope.launch { drawerState.close() }
+            },
+            onIconClicked = {
+                darkTheme.value = !darkTheme.value
+            }) {
+            Column(modifier = Modifier.fillMaxSize()) {
+                AppBar(onClickMenu = { scope.launch { drawerState.open() } })
                 Divider()
                 Conversation()
             }

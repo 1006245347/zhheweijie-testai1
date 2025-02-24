@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.input.rememberTextFieldState
+import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -18,6 +19,8 @@ import com.halilibo.richtext.ui.CodeBlockStyle
 import com.halilibo.richtext.ui.RichTextScope
 import com.halilibo.richtext.ui.RichTextStyle
 import com.hwj.ai.global.ColorTextGPT
+import com.hwj.ai.global.DarkColorScheme
+import com.hwj.ai.global.LightColorScheme
 import com.hwj.ai.global.OsStatus
 import com.hwj.ai.global.ThemeChatLite
 import com.hwj.ai.global.printD
@@ -70,6 +73,15 @@ actual fun createHttpClient(timeout: Long?): HttpClient {
 }
 
 @Composable
+actual fun setColorScheme(isDark: Boolean): ColorScheme {
+    return if (!isDark) {
+        LightColorScheme
+    } else {
+        DarkColorScheme
+    }
+}
+
+@Composable
 actual fun BotMessageCard(message: MessageModel) {
 //    BotCommonCard(message)//默认
 //    testBotMsgCard(message)
@@ -98,7 +110,7 @@ fun testBotMsgCard(message: MessageModel) {
 
 @Composable
 fun testBotMsgCard2(message: MessageModel) {
-    printD("msg>${message.answer.trimIndent()}")
+//    printD("msg>${message.answer.trimIndent()}")
     var richTextStyle = RichTextStyle(
         codeBlockStyle = CodeBlockStyle(
             textStyle = TextStyle(
@@ -119,7 +131,7 @@ fun testBotMsgCard2(message: MessageModel) {
                 vertical = 12.dp
             ),
             style = richTextStyle,
-            ) {
+        ) {
 //            Markdown(content = textState.text.toString())
             Markdown(message.answer.trimIndent())
         }

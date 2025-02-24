@@ -46,7 +46,8 @@ val Pink40 = Color(0xFF7D5260)
 
 val PrimaryColor = Color(0xFF1DA1F2)
 
-val BackGroundColor = Color(0xFF14171A)
+//val BackGroundColor = Color(0xFF14171A)
+val BackGroundColor = Color(0xFF30353A)
 val BackGroundMessageHuman = Color(0xFFE2F0E9)
 val BackGroundMessageGPT = Color(0xFF22252A)
 val ColorTextHuman = Color(0xFF3D3D4E)

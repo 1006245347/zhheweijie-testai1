@@ -1,6 +1,9 @@
 package com.hwj.ai
 
+import androidx.compose.material3.ColorScheme
 import androidx.compose.runtime.Composable
+import com.hwj.ai.global.DarkColorScheme
+import com.hwj.ai.global.LightColorScheme
 import com.hwj.ai.global.OsStatus
 import com.hwj.ai.global.printD
 import com.hwj.ai.models.MessageModel
@@ -51,6 +54,15 @@ actual fun createHttpClient(timeout: Long?): HttpClient {
                 }
             }
         }
+    }
+}
+
+@Composable
+actual fun setColorScheme(isDark:Boolean): ColorScheme{
+    return if (!isDark) {
+        LightColorScheme
+    }else{
+        DarkColorScheme
     }
 }
 

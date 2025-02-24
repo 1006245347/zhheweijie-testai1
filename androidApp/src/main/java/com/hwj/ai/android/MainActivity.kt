@@ -12,12 +12,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.view.WindowCompat
 import com.hwj.ai.PlatformAppStart
 import com.hwj.ai.global.Greeting
+import com.hwj.ai.global.ThemeChatLite
 import com.hwj.ai.ui.global.TestPage
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        WindowCompat.setDecorFitsSystemWindows(window,false)
+        WindowCompat.setDecorFitsSystemWindows(window, false)
         setContent {
 //            MyApplicationTheme {
 //                Surface(
@@ -28,25 +29,29 @@ class MainActivity : ComponentActivity() {
 //                }
 //            }
 
-            MyApplicationTheme {
-                Surface (modifier = Modifier.fillMaxSize()){
-                    PlatformAppStart()
-                }
+//            MyApplicationTheme {
+//                Surface (modifier = Modifier.fillMaxSize()){
+//                    PlatformAppStart()
+//                }
+//            }
+
+            ThemeChatLite {
+                Surface(modifier = Modifier.fillMaxSize()) { PlatformAppStart() }
             }
         }
     }
 }
 
-@Composable
-fun GreetingView(text: String) {
-//    Text(text = text)
-    TestPage()
-}
-
-@Preview
-@Composable
-fun DefaultPreview() {
-    MyApplicationTheme {
-        GreetingView("Hello, Android!")
-    }
-}
+//@Composable
+//fun GreetingView(text: String) {
+////    Text(text = text)
+//    TestPage()
+//}
+//
+//@Preview
+//@Composable
+//fun DefaultPreview() {
+//    MyApplicationTheme {
+//        GreetingView("Hello, Android!")
+//    }
+//}

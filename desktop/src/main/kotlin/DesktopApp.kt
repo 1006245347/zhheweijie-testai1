@@ -46,7 +46,6 @@ fun main() {
 
 
     return application {
-
         PlatformWindowStart { exitApplication() }
     }
 }

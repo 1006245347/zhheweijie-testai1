@@ -18,7 +18,10 @@ import com.hwj.ai.models.MessageModel
 import com.hwj.ai.models.MessageTurbo
 import com.hwj.ai.models.TextCompletionsParam
 import com.hwj.ai.models.TurboRole
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.withContext
 import moe.tlaster.precompose.viewmodel.ViewModel
 
 /**
@@ -114,35 +117,38 @@ class ConversationViewModel(
 //        }
 
         //openAi sdk
-        val flowControl = openRepo.receiveAIMessage(
-            TextCompletionsParam(
-                promptText = getPrompt(_currentConversation.value),
-                messagesTurbo = getMessagesParamsTurbo(_currentConversation.value)
-            )
-        )
+        withContext(Dispatchers.IO) { //感觉不太流畅
 
-        var answerFromGPT = ""
-        try {
-            flowControl?.onCompletion {
-                setFabExpanded(false)
-            }?.collect { chunk -> //被强制类型
-                try {
-                    chunk.choices.first().delta?.content?.let {
-                        answerFromGPT += it
-                        updateLocalAnswer(answerFromGPT.trim())
-                        setFabExpanded(true)
-                    }
-                } catch (e: Exception) {
+            val flowControl = openRepo.receiveAIMessage(
+                TextCompletionsParam(
+                    promptText = getPrompt(_currentConversation.value),
+                    messagesTurbo = getMessagesParamsTurbo(_currentConversation.value)
+                )
+            )
+
+            var answerFromGPT = ""
+            try {
+                flowControl?.onCompletion {
+                    setFabExpanded(false)
+                }?.collect { chunk -> //被强制类型
+                    try {
+                        chunk.choices.first().delta?.content?.let {
+                            answerFromGPT += it
+                            updateLocalAnswer(answerFromGPT.trim())
+                            setFabExpanded(true)
+                        }
+                    } catch (e: Exception) {
 //                    printE(e)
+                    }
                 }
-            }
-        } catch (e: Exception) {
+            } catch (e: Exception) {
 //            printE(e) //gpt-4o 返回的数据格式好多异常
+            }
+            // Save to FireStore
+            messageRepo.createMessage(newMessageModel.copy(answer = answerFromGPT))
         }
 
 
-        // Save to FireStore
-//        messageRepo.createMessage(newMessageModel.copy(answer = answerFromGPT))
     }
 
     private fun createConversationRemote(title: String) {

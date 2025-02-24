@@ -14,4 +14,4 @@ const val baseHostUrl="https://copilot.gree.com/aicodeOpen/gpt/"
 const val urlChatCompletions="chat/completions"
 const val LLM_MODEL="gpt-4o"
 
-const val LLM_API_KEY="YWNjZXNzVG9rZW46MjA4NzA1NjI0NjMxNzU1OTgwODozNTE1LjNGQjBDMTg0NkU2NzRENjQxOUUwNDUwMDE1QjUxRTAw"
+const val LLM_API_KEY="YWNjZXNzVG9rZW46MjA4NzA1NjI0NjMxNzU1OTgwODozNTE1LjQ5MzE2MjIyNzA4NUQxNUM5MDI0MTY0NkU5NkFBMjk2"

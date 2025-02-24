@@ -4,36 +4,23 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import com.hwj.ai.setColorScheme
 
 @Composable
-fun ThemeChatLite(darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
-                  dynamicColor: Boolean = false,
+fun ThemeChatLite(isDark: Boolean = isSystemInDarkTheme(),
                   content: @Composable () -> Unit) {
 
-//    val colorScheme = when {
-//        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-//            val context = LocalContext.current
-//            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-//        }
-//        darkTheme -> DarkColorScheme
-//        else -> LightColorScheme
-//    }
-//    val view = LocalView.current
-//    if (!view.isInEditMode) {
-//        SideEffect {
-//            (view.context as Activity).window.statusBarColor = colorScheme.background.toArgb()
-//            ViewCompat.getWindowInsetsController(view)?.isAppearanceLightStatusBars = darkTheme
-//        }
-//    }
+    //兼容平台的主题色
+    val colorScheme = setColorScheme(isDark)
 
     MaterialTheme(
-        colorScheme = darkColorScheme(),
+        colorScheme = colorScheme,
         typography = Typography,
         content = content
     )
@@ -69,5 +56,31 @@ val Typography = Typography(
         lineHeight = 16.sp,
         letterSpacing = 0.5.sp
     )
+    */
+)
+
+ val DarkColorScheme = darkColorScheme(
+    primary = PrimaryColor,
+    secondary = Purple80,
+    tertiary = PrimaryColor,
+    background = BackGroundColor,
+    surface = PrimaryColor,
+)
+
+ val LightColorScheme = lightColorScheme(
+    primary = PrimaryColor,
+    secondary = Purple40,
+    tertiary = PrimaryColor,
+    background = BackGroundColor,
+    surface = BackGroundColor,
+
+    /* Other default colors to override
+    background = Color(0xFFFFFBFE),
+    surface = Color(0xFFFFFBFE),
+    onPrimary = Color.White,
+    onSecondary = Color.White,
+    onTertiary = Color.White,
+    onBackground = Color(0xFF1C1B1F),
+    onSurface = Color(0xFF1C1B1F),
     */
 )
