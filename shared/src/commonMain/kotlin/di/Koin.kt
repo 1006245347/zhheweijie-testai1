@@ -1,20 +1,33 @@
 package di
 
+import com.aallam.openai.client.LoggingConfig
+import com.aallam.openai.client.OpenAI
+import com.aallam.openai.client.OpenAIConfig
+import com.aallam.openai.client.OpenAIHost
 import com.hwj.ai.createHttpClient
-import com.hwj.ai.createSSEClient
 import com.hwj.ai.data.local.PreferenceLocalDataSource
 import com.hwj.ai.data.local.SettingsFactory
 import com.hwj.ai.data.repository.ConversationRepository
+import com.hwj.ai.data.repository.LLMChatRepository
 import com.hwj.ai.data.repository.LLMRepository
 import com.hwj.ai.data.repository.LocalDataRepository
 import com.hwj.ai.data.repository.MessageRepository
 import com.hwj.ai.data.repository.SettingsRepository
+import com.hwj.ai.global.LLM_API_KEY
+import com.hwj.ai.global.baseHostUrl
+import com.hwj.ai.global.printD
 import com.hwj.ai.ui.viewmodel.ConversationViewModel
 import com.hwj.ai.ui.viewmodel.MainViewModel
 import com.hwj.ai.ui.viewmodel.WelcomeScreenModel
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.logging.LogLevel
+import io.ktor.client.plugins.logging.Logger
+import io.ktor.client.plugins.logging.Logging
+import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.serialization.json.Json
 import org.koin.core.Koin
 import org.koin.core.context.startKoin
 import org.koin.core.module.Module
@@ -42,7 +55,7 @@ fun initKoin(): Koin {
 //factory每次都会创建新实例，而single是单例
 val mainModule = module {
     single { createHttpClient(60000) }
-//    single { createSSEClient() }
+
     factoryOf(::PreferenceLocalDataSource)
     single {
         val factory: SettingsFactory = get()
@@ -55,6 +68,32 @@ val mainModule = module {
     single { MessageRepository() }
     single { SettingsRepository() }
     single { LocalDataRepository(get()) }
+    single { LLMChatRepository(get()) }
+    single {
+        val config = OpenAIConfig(token = LLM_API_KEY,
+            host = OpenAIHost(baseHostUrl),
+            logging = LoggingConfig(com.aallam.openai.api.logging.LogLevel.None),
+            httpClientConfig = {
+                //换json配置
+                install(ContentNegotiation) {
+                    json(Json {
+                        ignoreUnknownKeys = true // 忽略未知字段
+                        prettyPrint = true
+                        isLenient = true
+                    })
+                }
+                install(Logging) {
+                    level = LogLevel.NONE //禁止流式对话日志
+                    logger = object : Logger {
+                        override fun log(message: String) {
+                            printD(message)
+                        }
+                    }
+                }
+            }
+        )
+        OpenAI(config)
+    }
 }
 
 val modelModule = module {

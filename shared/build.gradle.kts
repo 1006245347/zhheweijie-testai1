@@ -78,6 +78,10 @@ kotlin {
             implementation(libs.ktor.client.cio)
             implementation(libs.ktor.client.logging)
 
+            //aallam openai
+            implementation(libs.openai.client)
+            implementation(libs.ktoken)
+
             implementation(libs.kotlin.datetime)
 
             //依赖注入

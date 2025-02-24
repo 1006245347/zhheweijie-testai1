@@ -24,10 +24,11 @@ import com.hwj.ai.models.MessageModel
 import com.mohamedrejeb.richeditor.model.rememberRichTextState
 import com.mohamedrejeb.richeditor.ui.material3.RichTextEditor
 import io.ktor.client.HttpClient
-import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
+import io.ktor.client.plugins.logging.LogLevel
+import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.plugins.sse.SSE
 import io.ktor.http.URLBuilder
 import io.ktor.http.takeFrom
@@ -63,28 +64,19 @@ actual fun createHttpClient(timeout: Long?): HttpClient {
                 prettyPrint = true
             })
         }
-//        install(Logging) {
-////                level = LogLevel.BODY
-////            level=LogLevel.HEADERS
+        install(Logging) {
+                level = LogLevel.BODY
+//            level=LogLevel.HEADERS
 //            level= LogLevel.INFO
-////            level = LogLevel.NONE //接口日志屏蔽
-//            logger = object : io.ktor.client.plugins.logging.Logger {
-//                override fun log(message: String) {
-//                    printD(message)
-//                }
-//            }
-//        }
+//            level = LogLevel.NONE //接口日志屏蔽
+            logger = object : io.ktor.client.plugins.logging.Logger {
+                override fun log(message: String) {
+                    printD(message)
+                }
+            }
+        }
         //允许分块处理
 //        expectSuccess = true
-    }
-}
-
-actual fun createSSEClient(): HttpClient {
-    return HttpClient {
-        install(SSE) {
-            showCommentEvents()
-            showRetryEvents()
-        }
     }
 }
 

@@ -37,6 +37,7 @@ import kotlinx.coroutines.withContext
  * @author by jason-何伟杰，2025/1/18
  * des:大模型数据接口
  */
+@Deprecated("无法流式输出")
 class LLMRepository(
     private val client: HttpClient
 ) {
@@ -74,9 +75,6 @@ class LLMRepository(
 //        }
 
 
-        //换下Okhttp
-
-
         callbackFlow {
             withContext(Dispatchers.IO) {
                 var response: HttpResponse? = null
@@ -90,9 +88,12 @@ class LLMRepository(
                             append(HttpHeaders.Authorization, "Bearer $LLM_API_KEY")
                             //加入stream输出,每个包以data:开头，不然字符全拼接乱的
                             append(HttpHeaders.Accept, ContentType.Text.EventStream)
+                            append(HttpHeaders.CacheControl, "no-cache")
+                            append(HttpHeaders.Connection, "keep-alive")
                             //json返回一串无序
 //                            append(HttpHeaders.Accept, ContentType.Application.Json)
                         }
+
                         setBody(params.toJson())
                     }.execute()
                 } catch (e: HttpRequestTimeoutException) {

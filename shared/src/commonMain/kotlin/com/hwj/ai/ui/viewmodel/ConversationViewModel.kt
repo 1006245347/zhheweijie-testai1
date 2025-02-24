@@ -2,12 +2,16 @@
 
 package com.hwj.ai.ui.viewmodel
 
+import com.aallam.openai.api.chat.ChatCompletionChunk
+import com.aallam.openai.client.OpenAI
 import com.hwj.ai.data.repository.ConversationRepository
+import com.hwj.ai.data.repository.LLMChatRepository
 import com.hwj.ai.data.repository.LLMRepository
 import com.hwj.ai.data.repository.MessageRepository
 import com.hwj.ai.global.getMills
 import com.hwj.ai.global.getNowTime
 import com.hwj.ai.global.printD
+import com.hwj.ai.global.printE
 import com.hwj.ai.global.thinking
 import com.hwj.ai.models.ConversationModel
 import com.hwj.ai.models.MessageModel
@@ -23,7 +27,7 @@ import moe.tlaster.precompose.viewmodel.ViewModel
 class ConversationViewModel(
     private val conversationRepo: ConversationRepository,
     private val messageRepo: MessageRepository,
-    private val openAIRepo: LLMRepository,
+    private val openAIRepo: LLMRepository, private val openRepo: LLMChatRepository
 ) : ViewModel() { //换掉这个viewModel
     private val _currentConversation: MutableStateFlow<String> =
         MutableStateFlow(getMills().toString())
@@ -85,32 +89,60 @@ class ConversationViewModel(
         currentListMessage.add(0, newMessageModel)
         setMessages(currentListMessage)
 
-        // Execute API OpenAI ,返回数据
-        val flow: Flow<String> = openAIRepo.textCompletionsWithStream(
+        //直接调用api接口方式
+//        // Execute API OpenAI ,返回数据
+//        val flow: Flow<String> = openAIRepo.textCompletionsWithStream(
+//            TextCompletionsParam(
+//                promptText = getPrompt(_currentConversation.value),
+//                messagesTurbo = getMessagesParamsTurbo(_currentConversation.value)
+//            )
+//        )
+//
+//        var answerFromGPT: String = ""
+//        // When flow collecting updateLocalAnswer including FAB behavior expanded.
+//        // On completion FAB == false
+//        flow.onCompletion {
+//            setFabExpanded(false)
+//        }.collect { value ->
+//            if (stopReceivingResults) {
+//                setFabExpanded(false)
+//                return@collect
+//            }
+//            answerFromGPT += value
+//            updateLocalAnswer(answerFromGPT.trim())
+//            setFabExpanded(true)
+//        }
+
+        //openAi sdk
+        val flowControl = openRepo.receiveAIMessage(
             TextCompletionsParam(
                 promptText = getPrompt(_currentConversation.value),
                 messagesTurbo = getMessagesParamsTurbo(_currentConversation.value)
             )
         )
-        
-        var answerFromGPT: String = ""
-        // When flow collecting updateLocalAnswer including FAB behavior expanded.
-        // On completion FAB == false
-        flow.onCompletion {
-            setFabExpanded(false)
-        }.collect { value ->
-            if (stopReceivingResults) {
+
+        var answerFromGPT = ""
+        try {
+            flowControl?.onCompletion {
                 setFabExpanded(false)
-                return@collect
+            }?.collect { chunk -> //被强制类型
+                try {
+                    chunk.choices.first().delta?.content?.let {
+                        answerFromGPT += it
+                        updateLocalAnswer(answerFromGPT.trim())
+                        setFabExpanded(true)
+                    }
+                } catch (e: Exception) {
+//                    printE(e)
+                }
             }
-//            printD("collect>$value")
-            answerFromGPT += value
-            updateLocalAnswer(answerFromGPT.trim())
-            setFabExpanded(true)
+        } catch (e: Exception) {
+//            printE(e) //gpt-4o 返回的数据格式好多异常
         }
 
+
         // Save to FireStore
-        messageRepo.createMessage(newMessageModel.copy(answer = answerFromGPT))
+//        messageRepo.createMessage(newMessageModel.copy(answer = answerFromGPT))
     }
 
     private fun createConversationRemote(title: String) {

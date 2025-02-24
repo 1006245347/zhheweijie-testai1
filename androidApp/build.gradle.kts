@@ -86,7 +86,10 @@ android {
    // kotlin {
         jvmTarget=libs.versions.java.get()
     }
-
+    kotlin {
+//        jvmToolchain(17)
+        jvmToolchain(libs.versions.java.get().toInt())
+    }
     signingConfigs {
         getByName("debug") {
             enableV1Signing = true

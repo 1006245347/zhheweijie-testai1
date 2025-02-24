@@ -50,7 +50,8 @@ richtext="1.0.0-alpha02"
 richedit="1.0.0-rc11"
 reveal="3.2.0"
 capture="0.3.0"
-uiGraphicsAndroid = "1.7.8"
+ktoken="0.3.0"
+openai-client="4.0.1"
 
 [libraries]
 #UI框架相关
@@ -131,21 +132,27 @@ sqlDelight-runtime = { module = "app.cash.sqldelight:runtime", version.ref = "sq
 primitive-adapters = { module = "app.cash.sqldelight:primitive-adapters", version.ref = "sqlDelight" }
 sqlite-driver = { module = "app.cash.sqldelight:sqlite-driver", version.ref = "sqlDelight" }
 
-#ktor网络连接
+#ktor 3.0网络连接
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
+ktor-client-logging = { module = "io.ktor:ktor-client-logging", version.ref = "ktor" }
+ktor-client-curl= { module = "io.ktor:ktor-client-curl", version.ref = "ktor" }
+ktor-client-auth= { module = "io.ktor:ktor-client-auth", version.ref = "ktor" }
+#ktor engines
+ktor-client-apache={module="io.ktor:ktor-client-apache",version.ref="ktor"}
+ktor-client-jetty={module="io.ktor:ktor-client-jetty",version.ref="ktor"}
 ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
 ktor-client-android = { module = "io.ktor:ktor-client-android", version.ref = "ktor" }
 ktor-client-ios = { module = "io.ktor:ktor-client-darwin", version.ref = "ktor" }
 ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
 ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
 ktor-client-cio = { module = "io.ktor:ktor-client-cio", version.ref = "ktor" }
-ktor-client-logging = { module = "io.ktor:ktor-client-logging", version.ref = "ktor" }
+ktoken = { group = "com.aallam.ktoken", name = "ktoken", version.ref = "ktoken" }
+openai-client={ module="com.aallam.openai:openai-client",version.ref="openai-client"}
 
 #coil3-core = { module = "io.coil-kt.coil3:coil", version.ref = "coil3" }
 coil3-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil3" }
 coil3-svg = { module = "io.coil-kt.coil3:coil-svg", version.ref = "coil3" }
 coil3-ktor = { module = "io.coil-kt.coil3:coil-network-ktor2", version.ref = "coil3" }
-androidx-ui-graphics-android = { group = "androidx.compose.ui", name = "ui-graphics-android", version.ref = "uiGraphicsAndroid" }
 #coil3-video = { module = "io.coil-kt.coil3:coil-video", version.ref = "coil3" }
 #coil3-gif = { module = "io.coil-kt.coil3:coil-gif", version.ref = "coil3" }
 

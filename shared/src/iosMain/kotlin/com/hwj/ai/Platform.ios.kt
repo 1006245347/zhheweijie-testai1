@@ -54,27 +54,6 @@ actual fun createHttpClient(timeout: Long?): HttpClient {
     }
 }
 
-actual fun createSSEClient(): HttpClient {
-    return HttpClient {
-        install(SSE) {
-            showCommentEvents()
-            showRetryEvents()
-        }
-
-//        install(Logging) {
-//            level = LogLevel.BODY
-////            level=LogLevel.HEADERS
-////            level= LogLevel.INFO
-////            level = LogLevel.NONE //接口日志屏蔽
-//            logger = object : io.ktor.client.plugins.logging.Logger {
-//                override fun log(message: String) {
-//                    printD(message)
-//                }
-//            }
-//        }
-    }
-}
-
 @Composable
 actual fun BotMessageCard(message: MessageModel) {
     BotCommonCard(message)

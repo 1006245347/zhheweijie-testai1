@@ -68,14 +68,7 @@ actual fun createHttpClient(timeout: Long?): HttpClient {
         }
     }
 }
-actual fun createSSEClient(): HttpClient {
-    return HttpClient {
-        install(SSE) {
-            showCommentEvents()
-            showRetryEvents()
-        }
-    }
-}
+
 @Composable
 actual fun BotMessageCard(message: MessageModel) {
 //    BotCommonCard(message)//默认
