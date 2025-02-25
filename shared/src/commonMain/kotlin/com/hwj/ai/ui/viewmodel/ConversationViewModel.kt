@@ -2,16 +2,12 @@
 
 package com.hwj.ai.ui.viewmodel
 
-import com.aallam.openai.api.chat.ChatCompletionChunk
-import com.aallam.openai.client.OpenAI
 import com.hwj.ai.data.repository.ConversationRepository
 import com.hwj.ai.data.repository.LLMChatRepository
 import com.hwj.ai.data.repository.LLMRepository
 import com.hwj.ai.data.repository.MessageRepository
 import com.hwj.ai.global.getMills
 import com.hwj.ai.global.getNowTime
-import com.hwj.ai.global.printD
-import com.hwj.ai.global.printE
 import com.hwj.ai.global.thinking
 import com.hwj.ai.models.ConversationModel
 import com.hwj.ai.models.MessageModel
@@ -20,7 +16,12 @@ import com.hwj.ai.models.TextCompletionsParam
 import com.hwj.ai.models.TurboRole
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.withContext
 import moe.tlaster.precompose.viewmodel.ViewModel
 

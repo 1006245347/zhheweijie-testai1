@@ -9,6 +9,7 @@ captures
 local.properties
 xcuserdata
 .kotlin/
+gradle.properties
 # 忽略 .kotlin 目录
 #git rm -r --cached .kotlin
 #git commit -m "Ignore .kotlin folder"
