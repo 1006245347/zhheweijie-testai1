@@ -2,6 +2,7 @@ package com.hwj.ai
 
 import androidx.compose.material3.ColorScheme
 import androidx.compose.runtime.Composable
+import com.hwj.ai.data.local.SettingsFactory
 import com.hwj.ai.global.DarkColorScheme
 import com.hwj.ai.global.LightColorScheme
 import com.hwj.ai.global.OsStatus
@@ -10,6 +11,7 @@ import com.hwj.ai.models.MessageModel
 import com.hwj.ai.ui.chat.BotCommonCard
 import com.russhwolf.settings.NSUserDefaultsSettings
 import com.russhwolf.settings.Settings
+import com.russhwolf.settings.coroutines.FlowSettings
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.darwin.Darwin
 import io.ktor.client.plugins.HttpTimeout
@@ -57,11 +59,12 @@ actual fun createHttpClient(timeout: Long?): HttpClient {
     }
 }
 
+
 @Composable
-actual fun setColorScheme(isDark:Boolean): ColorScheme{
+actual fun setColorScheme(isDark: Boolean): ColorScheme {
     return if (!isDark) {
         LightColorScheme
-    }else{
+    } else {
         DarkColorScheme
     }
 }

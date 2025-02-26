@@ -23,11 +23,19 @@ import androidx.compose.ui.text.capitalize
 import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
+import com.hwj.ai.except.DataSettings
+import com.russhwolf.settings.coroutines.toBlockingSettings
+import com.russhwolf.settings.serialization.decodeValueOrNull
+import com.russhwolf.settings.serialization.encodeValue
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
 import kotlinx.datetime.Clock
@@ -42,8 +50,10 @@ import kotlinx.datetime.minus
 import kotlinx.datetime.plus
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
+import kotlinx.serialization.ExperimentalSerializationApi
 import moe.tlaster.precompose.viewmodel.ViewModel
 import moe.tlaster.precompose.viewmodel.viewModelScope
+import testai1.shared.generated.resources.Res
 
 import kotlin.jvm.JvmInline
 
@@ -504,10 +514,12 @@ fun Int.formattedNumber(): String {
 
 //desktop端日志在 terminal显示
 fun printD(log: String?, tag: String = logTAG) {
-    if (log.isNullOrEmpty()) {
-        Napier.d("log_null", tag = tag)
-    } else {
-        Napier.d(log, tag = tag)
+    globalScope.launch {
+        if (log.isNullOrEmpty()) {
+            Napier.d("log_null", tag = tag)
+        } else {
+            Napier.d(log, tag = tag)
+        }
     }
 }
 
@@ -532,6 +544,7 @@ fun ViewModel.workInSub(
     }
 }
 
+
 fun ViewModel.delayWork(
     delayMills: Long = 2000, defaultDispatcher: CoroutineDispatcher =
         Dispatchers.Default, block: suspend CoroutineScope.() -> Unit
@@ -540,5 +553,98 @@ fun ViewModel.delayWork(
         delay(delayMills)
         block()
     }
+}
+
+val globalScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+val settingsCache = DataSettings().settingsCache
+
+@OptIn(ExperimentalSerializationApi::class)
+inline fun <reified T> saveObj(key: String, value: T) {
+    settingsCache.toBlockingSettings().encodeValue(key, value)
+}
+
+@OptIn(ExperimentalSerializationApi::class)
+inline fun <reified T> getCacheObj(key: String): T? {
+    return settingsCache.toBlockingSettings().decodeValueOrNull<T>(key)
+}
+
+//注意，这种是开启新的线程异步执行，结果是线程安全
+fun saveAsyncInt(key: String, value: Int) {
+    //异步
+    globalScope.launch {
+        settingsCache.putInt(key, value)
+    }
+}
+
+suspend fun saveInt(key: String, value: Int) {
+    settingsCache.putInt(key, value)
+}
+
+fun saveAsyncString(key: String, value: String) {
+    globalScope.launch {
+        settingsCache.putString(key, value)
+    }
+}
+
+suspend fun saveString(key: String, value: String) {
+    settingsCache.putString(key, value)
+}
+
+fun saveAsyncBoolean(key: String, value: Boolean) {
+    globalScope.launch {
+        settingsCache.putBoolean(key, value)
+    }
+}
+
+suspend fun saveBoolean(key: String, value: Boolean) {
+    settingsCache.putBoolean(key, value)
+}
+
+fun saveAsyncFloat(key: String, value: Float) {
+    globalScope.launch {
+        settingsCache.putFloat(key, value)
+    }
+}
+
+suspend fun saveFloat(key: String, value: Float) {
+    settingsCache.putFloat(key, value)
+}
+
+fun saveAsyncDouble(key: String, value: Double) {
+    globalScope.launch {
+        settingsCache.putDouble(key, value)
+    }
+}
+
+suspend fun saveDouble(key: String, value: Double) {
+    settingsCache.putDouble(key, value)
+}
+
+suspend fun getCacheInt(key: String): Int {
+    return settingsCache.getInt(key, 0)
+}
+
+suspend fun getCacheString(key: String): String? {
+    return settingsCache.getStringOrNull(key)
+}
+
+suspend fun getCacheBoolean(key: String): Boolean {
+    return settingsCache.getBoolean(key, false)
+}
+
+suspend fun getCacheFloat(key: String): Float {
+    return settingsCache.getFloat(key, 0f)
+}
+
+suspend fun getCacheDouble(key: String): Double {
+    return settingsCache.getDouble(key, 0.0)
+}
+
+suspend fun hasCacheKey(key: String): Boolean {
+    return settingsCache.hasKey(key)
+}
+
+suspend fun clearCache() {
+    settingsCache.clear()
 }
 

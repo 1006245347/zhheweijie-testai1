@@ -44,12 +44,13 @@ val Purple40 = Color(0xFF6650a4)
 val PurpleGrey40 = Color(0xFF625b71)
 val Pink40 = Color(0xFF7D5260)
 
-val PrimaryColor = Color(0xFF1DA1F2)
+val PrimaryColor = Color(0xFF06ADFA) //小蓝
 
-//val BackGroundColor = Color(0xFF14171A)
-val BackGroundColor = Color(0xFF30353A)
+val BackGroundColor1 = Color(0xFFFFFFF2) //白
+val BackGroundColor2 = Color(0xFF14171A)//黑
+val BackGroundColor = Color(0xFF6650a4)//深灰
 val BackGroundMessageHuman = Color(0xFFE2F0E9)
-val BackGroundMessageGPT = Color(0xFF22252A)
+val BackGroundMessageGPT = Color(0xFF2F3237)
 val ColorTextHuman = Color(0xFF3D3D4E)
 val ColorTextGPT = Color(0xFFFFFFF2)
 fun cOrangeFFB8664() = Color(0xFFFB8664)

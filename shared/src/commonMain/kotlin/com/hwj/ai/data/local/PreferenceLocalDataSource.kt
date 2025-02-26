@@ -56,36 +56,17 @@ class PreferenceLocalDataSource(
         settings.putInt(key, value)
     }
 
-    suspend fun saveBoolean(key: String, value: Boolean) {
-        settings.putBoolean(key, value)
+
+    suspend fun hasKey(key: String): Boolean {
+        return settings.hasKey(key)
     }
 
-    suspend fun saveFloat(key: String, value: Float) {
-        settings.putFloat(key, value)
+    suspend fun clearCache() {
+        settings.clear()
     }
 
-    suspend fun saveDouble(key: String, value: Double) {
-        settings.putDouble(key, value)
-    }
-
-    suspend fun getString(key: String): String? {
-        return settings.getStringOrNull(key)
-    }
-
-    suspend fun getInt(key: String): Int {
-        return settings.getInt(key, 0)
-    }
-
-    suspend fun getBoolean(key: String): Boolean {
-        return settings.getBoolean(key, false)
-    }
-
-    suspend fun getFloat(key: String): Float {
-        return settings.getFloat(key, 0f)
-    }
-
-    suspend fun getDouble(key: String): Double {
-        return settings.getDouble(key, 0.0)
+    fun c(){
+//        getCacheInt("c").collectLatest { it }
     }
 
     companion object {

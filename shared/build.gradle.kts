@@ -115,6 +115,7 @@ kotlin {
             //key-value存储
             api(libs.multiplatform.settings)
             api(libs.multiplatform.coroutines)
+            api(libs.multiplatform.serialization)
 
             //页面自适配判断库
             implementation(libs.windowSize)

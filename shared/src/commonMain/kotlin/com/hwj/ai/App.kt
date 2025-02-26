@@ -1,21 +1,14 @@
 package com.hwj.ai
 
-import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import com.hwj.ai.data.repository.LocalDataRepository
 import com.hwj.ai.global.NavigateRoute
-import com.hwj.ai.global.ThemeChatLite
 import com.hwj.ai.global.printD
 import com.hwj.ai.ui.chat.ChatScreen
 import com.hwj.ai.ui.chat.WelcomeScreen
 import com.hwj.ai.ui.viewmodel.AppUiState
-import com.hwj.ai.ui.viewmodel.MainViewModel
 import com.hwj.ai.ui.viewmodel.WelcomeScreenModel
 import moe.tlaster.precompose.PreComposeApp
 import moe.tlaster.precompose.koin.koinViewModel

@@ -38,20 +38,18 @@ import moe.tlaster.precompose.koin.koinViewModel
 @Composable
 fun Conversation() {
     val model = koinViewModel(ConversationViewModel::class)
-    ThemeChatLite  () {
-        Surface(
-            modifier = Modifier.fillMaxSize(),
-            color = BackGroundColor,
-        ) {
-            Box(Modifier.fillMaxSize()) {
-                Column(Modifier.fillMaxSize()) {
-                    MessageList(
-                        modifier = Modifier
-                            .weight(1f)
-                            .padding(horizontal = 16.dp)
-                    ,model)
-                    TextInput(model)
-                }
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background, //background根据主题自动变化
+    ) {
+        Box(Modifier.fillMaxSize()) {
+            Column(Modifier.fillMaxSize()) {
+                MessageList(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(horizontal = 16.dp), model
+                )
+                TextInput(model)
             }
         }
     }

@@ -25,9 +25,11 @@ import androidx.core.view.ViewCompat
 import com.halilibo.richtext.commonmark.Markdown
 import com.halilibo.richtext.ui.CodeBlockStyle
 import com.halilibo.richtext.ui.RichTextStyle
+import com.hwj.ai.data.local.SettingsFactory
 import com.hwj.ai.global.ColorTextGPT
 import com.hwj.ai.global.DarkColorScheme
 import com.hwj.ai.global.LightColorScheme
+import com.hwj.ai.global.MainApplication
 import com.hwj.ai.global.OsStatus
 import com.hwj.ai.global.ThemeChatLite
 import com.hwj.ai.global.baseHostUrl
@@ -35,6 +37,7 @@ import com.hwj.ai.global.printD
 import com.hwj.ai.models.MessageModel
 import com.mohamedrejeb.richeditor.model.rememberRichTextState
 import com.mohamedrejeb.richeditor.ui.material3.RichTextEditor
+import com.russhwolf.settings.coroutines.FlowSettings
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -92,29 +95,32 @@ actual fun createHttpClient(timeout: Long?): HttpClient {
     }
 }
 
+
 @Composable
 actual fun setColorScheme(isDark: Boolean): ColorScheme {
     var colorScheme = LightColorScheme
+//    printD("isDark=$isDark")
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
         val context = LocalContext.current
         if (isDark) {
-            colorScheme= dynamicDarkColorScheme(context)
+            colorScheme = dynamicDarkColorScheme(context)
         } else {
-            colorScheme= dynamicLightColorScheme(context)
+            colorScheme = dynamicLightColorScheme(context)
         }
     } else {
         if (isDark) {
-            colorScheme= DarkColorScheme
+            colorScheme = DarkColorScheme
         } else {
-            colorScheme= LightColorScheme
+            colorScheme = LightColorScheme
         }
     }
-     colorScheme=LightColorScheme
+//    colorScheme = LightColorScheme
     return colorScheme.apply {
         val view = LocalView.current
         if (!view.isInEditMode) {
             SideEffect {
-                (view.context as ComponentActivity).window.statusBarColor = colorScheme.background.toArgb()
+                (view.context as ComponentActivity).window.statusBarColor =
+                    colorScheme.background.toArgb()
                 ViewCompat.getWindowInsetsController(view)?.isAppearanceLightStatusBars = isDark
             }
         }
@@ -143,7 +149,7 @@ fun testBotMsgCard1(message: MessageModel) {
             ),
             wordWrap = true,
             modifier = Modifier.background(
-                color = Color.Black,
+                color = Color.Yellow,
                 shape = RoundedCornerShape(6.dp)
             )
         )

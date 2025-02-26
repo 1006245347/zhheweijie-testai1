@@ -11,6 +11,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -22,7 +23,9 @@ import com.hwj.ai.capture.testCapture2
 import com.hwj.ai.capture.testCapture3
 import com.hwj.ai.capture.testCapture4
 import com.hwj.ai.capture.testShot
+import com.hwj.ai.except.saveInt
 import com.hwj.ai.ui.capture.CaptureFetch
+import kotlinx.coroutines.launch
 import moe.tlaster.precompose.ProvidePreComposeLocals
 
 @Composable
@@ -51,6 +54,7 @@ fun PlatformWindowStart(onCloseRequest: () -> Unit) {
 @Composable
 fun quickStart() = singleWindowApplication(title = "quick") {
     val text = remember { mutableStateOf("百度一下") }
+    val subScope = rememberCoroutineScope()
     Column {
         ContextMenuDataProvider(items={
             listOf(ContextMenuItem("Ai Search"){
@@ -60,6 +64,9 @@ fun quickStart() = singleWindowApplication(title = "quick") {
             TextField(value = text.value, onValueChange = {text.value=it})
         }
     }
+//    subScope.launch {
+//        saveInt("e",3)
+//    }
     SelectionContainer {
         Text("中国清朝几个皇帝?")
     }

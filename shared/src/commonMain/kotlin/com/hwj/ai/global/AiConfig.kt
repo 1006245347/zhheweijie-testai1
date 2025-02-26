@@ -12,5 +12,13 @@ const val urlToBot = "https://copilot.gree.com"
 
 const val conversationTestTag = "ConversationTestTag"
 
-const val logTAG="hwj"
+const val logTAG="yuy"
 const val thinking="思考中..."
+
+//数据
+const val DATA_APP_TOKEN="DATA_APP_TOKEN"
+
+
+//标识
+const val CODE_IS_DARK="CODE_IS_DARK" //是否黑暗模式
+

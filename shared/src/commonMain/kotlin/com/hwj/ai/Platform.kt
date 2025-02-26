@@ -4,6 +4,7 @@ import androidx.compose.material3.ColorScheme
 import androidx.compose.runtime.Composable
 import com.hwj.ai.global.OsStatus
 import com.hwj.ai.models.MessageModel
+import com.russhwolf.settings.coroutines.FlowSettings
 import io.ktor.client.HttpClient
 
 interface Platform {

@@ -11,8 +11,7 @@ import kotlinx.coroutines.withContext
  * des:引入PreferenceLocalDataSource是多实例非单例
  */
 class LocalDataRepository(
-    private val dataSource: PreferenceLocalDataSource,
-//    private val defaultDispatcher: CoroutineDispatcher = Dispatchers.Default
+    private val dataSource: PreferenceLocalDataSource
 ) {
 
     suspend fun welcomeShown(): Boolean = withContext(Dispatchers.Default) {
@@ -28,4 +27,5 @@ class LocalDataRepository(
     suspend fun setInAppReviewShown(): Unit = withContext(Dispatchers.Default) {
         dataSource.setInAppReviewShown()
     }
+
 }

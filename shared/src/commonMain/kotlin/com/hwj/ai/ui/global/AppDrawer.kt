@@ -117,7 +117,7 @@ fun AppDrawer(
         DrawerItemHeader("Settings")
         ChatItem("Settings", Icons.Filled.Settings, false) { onChatClicked("Settings") }
         ProfileItem(
-            "deplove (author)",
+            " author zhheweijie",
             urlToImageAuthor,
         ) {
 //            UrlLauncher().openUrl(context = context, urlToGithub)
@@ -147,7 +147,7 @@ private fun DrawerHeader(
             )
             Column(modifier = Modifier.padding(horizontal = 12.dp)) {
                 Text(
-                    "ChatGPT Lite",
+                    "Chat Lite",
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.secondary,
@@ -156,7 +156,7 @@ private fun DrawerHeader(
                     "Powered by OpenAI",
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Normal,
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.secondary,
                 )
             }
         }

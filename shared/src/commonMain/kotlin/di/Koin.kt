@@ -13,20 +13,19 @@ import com.hwj.ai.data.repository.LLMRepository
 import com.hwj.ai.data.repository.LocalDataRepository
 import com.hwj.ai.data.repository.MessageRepository
 import com.hwj.ai.data.repository.SettingsRepository
+import com.hwj.ai.except.DataSettings
 import com.hwj.ai.global.LLM_API_KEY
 import com.hwj.ai.global.baseHostUrl
 import com.hwj.ai.global.printD
+import com.hwj.ai.ui.viewmodel.ChatViewModel
 import com.hwj.ai.ui.viewmodel.ConversationViewModel
-import com.hwj.ai.ui.viewmodel.MainViewModel
 import com.hwj.ai.ui.viewmodel.WelcomeScreenModel
+import com.russhwolf.settings.coroutines.FlowSettings
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.serialization.kotlinx.json.json
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.serialization.json.Json
 import org.koin.core.Koin
 import org.koin.core.context.startKoin
@@ -53,6 +52,7 @@ fun initKoin(): Koin {
 
 //依赖注入目的是为了对象创建解耦，对象不在new具体的类，而是根据模版依赖生成
 //factory每次都会创建新实例，而single是单例
+//lateinit var settingsCache: FlowSettings
 val mainModule = module {
     single { createHttpClient(60000) }
 
@@ -61,8 +61,9 @@ val mainModule = module {
         val factory: SettingsFactory = get()
         factory.createSettings()
     }
-    factory { CoroutineScope(SupervisorJob() + Dispatchers.Default) }
-
+//    factory { CoroutineScope(SupervisorJob() + Dispatchers.Default) }
+//    factory { globalScope }
+    single { DataSettings() }
     single { LLMRepository(get()) }
     single { ConversationRepository() }
     single { MessageRepository() }
@@ -99,7 +100,7 @@ val mainModule = module {
 val modelModule = module {
     factoryOf(::ConversationViewModel)
     factory { WelcomeScreenModel(get()) }
-    single { MainViewModel() }
+    single { ChatViewModel() }
 }
 
 /**

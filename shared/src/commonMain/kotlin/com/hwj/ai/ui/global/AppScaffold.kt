@@ -4,7 +4,7 @@ import androidx.compose.material3.*
 import androidx.compose.material3.DrawerValue.Closed
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
-import com.hwj.ai.global.BackGroundColor
+import com.hwj.ai.global.BackGroundColor2
 import com.hwj.ai.ui.viewmodel.ConversationViewModel
 import kotlinx.coroutines.launch
 import moe.tlaster.precompose.koin.koinViewModel
@@ -28,7 +28,7 @@ fun AppScaffold(
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
-            ModalDrawerSheet(drawerContainerColor = BackGroundColor) {
+            ModalDrawerSheet(drawerContainerColor = MaterialTheme.colorScheme.background) {//hwj
                 AppDrawer(
                     onChatClicked = onChatClicked,
                     onNewChatClicked = onNewChatClicked,

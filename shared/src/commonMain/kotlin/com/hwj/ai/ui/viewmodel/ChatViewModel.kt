@@ -4,7 +4,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import moe.tlaster.precompose.viewmodel.ViewModel
 
-class MainViewModel: ViewModel(){
+class ChatViewModel: ViewModel(){
 
     private val _drawerShouldBeOpened = MutableStateFlow(false)
     val drawerShouldBeOpened = _drawerShouldBeOpened.asStateFlow()
@@ -16,4 +16,6 @@ class MainViewModel: ViewModel(){
     fun resetOpenDrawerAction() {
         _drawerShouldBeOpened.value = false
     }
+
+
 }

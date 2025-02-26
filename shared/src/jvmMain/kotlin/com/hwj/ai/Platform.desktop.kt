@@ -18,6 +18,7 @@ import com.halilibo.richtext.commonmark.Markdown
 import com.halilibo.richtext.ui.CodeBlockStyle
 import com.halilibo.richtext.ui.RichTextScope
 import com.halilibo.richtext.ui.RichTextStyle
+import com.hwj.ai.data.local.SettingsFactory
 import com.hwj.ai.global.ColorTextGPT
 import com.hwj.ai.global.DarkColorScheme
 import com.hwj.ai.global.LightColorScheme
@@ -27,6 +28,7 @@ import com.hwj.ai.global.printD
 import com.hwj.ai.models.MessageModel
 import com.mohamedrejeb.richeditor.model.rememberRichTextState
 import com.mohamedrejeb.richeditor.ui.material3.RichTextEditor
+import com.russhwolf.settings.coroutines.FlowSettings
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -71,6 +73,8 @@ actual fun createHttpClient(timeout: Long?): HttpClient {
         }
     }
 }
+
+
 
 @Composable
 actual fun setColorScheme(isDark: Boolean): ColorScheme {

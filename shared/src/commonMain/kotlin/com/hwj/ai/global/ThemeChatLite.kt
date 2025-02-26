@@ -1,23 +1,39 @@
 package com.hwj.ai.global
 
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.hwj.ai.setColorScheme
+import kotlinx.coroutines.launch
 
+/**
+ * @author by jason-何伟杰，2025/2/25
+ * des:不能随便引入主题，会重置主题色
+ */
 @Composable
-fun ThemeChatLite(isDark: Boolean = isSystemInDarkTheme(),
-                  content: @Composable () -> Unit) {
-
+fun ThemeChatLite(
+    content: @Composable () -> Unit
+) {
+    //这异步会影响？
+    val dark = remember { mutableStateOf(false) }
+    val subScope = rememberCoroutineScope()
+    LaunchedEffect(Unit) {
+        subScope.launch {
+            dark.value = getCacheBoolean(CODE_IS_DARK)
+        }
+    }
     //兼容平台的主题色
-    val colorScheme = setColorScheme(isDark)
+    val colorScheme = setColorScheme(dark.value)
 
     MaterialTheme(
         colorScheme = colorScheme,
@@ -59,20 +75,20 @@ val Typography = Typography(
     */
 )
 
- val DarkColorScheme = darkColorScheme(
+val DarkColorScheme = darkColorScheme(
     primary = PrimaryColor,
     secondary = Purple80,
     tertiary = PrimaryColor,
-    background = BackGroundColor,
+    background = BackGroundColor2,
     surface = PrimaryColor,
 )
 
- val LightColorScheme = lightColorScheme(
+val LightColorScheme = lightColorScheme(
     primary = PrimaryColor,
     secondary = Purple40,
     tertiary = PrimaryColor,
-    background = BackGroundColor,
-    surface = BackGroundColor,
+    background = BackGroundColor1,
+    surface = BackGroundColor1,
 
     /* Other default colors to override
     background = Color(0xFFFFFBFE),
