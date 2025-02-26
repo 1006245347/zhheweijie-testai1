@@ -78,7 +78,7 @@ kotlin {
             implementation(libs.ktor.client.cio)
             implementation(libs.ktor.client.logging)
 
-            //aallam openai
+            //aallam openai  https://github.com/aallam/openai-kotlin
             implementation(libs.openai.client)
             implementation(libs.ktoken)
 
@@ -185,7 +185,7 @@ kotlin {
             // SQL
             implementation(libs.android.driver)
 
-            //markdown,富文本
+            //markdown,富文本  math Latex https://github.com/halilozercan/compose-richtext
             implementation(libs.richtext.core)
             implementation(libs.richtext.markdown)
             implementation(libs.richtext.mark)

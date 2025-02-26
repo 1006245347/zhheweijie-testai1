@@ -36,7 +36,6 @@ class LLMChatRepository(private val openAI: OpenAI) {
             messages = toAIList(params.messagesTurbo)
         )
 
-
         try {
             return openAI.chatCompletions(requestArgs)
         } catch (e: OpenAIHttpException) {

@@ -1,7 +1,10 @@
 package com.hwj.ai.ui.chat
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material.Text
+import androidx.compose.material.contentColorFor
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.MaterialTheme
@@ -10,6 +13,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -21,10 +25,13 @@ import com.hwj.ai.global.CODE_IS_DARK
 import com.hwj.ai.global.ThemeChatLite
 import com.hwj.ai.global.getCacheBoolean
 import com.hwj.ai.global.printD
+import com.hwj.ai.global.printList
 import com.hwj.ai.global.saveBoolean
 import com.hwj.ai.ui.global.AppBar
 import com.hwj.ai.ui.global.AppScaffold
 import com.hwj.ai.ui.viewmodel.ChatViewModel
+import com.hwj.ai.ui.viewmodel.ModelConfigIntent
+import com.hwj.ai.ui.viewmodel.ModelConfigState
 import kotlinx.coroutines.launch
 import moe.tlaster.precompose.koin.koinViewModel
 import moe.tlaster.precompose.navigation.BackHandler
@@ -34,6 +41,7 @@ import moe.tlaster.precompose.navigation.Navigator
 fun ChatScreen(navigator: Navigator) {
 
     val chatViewModel = koinViewModel(ChatViewModel::class)
+    val configState by chatViewModel.configState.collectAsState()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val drawerOpen by chatViewModel.drawerShouldBeOpened.collectAsState()
     if (drawerOpen) {
@@ -65,7 +73,15 @@ fun ChatScreen(navigator: Navigator) {
         scope.launch {
             darkTheme.value = getCacheBoolean(CODE_IS_DARK)
         }
+        //主动获取数据
+        chatViewModel.processIntent(ModelConfigIntent.LoadData)
     }
+
+    SideEffect {
+        //更新数据?
+    }
+
+
     printD("dark1>${darkTheme.value}")
     ThemeChatLite {
         Surface(color = MaterialTheme.colorScheme.background) {
@@ -87,8 +103,26 @@ fun ChatScreen(navigator: Navigator) {
                 Column(modifier = Modifier.fillMaxSize()) {
                     AppBar(onClickMenu = { scope.launch { drawerState.open() } })
                     Divider()
-                    Conversation()
+                    if (configState.isLoading || configState.error != null) {
+                        ChatInit(configState)
+                    } else {
+//                        printList(configState.data) //大模型数据
+                        Conversation()
+                    }
                 }
+            }
+        }
+    }
+}
+
+@Composable
+fun ChatInit(state: ModelConfigState) {
+    Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            if (state.isLoading) {
+                Text("加载中...")
+            } else if (state.error != null) {
+                Text(state.error)
             }
         }
     }

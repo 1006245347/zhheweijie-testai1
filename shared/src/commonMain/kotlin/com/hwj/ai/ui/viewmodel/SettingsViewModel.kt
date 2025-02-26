@@ -31,18 +31,17 @@ class SettingsViewModel(private val repository: SettingsRepository) : ViewModel(
             is SettingsIntent.ItemClicked -> {
                getItemData(intent.item)
             }
-            else -> {}
         }
     }
 
     fun getAppData() {
-        _uiObs.update { it.copy(loading = true) } //设置状态为加载中
+        _uiObs.update { it.copy(isLoading = true) } //设置状态为加载中
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val list = repository.getAppData()
-                _uiObs.update { it.copy(loading = false, data = list) } //设置状态为加载完成
+                _uiObs.update { it.copy(isLoading = false, data = list) } //设置状态为加载完成
             } catch (e: Exception) {
-                _uiObs.update { it.copy(loading = false, data = emptyList(), error = e) }
+                _uiObs.update { it.copy(isLoading = false, data = emptyList(), error = e) }
             }
         }
     }
@@ -58,10 +57,10 @@ class SettingsViewModel(private val repository: SettingsRepository) : ViewModel(
 
 //页面对应的UI状态，高低频率刷新的可拆分多个类,基本全有默认值
 data class SettingsUiState(
-    val loading: Boolean = false, var data: List<String> = emptyList(),
+    val isLoading: Boolean = false, var data: List<String> = emptyList(),
     val error: Throwable? = null
 ) {
-    val canSee: Boolean = data.isEmpty() || !loading//派生状态？
+    val canSee: Boolean = data.isEmpty() || !isLoading//派生状态？
 }
 
 //页面对应的UI事件标识

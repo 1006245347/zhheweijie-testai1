@@ -8,6 +8,7 @@ import com.hwj.ai.createHttpClient
 import com.hwj.ai.data.local.PreferenceLocalDataSource
 import com.hwj.ai.data.local.SettingsFactory
 import com.hwj.ai.data.repository.ConversationRepository
+import com.hwj.ai.data.repository.GlobalRepository
 import com.hwj.ai.data.repository.LLMChatRepository
 import com.hwj.ai.data.repository.LLMRepository
 import com.hwj.ai.data.repository.LocalDataRepository
@@ -19,6 +20,7 @@ import com.hwj.ai.global.baseHostUrl
 import com.hwj.ai.global.printD
 import com.hwj.ai.ui.viewmodel.ChatViewModel
 import com.hwj.ai.ui.viewmodel.ConversationViewModel
+import com.hwj.ai.ui.viewmodel.SettingsViewModel
 import com.hwj.ai.ui.viewmodel.WelcomeScreenModel
 import com.russhwolf.settings.coroutines.FlowSettings
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -52,7 +54,6 @@ fun initKoin(): Koin {
 
 //依赖注入目的是为了对象创建解耦，对象不在new具体的类，而是根据模版依赖生成
 //factory每次都会创建新实例，而single是单例
-//lateinit var settingsCache: FlowSettings
 val mainModule = module {
     single { createHttpClient(60000) }
 
@@ -61,8 +62,6 @@ val mainModule = module {
         val factory: SettingsFactory = get()
         factory.createSettings()
     }
-//    factory { CoroutineScope(SupervisorJob() + Dispatchers.Default) }
-//    factory { globalScope }
     single { DataSettings() }
     single { LLMRepository(get()) }
     single { ConversationRepository() }
@@ -70,6 +69,8 @@ val mainModule = module {
     single { SettingsRepository() }
     single { LocalDataRepository(get()) }
     single { LLMChatRepository(get()) }
+    single { GlobalRepository(get()) }
+
     single {
         val config = OpenAIConfig(token = LLM_API_KEY,
             host = OpenAIHost(baseHostUrl),
@@ -100,7 +101,8 @@ val mainModule = module {
 val modelModule = module {
     factoryOf(::ConversationViewModel)
     factory { WelcomeScreenModel(get()) }
-    single { ChatViewModel() }
+    single { ChatViewModel(get()) }
+    single { SettingsViewModel(get()) }
 }
 
 /**

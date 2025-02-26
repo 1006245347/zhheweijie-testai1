@@ -535,6 +535,16 @@ fun printE(throws: Throwable, tag: String = logTAG) {
     Napier.e(throwable = throws, tag = tag) { "error>" }
 }
 
+fun printList(list: List<Any>?, des: String? = null, tag: String = logTAG) {
+    des?.let { printD(">$des", tag) }
+    if (list == null) {
+        printD(">list is null", tag)
+    } else {
+        printD("printList-size>${list.size}")
+        list.forEachIndexed { index, any -> printD("Item$index> $any", tag) }
+    }
+}
+
 fun ViewModel.workInSub(
     defaultDispatcher: CoroutineDispatcher =
         Dispatchers.Default, block: suspend CoroutineScope.() -> Unit

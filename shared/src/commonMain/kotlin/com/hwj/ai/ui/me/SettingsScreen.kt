@@ -14,7 +14,6 @@ import com.hwj.ai.ui.viewmodel.SettingsIntent
 import com.hwj.ai.ui.viewmodel.SettingsViewModel
 import moe.tlaster.precompose.koin.koinViewModel
 import moe.tlaster.precompose.navigation.Navigator
-import moe.tlaster.precompose.navigation.rememberNavigator
 
 @Composable
 fun SettingsScreen(navigator: Navigator) {
@@ -28,7 +27,7 @@ fun SettingsScreen(navigator: Navigator) {
     }
 
     Column {
-        if (uiState.loading) {
+        if (uiState.isLoading) {
             Text(text = "loading...")
         } else if (uiState.error != null) {
             Text(text = "err>>${uiState.error}")
