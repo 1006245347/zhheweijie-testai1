@@ -26,14 +26,6 @@ fun ThemeChatLite(
     isDark: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
-//    //这异步会影响？
-//    val dark = remember { mutableStateOf(false) }
-//    val subScope = rememberCoroutineScope()
-//    LaunchedEffect(Unit) {
-//        subScope.launch {
-//            dark.value = getCacheBoolean(CODE_IS_DARK)
-//        }
-//    }
     //兼容平台的主题色
     val colorScheme = setColorScheme(isDark)
 
@@ -77,7 +69,7 @@ val Typography = Typography(
     */
 )
 
-val DarkColorScheme = darkColorScheme(
+/*val DarkColorScheme = darkColorScheme(
     primary = PrimaryColor,
     secondary = Purple80,
     tertiary = PrimaryColor,
@@ -90,7 +82,28 @@ val LightColorScheme = lightColorScheme(
     secondary = Purple40,
     tertiary = PrimaryColor,
     background = BackGroundColor1,
+    surface = BackGroundColor1,*/
+
+val DarkColorScheme = darkColorScheme(
+    primary = PrimaryColor,
+    secondary = Purple80, //大标题颜色
+    tertiary = PrimaryColor,
+    background = BackGroundColor2, //大背景
+    surface = BackGroundColor2,
+    onPrimary = BackInnerColor2, //聊天列表背景
+    onSecondary = BackHumanColor2,//用户消息背景
+    onTertiary = BackTxtColor2, //消息文字颜色 问答一致
+)
+
+val LightColorScheme = lightColorScheme(
+    primary = PrimaryColor,
+    secondary = Purple40,
+    tertiary = PrimaryColor,
+    background = BackGroundColor1,
     surface = BackGroundColor1,
+    onPrimary = BackInnerColor1,
+    onSecondary = BackHumanColor1,
+    onTertiary = BackTxtColor1
 
     /* Other default colors to override
     background = Color(0xFFFFFBFE),

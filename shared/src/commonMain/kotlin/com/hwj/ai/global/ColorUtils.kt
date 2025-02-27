@@ -21,7 +21,7 @@ fun cBlue014AA7() = Color(0xFF014AA7)
 fun cGreyEEEEEE() = Color(0xFFEEEEEE)
 fun cHalfGrey80717171() = Color(0x80717171)
 
-fun cDark99000000()=Color(0x99000000)
+fun cDark99000000() = Color(0x99000000)
 
 //textColor
 fun cGreyB5B5B5() = Color(0xFFB5B5B5)
@@ -36,19 +36,28 @@ fun cBlueE658B2F6() = Color(0xE658B2F6)
 fun cBlueFFF7FAFE() = Color(0xFFF7FAFE)
 
 
-val Purple80 = Color(0xFFD0BCFF)
+val Purple80 = Color(0xFFD0BCFF)//粉
 val PurpleGrey80 = Color(0xFFCCC2DC)
 val Pink80 = Color(0xFFEFB8C8)
 
-val Purple40 = Color(0xFF6650a4)
+val Purple40 = Color(0xFF6650a4) //紫
 val PurpleGrey40 = Color(0xFF625b71)
 val Pink40 = Color(0xFF7D5260)
 
-val PrimaryColor = Color(0xFF06ADFA) //小蓝
+val PrimaryColor = Color(0xFF6650a4) //小蓝 0xFF2B4270    大蓝 2B62CA
 
-val BackGroundColor1 = Color(0xFFFFFFF2) //白
-val BackGroundColor2 = Color(0xFF14171A)//黑
-val BackGroundColor = Color(0xFF6650a4)//深灰
+val BackGroundColor1 = Color(0xFFF9FBFF) //白 明亮模式
+val BackGroundColor2 = Color(0xFF262828)//黑
+val BackInnerColor1 = Color(0xFFFFFFFF)//白色
+val BackInnerColor2 = Color(0xFF2C2E2F)//中黑 消息列表背景色
+val BackTxtColor1 = Color(0xFF464F5C)
+val BackTxtColor2 = Color(0xFFDFDFDF)
+val BackCodeTxtColor=Color(0xFF9798BA) //代码颜色
+val BackCodeGroundColor=Color(0xFF292C33) //代码背景框
+val BackHumanColor1=Color(0XFFEAF1FC)
+val BackHumanColor2=Color(0xFF2B4270)
+
+
 val BackGroundMessageHuman = Color(0xFFE2F0E9)
 val BackGroundMessageGPT = Color(0xFF2F3237)
 val ColorTextHuman = Color(0xFF3D3D4E)

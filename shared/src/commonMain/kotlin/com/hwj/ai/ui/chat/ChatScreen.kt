@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.Text
-import androidx.compose.material.contentColorFor
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.MaterialTheme
@@ -21,14 +20,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
+import com.hwj.ai.data.http.globalParams
 import com.hwj.ai.global.CODE_IS_DARK
 import com.hwj.ai.global.ThemeChatLite
 import com.hwj.ai.global.getCacheBoolean
 import com.hwj.ai.global.printD
-import com.hwj.ai.global.printList
 import com.hwj.ai.global.saveBoolean
 import com.hwj.ai.ui.global.AppBar
 import com.hwj.ai.ui.global.AppScaffold
+import com.hwj.ai.ui.global.GlobalIntent
 import com.hwj.ai.ui.viewmodel.ChatViewModel
 import com.hwj.ai.ui.viewmodel.ModelConfigIntent
 import com.hwj.ai.ui.viewmodel.ModelConfigState
@@ -74,7 +74,7 @@ fun ChatScreen(navigator: Navigator) {
             darkTheme.value = getCacheBoolean(CODE_IS_DARK)
         }
         //主动获取数据
-        chatViewModel.processIntent(ModelConfigIntent.LoadData)
+        chatViewModel.processConfig(ModelConfigIntent.LoadData)
     }
 
     SideEffect {
@@ -96,6 +96,7 @@ fun ChatScreen(navigator: Navigator) {
                         printD("dark2>${darkTheme.value}")
                         darkTheme.value = !darkTheme.value
                         saveBoolean(CODE_IS_DARK, darkTheme.value)
+                        chatViewModel.processGlobal(GlobalIntent.CheckDarkTheme)
                         printD("t>${getCacheBoolean(CODE_IS_DARK)}")
                     }
                 }) {

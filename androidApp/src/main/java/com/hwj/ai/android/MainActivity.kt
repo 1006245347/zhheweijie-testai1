@@ -3,6 +3,7 @@ package com.hwj.ai.android
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -19,39 +20,21 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
-        setContent {
-//            MyApplicationTheme {
-//                Surface(
-//                    modifier = Modifier.fillMaxSize(),
-//                    color = MaterialTheme.colorScheme.background
-//                ) {
-//                    GreetingView(Greeting().greet())
-//                }
+//        setContent {
+//            ThemeChatLite {
+//                Surface(modifier = Modifier.fillMaxSize()) { PlatformAppStart() }
 //            }
+//        }
 
-//            MyApplicationTheme {
-//                Surface (modifier = Modifier.fillMaxSize()){
-//                    PlatformAppStart()
+        setContentView(ComposeView(this).apply {
+            consumeWindowInsets=false
+
+            //只要问答后，状态栏颜色无法修改了
+            setContent {
+//                ThemeChatLite {
+                    Surface(modifier = Modifier.fillMaxSize()) { PlatformAppStart() }
 //                }
-//            }
-
-            ThemeChatLite {
-                Surface(modifier = Modifier.fillMaxSize()) { PlatformAppStart() }
             }
-        }
+        })
     }
 }
-
-//@Composable
-//fun GreetingView(text: String) {
-////    Text(text = text)
-//    TestPage()
-//}
-//
-//@Preview
-//@Composable
-//fun DefaultPreview() {
-//    MyApplicationTheme {
-//        GreetingView("Hello, Android!")
-//    }
-//}

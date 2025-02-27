@@ -26,3 +26,8 @@ open class BaseUiState2<T> {
 
     constructor(data: T?) {}
 }
+
+//全局用户意图
+sealed class GlobalIntent{
+    object CheckDarkTheme:GlobalIntent()
+}

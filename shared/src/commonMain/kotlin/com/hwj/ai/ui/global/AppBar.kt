@@ -27,6 +27,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.rememberAsyncImagePainter
+import com.hwj.ai.checkSystem
 import com.hwj.ai.global.PrimaryColor
 import com.hwj.ai.global.urlToAvatarGPT
 
@@ -49,7 +50,7 @@ fun AppBar(onClickMenu: () -> Unit) {
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
-                                text = "Chat Bot",
+                                text = "Chat Bot(${checkSystem().name})",
                                 textAlign = TextAlign.Center,
                                 fontSize = 16.5.sp,
                                 fontWeight = FontWeight.SemiBold,

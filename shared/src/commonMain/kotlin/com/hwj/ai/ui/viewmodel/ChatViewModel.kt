@@ -1,17 +1,17 @@
 package com.hwj.ai.ui.viewmodel
 
 import com.hwj.ai.data.repository.GlobalRepository
+import com.hwj.ai.global.CODE_IS_DARK
+import com.hwj.ai.global.getCacheBoolean
 import com.hwj.ai.global.getMills
-import com.hwj.ai.global.getNowTime
 import com.hwj.ai.models.LLMModel
-import com.hwj.ai.ui.global.BaseUiState
+import com.hwj.ai.ui.global.GlobalIntent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.datetime.Clock
 import moe.tlaster.precompose.viewmodel.ViewModel
 import moe.tlaster.precompose.viewmodel.viewModelScope
 
@@ -33,7 +33,11 @@ class ChatViewModel(private val globalRepo: GlobalRepository) : ViewModel() {
     val configState = _configObs.asStateFlow()
     private var lastTime = getMills()
 
-    fun processIntent(intent: ModelConfigIntent) {
+    //本地主题值修改
+    private val _darkObs = MutableStateFlow(false)
+    val darkState = _darkObs.asStateFlow()
+
+    fun processConfig(intent: ModelConfigIntent) {
         when (intent) {
             is ModelConfigIntent.LoadData -> {
                 fetchModelConfig()
@@ -43,6 +47,14 @@ class ChatViewModel(private val globalRepo: GlobalRepository) : ViewModel() {
                 if (getMills() - lastTime > 30000) {
                     fetchModelConfig()
                 }
+            }
+        }
+    }
+
+    fun processGlobal(intent: GlobalIntent) {
+        when (intent) {
+            is GlobalIntent.CheckDarkTheme -> {
+                fetchDarkStatus()
             }
         }
     }
@@ -59,7 +71,12 @@ class ChatViewModel(private val globalRepo: GlobalRepository) : ViewModel() {
         }
     }
 
-
+    private fun fetchDarkStatus() {
+        viewModelScope.launch {
+            val isDark = getCacheBoolean(CODE_IS_DARK)
+            _darkObs.value = isDark
+        }
+    }
 }
 
 data class ModelConfigState(

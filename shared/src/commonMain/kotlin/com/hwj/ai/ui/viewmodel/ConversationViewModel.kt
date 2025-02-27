@@ -118,8 +118,7 @@ class ConversationViewModel(
 //        }
 
         //openAi sdk
-        withContext(Dispatchers.IO) { //感觉不太流畅
-
+        withContext(Dispatchers.IO) {
             val flowControl = openRepo.receiveAIMessage(
                 TextCompletionsParam(
                     promptText = getPrompt(_currentConversation.value),
@@ -132,6 +131,10 @@ class ConversationViewModel(
                 flowControl?.onCompletion {
                     setFabExpanded(false)
                 }?.collect { chunk -> //被强制类型
+                    if (stopReceivingResults) {
+                        setFabExpanded(false)
+                        return@collect
+                    }
                     try {
                         chunk.choices.first().delta?.content?.let {
                             answerFromGPT += it

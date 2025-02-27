@@ -6,13 +6,12 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ColorScheme
-import androidx.compose.material3.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
@@ -23,21 +22,19 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.view.ViewCompat
 import com.halilibo.richtext.commonmark.Markdown
+import com.halilibo.richtext.ui.BasicRichText
 import com.halilibo.richtext.ui.CodeBlockStyle
 import com.halilibo.richtext.ui.RichTextStyle
-import com.hwj.ai.data.local.SettingsFactory
-import com.hwj.ai.global.ColorTextGPT
+import com.halilibo.richtext.ui.RichTextThemeProvider
+import com.halilibo.richtext.ui.string.RichTextStringStyle
+import com.hwj.ai.global.BackCodeGroundColor
+import com.hwj.ai.global.BackCodeTxtColor
 import com.hwj.ai.global.DarkColorScheme
 import com.hwj.ai.global.LightColorScheme
-import com.hwj.ai.global.MainApplication
 import com.hwj.ai.global.OsStatus
-import com.hwj.ai.global.ThemeChatLite
 import com.hwj.ai.global.baseHostUrl
 import com.hwj.ai.global.printD
 import com.hwj.ai.models.MessageModel
-import com.mohamedrejeb.richeditor.model.rememberRichTextState
-import com.mohamedrejeb.richeditor.ui.material3.RichTextEditor
-import com.russhwolf.settings.coroutines.FlowSettings
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -51,7 +48,7 @@ import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 
 class AndroidPlatform : Platform {
-    override val name: String = "Android ${android.os.Build.VERSION.SDK_INT}"
+    override val name: String = "Android ${Build.VERSION.SDK_INT}"
     override val os: OsStatus
         get() = OsStatus.ANDROID
 }
@@ -95,6 +92,9 @@ actual fun createHttpClient(timeout: Long?): HttpClient {
     }
 }
 
+actual fun checkSystem(): OsStatus{
+    return OsStatus.ANDROID
+}
 
 @Composable
 actual fun setColorScheme(isDark: Boolean): ColorScheme {
@@ -114,8 +114,7 @@ actual fun setColorScheme(isDark: Boolean): ColorScheme {
             colorScheme = LightColorScheme
         }
     }
-//    colorScheme = LightColorScheme
-    return colorScheme.apply {
+    colorScheme.apply {
         val view = LocalView.current
         if (!view.isInEditMode) {
             SideEffect {
@@ -125,73 +124,92 @@ actual fun setColorScheme(isDark: Boolean): ColorScheme {
             }
         }
     }
+    return colorScheme
 }
 
 @Composable
 actual fun BotMessageCard(message: MessageModel) {
-    //默认
-//    BotCommonCard(message)
-    testBotMsgCard1(message)
-//    testBotMsgCard2(message)
-//    testBotMsgCard3(message)
+//    BotCommonCard(message)    //默认
+    TestBotMsgCard1(message)
 }
 
 @Composable
-fun testBotMsgCard1(message: MessageModel) {
-//    printD("answer>${message.answer.trimIndent()}")
-    var richTextStyle = RichTextStyle(
+private fun TestBotMsgCard1(message: MessageModel) {
+//    val chatViewModel = koinViewModel(ChatViewModel::class)
+//    val isDark = chatViewModel.darkState.collectAsState().value
+    val richTextStyle = RichTextStyle(
         codeBlockStyle = CodeBlockStyle(
             textStyle = TextStyle(
                 fontFamily = FontFamily.Default,
                 fontWeight = FontWeight.Normal,
                 fontSize = 13.sp,
-                color = ColorTextGPT
-            ),
+                color = BackCodeTxtColor,
+
+                ),
             wordWrap = true,
             modifier = Modifier.background(
-                color = Color.Yellow,
+                color = BackCodeGroundColor,
                 shape = RoundedCornerShape(6.dp)
             )
-        )
+        ),
+        stringStyle = RichTextStringStyle()
     )
-//    var textState= rememberTextFieldState(message.answer.trimIndent())
-    ThemeChatLite {
-        com.halilibo.richtext.ui.material.RichText(
+
+    //第一种
+//    com.halilibo.richtext.ui.material.RichText(
+//        modifier = Modifier.padding(
+//            horizontal = 18.dp,
+//            vertical = 12.dp
+//        ).background(MaterialTheme.colorScheme.onPrimary),
+//        style = richTextStyle,
+//
+//        ) {
+//        //字体颜色对了，但是没能解析富文本的符合
+////            Text(message.answer.trimIndent(), color = MaterialTheme.colorScheme.onTertiary)
+//
+//        //没能改字体颜色
+//        Markdown(message.answer.trimIndent())
+//    }
+
+    //第二
+//    val richTextState = rememberRichTextState()
+//    richTextState.setMarkdown(message.answer.trimIndent())
+//    richTextState.config.codeSpanBackgroundColor= BackCodeGroundColor
+//    richTextState.config.codeSpanColor= BackCodeTxtColor
+//    ThemeChatLite {
+//        RichTextEditor(
+//            modifier = Modifier.padding(
+//                horizontal = 18.dp,
+//                vertical = 12.dp
+//            ).background(MaterialTheme.colorScheme.onPrimary), state = richTextState,
+//            textStyle = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.onTertiary)
+//        )
+
+//第三
+//    val parser =CommonmarkAstNodeParser()
+//    RichText( modifier = Modifier.padding(
+//        horizontal = 18.dp,
+//        vertical = 12.dp
+//    ).background(MaterialTheme.colorScheme.onPrimary),
+//    style = richTextStyle,
+//        ){
+//        BasicMarkdown(astNode = parser.parse(message.answer.trimIndent()))
+//    }
+
+
+    //第四  追踪源码查看 RichTextMaterialTheme-》contentColorProvider 修改内部字体颜色，自定义代码颜色
+    RichTextThemeProvider(
+        contentColorProvider = { MaterialTheme.colorScheme.onTertiary }
+    ) {
+        BasicRichText(
             modifier = Modifier.padding(
                 horizontal = 18.dp,
                 vertical = 12.dp
-            ),
+            ).background(MaterialTheme.colorScheme.onPrimary),
             style = richTextStyle,
         ) {
-//            Markdown(content = textState.text.toString())
             Markdown(message.answer.trimIndent())
         }
     }
-}
 
-@Composable
-fun testBotMsgCard2(message: MessageModel) {
-
-    val state = rememberRichTextState()
-    ThemeChatLite {
-        RichTextEditor(
-            state = state,
-            modifier = Modifier.padding(horizontal = 18.dp, vertical = 12.dp),
-            textStyle = TextStyle(
-                fontFamily = FontFamily.Default,
-                fontWeight = FontWeight.Normal,
-                fontSize = 13.sp,
-                color = ColorTextGPT
-            ),
-        )
-    }
-    state.setMarkdown(message.answer.trimIndent())
-}
-
-@Composable
-fun testBotMsgCard3(message: MessageModel) {
-    Text(
-        text = message.answer, fontSize = 13.sp, color = ColorTextGPT,
-        modifier = Modifier.padding(horizontal = 18.dp, vertical = 12.dp)
-    )
 }

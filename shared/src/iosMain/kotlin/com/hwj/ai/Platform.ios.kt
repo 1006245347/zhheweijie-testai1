@@ -59,6 +59,9 @@ actual fun createHttpClient(timeout: Long?): HttpClient {
     }
 }
 
+actual fun checkSystem(): OsStatus{
+    return OsStatus.IOS
+}
 
 @Composable
 actual fun setColorScheme(isDark: Boolean): ColorScheme {
