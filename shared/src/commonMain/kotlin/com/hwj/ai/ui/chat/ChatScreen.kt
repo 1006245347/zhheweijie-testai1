@@ -81,9 +81,8 @@ fun ChatScreen(navigator: Navigator) {
         //更新数据?
     }
 
-
     printD("dark1>${darkTheme.value}")
-    ThemeChatLite {
+    ThemeChatLite (isDark = darkTheme.value){
         Surface(color = MaterialTheme.colorScheme.background) {
             AppScaffold(drawerState = drawerState,
                 onChatClicked = {

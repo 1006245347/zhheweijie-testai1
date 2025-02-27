@@ -1,5 +1,6 @@
 package com.hwj.ai.global
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
@@ -22,18 +23,19 @@ import kotlinx.coroutines.launch
  */
 @Composable
 fun ThemeChatLite(
+    isDark: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
-    //这异步会影响？
-    val dark = remember { mutableStateOf(false) }
-    val subScope = rememberCoroutineScope()
-    LaunchedEffect(Unit) {
-        subScope.launch {
-            dark.value = getCacheBoolean(CODE_IS_DARK)
-        }
-    }
+//    //这异步会影响？
+//    val dark = remember { mutableStateOf(false) }
+//    val subScope = rememberCoroutineScope()
+//    LaunchedEffect(Unit) {
+//        subScope.launch {
+//            dark.value = getCacheBoolean(CODE_IS_DARK)
+//        }
+//    }
     //兼容平台的主题色
-    val colorScheme = setColorScheme(dark.value)
+    val colorScheme = setColorScheme(isDark)
 
     MaterialTheme(
         colorScheme = colorScheme,

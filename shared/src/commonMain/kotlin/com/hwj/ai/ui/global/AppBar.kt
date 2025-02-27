@@ -16,6 +16,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -26,6 +27,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.rememberAsyncImagePainter
+import com.hwj.ai.global.PrimaryColor
 import com.hwj.ai.global.urlToAvatarGPT
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -70,10 +72,11 @@ fun AppBar(onClickMenu: () -> Unit) {
                         )
                     }
                 },
-//                colors = TopAppBarDefaults.smallTopAppBarColors(
-//                    containerColor = BackGroundColor,
-//                    titleContentColor = Color.White,
-//                ),
+
+                colors = TopAppBarDefaults.topAppBarColors(//smallTopAppBarColors
+                    containerColor = MaterialTheme.colorScheme.background,
+                    titleContentColor = PrimaryColor,
+                ),
             )
 }
 
