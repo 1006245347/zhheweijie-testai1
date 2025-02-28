@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.Text
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 
@@ -30,6 +31,7 @@ import com.hwj.ai.ui.global.AppBar
 import com.hwj.ai.ui.global.AppScaffold
 import com.hwj.ai.ui.global.GlobalIntent
 import com.hwj.ai.ui.viewmodel.ChatViewModel
+import com.hwj.ai.ui.viewmodel.ConversationViewModel
 import com.hwj.ai.ui.viewmodel.ModelConfigIntent
 import com.hwj.ai.ui.viewmodel.ModelConfigState
 import kotlinx.coroutines.launch
@@ -41,9 +43,12 @@ import moe.tlaster.precompose.navigation.Navigator
 fun ChatScreen(navigator: Navigator) {
 
     val chatViewModel = koinViewModel(ChatViewModel::class)
+    val conversationViewModel = koinViewModel(ConversationViewModel::class)
     val configState by chatViewModel.configState.collectAsState()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val drawerOpen by chatViewModel.drawerShouldBeOpened.collectAsState()
+    val curConversationId by conversationViewModel.currentConversationState.collectAsState()
+
     if (drawerOpen) {
         LaunchedEffect(Unit) {
             try {
@@ -77,32 +82,41 @@ fun ChatScreen(navigator: Navigator) {
         chatViewModel.processConfig(ModelConfigIntent.LoadData)
     }
 
-    SideEffect {
-        //更新数据?
-    }
+//    SideEffect {
+    //更新数据?
+//    }
 
-    printD("dark1>${darkTheme.value}")
-    ThemeChatLite (isDark = darkTheme.value){
+//    printD("dark1>${darkTheme.value}")
+    ThemeChatLite(isDark = darkTheme.value) {
         Surface(color = MaterialTheme.colorScheme.background) {
             AppScaffold(drawerState = drawerState,
-                onChatClicked = {
-                    scope.launch { drawerState.close() }
+                onChatClicked = { chatId ->
+                    scope.launch {//指向当前会话，如果不是当前要中断生成
+                        if (curConversationId != chatId) {
+                            conversationViewModel.stopReceivingResults()
+                        }
+                        drawerState.close()
+                    }
                 },
                 onNewChatClicked = {
-                    scope.launch { drawerState.close() }
+                    scope.launch {
+                        //要中断正在的生成
+                        conversationViewModel.stopReceivingResults()
+                        drawerState.close()
+                    }
                 },
                 onIconClicked = {
                     scope.launch { //全是异步，好容易错
-                        printD("dark2>${darkTheme.value}")
+//                        printD("dark2>${darkTheme.value}")
                         darkTheme.value = !darkTheme.value
                         saveBoolean(CODE_IS_DARK, darkTheme.value)
                         chatViewModel.processGlobal(GlobalIntent.CheckDarkTheme)
-                        printD("t>${getCacheBoolean(CODE_IS_DARK)}")
+//                        printD("t>${getCacheBoolean(CODE_IS_DARK)}")
                     }
                 }) {
                 Column(modifier = Modifier.fillMaxSize()) {
                     AppBar(onClickMenu = { scope.launch { drawerState.open() } })
-                    Divider()
+                    HorizontalDivider()
                     if (configState.isLoading || configState.error != null) {
                         ChatInit(configState)
                     } else {

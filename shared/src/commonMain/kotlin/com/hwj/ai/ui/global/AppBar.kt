@@ -43,7 +43,7 @@ fun AppBar(onClickMenu: () -> Unit) {
                     Box {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Image(
-                                painter = rememberAsyncImagePainter(urlToAvatarGPT),
+                                painter = rememberAsyncImagePainter(""),//urlToAvatarGPT 好丑
                                 modifier = paddingSizeModifier.then(Modifier.clip(RoundedCornerShape(6.dp))),
                                 contentScale = ContentScale.Crop,
                                 contentDescription = null

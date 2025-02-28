@@ -1,14 +1,16 @@
 package com.hwj.ai.ui.global
 
-import androidx.compose.material3.*
+import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue.Closed
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalDrawerSheet
+import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
-import com.hwj.ai.global.BackGroundColor2
 import com.hwj.ai.ui.viewmodel.ConversationViewModel
 import kotlinx.coroutines.launch
 import moe.tlaster.precompose.koin.koinViewModel
-
 
 @Composable
 fun AppScaffold(
@@ -24,7 +26,6 @@ fun AppScaffold(
         conversationViewModel.initialize()
     }
 
-    val model = koinViewModel(ConversationViewModel::class)
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
@@ -32,7 +33,7 @@ fun AppScaffold(
                 AppDrawer(
                     onChatClicked = onChatClicked,
                     onNewChatClicked = onNewChatClicked,
-                    model,
+                    conversationViewModel,
                     onIconClicked = onIconClicked,
                 )
             }

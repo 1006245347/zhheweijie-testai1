@@ -9,6 +9,7 @@ import com.hwj.ai.global.OsStatus
 import com.hwj.ai.global.printD
 import com.hwj.ai.models.MessageModel
 import com.hwj.ai.ui.chat.BotCommonCard
+import com.hwj.ai.ui.chat.BotCommonCardApp
 import com.russhwolf.settings.NSUserDefaultsSettings
 import com.russhwolf.settings.Settings
 import com.russhwolf.settings.coroutines.FlowSettings
@@ -74,5 +75,8 @@ actual fun setColorScheme(isDark: Boolean): ColorScheme {
 
 @Composable
 actual fun BotMessageCard(message: MessageModel) {
-    BotCommonCard(message)
+//    BotCommonCard(message)
+
+
+    BotCommonCardApp(message) //可平稳运行
 }

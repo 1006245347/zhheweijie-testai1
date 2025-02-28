@@ -22,10 +22,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Message
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.WbSunny
 import androidx.compose.material.icons.outlined.AddComment
 import androidx.compose.material.icons.outlined.Delete
-import androidx.compose.material3.Divider
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -38,21 +40,22 @@ import androidx.compose.ui.Alignment.Companion.CenterStart
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
 import coil3.compose.rememberAsyncImagePainter
+import coil3.request.ImageRequest
+import coil3.request.crossfade
 import com.hwj.ai.global.urlToImageAppIcon
 import com.hwj.ai.global.urlToImageAuthor
 import com.hwj.ai.models.ConversationModel
 import com.hwj.ai.ui.viewmodel.ConversationViewModel
 import kotlinx.coroutines.launch
-
 
 @Composable
 fun AppDrawer(
@@ -140,8 +143,9 @@ private fun DrawerHeader(
                 .padding(16.dp)
                 .weight(1f), verticalAlignment = CenterVertically
         ) {
-            Image(
-                painter = rememberAsyncImagePainter(urlToImageAppIcon),
+            AsyncImage(
+                model = ImageRequest.Builder(LocalPlatformContext.current).data(urlToImageAppIcon)
+                    .crossfade(true).build(),
                 modifier = paddingSizeModifier.then(Modifier.clip(RoundedCornerShape(6.dp))),
                 contentScale = ContentScale.Crop,
                 contentDescription = null
@@ -199,7 +203,6 @@ private fun ColumnScope.HistoryConversations(
                 selected = conversationState[index].id == currentConversationState,
                 onChatClicked = {
                     onChatClicked(conversationState[index].id)
-
                     scope.launch {
                         onConversation(conversationState[index])
                     }

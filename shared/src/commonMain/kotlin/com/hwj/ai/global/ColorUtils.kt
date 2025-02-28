@@ -44,7 +44,7 @@ val Purple40 = Color(0xFF6650a4) //紫
 val PurpleGrey40 = Color(0xFF625b71)
 val Pink40 = Color(0xFF7D5260)
 
-val PrimaryColor = Color(0xFF6650a4) //小蓝 0xFF2B4270    大蓝 2B62CA
+val PrimaryColor = Color(0xFF6650a4) //小蓝 0xFF2B4270    大蓝 2B62CA.
 
 val BackGroundColor1 = Color(0xFFF9FBFF) //白 明亮模式
 val BackGroundColor2 = Color(0xFF262828)//黑

@@ -13,26 +13,20 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hwj.ai.BotMessageCard
 import com.hwj.ai.global.BackCodeGroundColor
 import com.hwj.ai.global.BackCodeTxtColor
-import com.hwj.ai.global.printD
 import com.hwj.ai.models.MessageModel
 import com.hwj.ai.ui.global.GlobalIntent
 import com.hwj.ai.ui.viewmodel.ChatViewModel
@@ -41,7 +35,6 @@ import com.mohamedrejeb.richeditor.ui.material3.RichText
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import moe.tlaster.precompose.koin.koinViewModel
 
 @Composable
@@ -111,25 +104,26 @@ fun BotCommonCard(message: MessageModel) {
     //用这种刷新会闪屏。。。
     LaunchedEffect(message.answer.trimIndent()) {
 //        subScope.launch(Dispatchers.IO) { //貌似频繁IO
-//            val newMsg = message.answer.trimIndent().replace("```java", "`")
-//                .replace("```", "`")
-//            answerState.value=newMsg
+        val newMsg = message.answer.trimIndent().replace("```java", "`")
+            .replace("```", "`")
+        answerState.value = newMsg
 //            state.setMarkdown(message.answer.trimIndent())
+//        state.setMarkdown(newMsg)
 //        }
     }
 
     RichText(
         state = state.apply {
-            subScope.launch(Dispatchers.IO) {
-//                val newMsg = message.answer.trimIndent().replace("```java", "`")
-//                    .replace("```", "`") //两次转义报错？
-                val newMsg = message.answer.trimIndent().replace("```", "`")
-                withContext(Dispatchers.Main) {
-                    state.setMarkdown(newMsg)
-                }
+//            subScope.launch(Dispatchers.IO) {
+//            val newMsg = message.answer.trimIndent().replace("```java", "`")
+//                .replace("```", "`") //两次转义报错？
+//                val newMsg = message.answer.trimIndent().replace("```", "`")
+//                withContext(Dispatchers.Main) {
+//            state.setMarkdown(newMsg)
+//                }
 
-//                state.setMarkdown(answerState.value)
-            }
+            state.setMarkdown(answerState.value)
+//            }
         },
         modifier = Modifier.padding(horizontal = 18.dp, vertical = 12.dp)
             .background(MaterialTheme.colorScheme.onPrimary),
@@ -166,5 +160,51 @@ fun BotCommonCard(message: MessageModel) {
     //不解析富文本
 //    Text(text = message.answer.trimIndent(), color = Color.Blue)
 
+}
+
+//不会屏闪，也可现实代码，但是没有代码框，iOS端只要遇到代码就有线程报错日志
+@Composable
+fun BotCommonCardApp(message: MessageModel) {
+    val chatViewModel = koinViewModel(ChatViewModel::class)
+    val isDark = chatViewModel.darkState.collectAsState().value
+    val subScope = rememberCoroutineScope()
+
+    val state = rememberRichTextState()
+
+    LaunchedEffect(Unit) {
+        state.removeLink()
+        state.config.codeSpanBackgroundColor = BackCodeGroundColor
+        state.config.codeSpanColor = BackCodeTxtColor
+        chatViewModel.processGlobal(GlobalIntent.CheckDarkTheme)
+        if (!state.isCodeSpan) {
+            state.toggleCodeSpan()
+        }
+//        ```java //无法解析这个 只有  `Code span example` ,但是3点是代码块，一点是行内代码，
+    }
+
+    val answerState = remember { mutableStateOf("") }
+
+    LaunchedEffect(message.answer.trimIndent()) {
+        subScope.launch(Dispatchers.IO) { //貌似频繁IO
+            val newMsg = message.answer.trimIndent().replace("```java", "`")
+                .replace("```", "`")
+            answerState.value = newMsg
+        }
+    }
+
+    RichText(
+        state = state.apply {
+            state.setMarkdown(answerState.value)
+        },
+        modifier = Modifier.padding(horizontal = 18.dp, vertical = 12.dp)
+            .background(MaterialTheme.colorScheme.onPrimary),
+        color = MaterialTheme.colorScheme.onTertiary,
+        style = TextStyle(
+            fontFamily = FontFamily.Default,
+            fontWeight = FontWeight.Normal,
+            fontSize = 13.sp,
+            color = MaterialTheme.colorScheme.onTertiary
+        )
+    )
 }
 

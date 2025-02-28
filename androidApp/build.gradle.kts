@@ -16,7 +16,7 @@ configurations.all {
 
 android {
     namespace = "com.hwj.ai.android"
-    compileSdk = 34
+    compileSdk = 35
     defaultConfig {
         applicationId = "com.hwj.ai.android"
         minSdk = 24
