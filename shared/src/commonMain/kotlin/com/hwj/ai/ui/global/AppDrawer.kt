@@ -154,7 +154,7 @@ private fun DrawerHeader(
                     color = MaterialTheme.colorScheme.secondary,
                 )
                 Text(
-                    "Powered by OpenAI",
+                    "Powered by DeepSeek",
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Normal,
                     color = MaterialTheme.colorScheme.secondary,

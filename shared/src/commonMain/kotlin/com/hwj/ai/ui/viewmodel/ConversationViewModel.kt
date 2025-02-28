@@ -8,6 +8,7 @@ import com.hwj.ai.data.repository.LLMRepository
 import com.hwj.ai.data.repository.MessageRepository
 import com.hwj.ai.global.getMills
 import com.hwj.ai.global.getNowTime
+import com.hwj.ai.global.printD
 import com.hwj.ai.global.thinking
 import com.hwj.ai.models.ConversationModel
 import com.hwj.ai.models.MessageModel
@@ -129,6 +130,7 @@ class ConversationViewModel(
             var answerFromGPT = ""
             try {
                 flowControl?.onCompletion {
+                    printD("done>")
                     setFabExpanded(false)
                 }?.collect { chunk -> //被强制类型
                     if (stopReceivingResults) {
@@ -138,6 +140,7 @@ class ConversationViewModel(
                     try {
                         chunk.choices.first().delta?.content?.let {
                             answerFromGPT += it
+//                            printD(answerFromGPT.trim()) //打印
                             updateLocalAnswer(answerFromGPT.trim())
                             setFabExpanded(true)
                         }
@@ -151,8 +154,6 @@ class ConversationViewModel(
             // Save to FireStore
             messageRepo.createMessage(newMessageModel.copy(answer = answerFromGPT))
         }
-
-
     }
 
     private fun createConversationRemote(title: String) {
@@ -180,7 +181,6 @@ class ConversationViewModel(
         if (_messages.value[conversationId] == null) return mutableListOf()
 
         val messagesMap: HashMap<String, MutableList<MessageModel>> =
-//            _messages.value.clone() as HashMap<String, MutableList<MessageModel>>
             _messages.value.mapValues { entry -> entry.value.toMutableList() } as HashMap<String, MutableList<MessageModel>>
         return messagesMap[conversationId]!!
     }
@@ -189,7 +189,6 @@ class ConversationViewModel(
         if (_messages.value[conversationId] == null) return ""
 
         val messagesMap: HashMap<String, MutableList<MessageModel>> =
-//            _messages.value.clone() as HashMap<String, MutableList<MessageModel>>
             _messages.value.mapValues { entry -> entry.value.toMutableList() } as HashMap<String, MutableList<MessageModel>>
         var response: String = ""
 
@@ -208,7 +207,6 @@ class ConversationViewModel(
         if (_messages.value[conversationId] == null) return listOf()
 
         val messagesMap: HashMap<String, MutableList<MessageModel>> =
-//            _messages.value.clone() as HashMap<String, MutableList<MessageModel>>
             _messages.value.mapValues { entry -> entry.value.toMutableList() } as HashMap<String, MutableList<MessageModel>>
         val response: MutableList<MessageTurbo> = mutableListOf(
             MessageTurbo(
@@ -265,7 +263,6 @@ class ConversationViewModel(
 
     private fun setMessages(messages: MutableList<MessageModel>) {
         val messagesMap: HashMap<String, MutableList<MessageModel>> =
-//            _messages.value.clone() as HashMap<String, MutableList<MessageModel>>
             _messages.value.mapValues { entry -> entry.value.toMutableList() } as HashMap<String, MutableList<MessageModel>>
         messagesMap[_currentConversation.value] = messages
 

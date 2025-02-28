@@ -60,10 +60,6 @@ data class TextCompletionsParam(
 }
 
 fun TextCompletionsParam.toJson(): JsonObject {
-//    val json = JsonObject()
-//    json.addProperty("temperature", temperature)
-//    json.addProperty("stream", stream)
-//    json.addProperty("model", model.model)
 
     val jsonObject = buildJsonObject {
         put("temperature", temperature)
@@ -80,17 +76,7 @@ fun TextCompletionsParam.toJson(): JsonObject {
             put("prompt", promptText)
         }
     }
-//    if (isChatCompletions) {
-//        val jsonArray = buildJsonArray {
-//            for (message in messagesTurbo) {
-//                add(message.toJson())
-//            }
-//        }
-//
-//        json.add("messages", jsonArray)
-//    } else {
-//        json.addProperty("prompt", promptText)
-//    }
+
 
     return jsonObject
 }
