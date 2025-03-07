@@ -26,7 +26,6 @@ import io.ktor.http.append
 import io.ktor.utils.io.pool.ByteArrayPool
 import io.ktor.utils.io.readUTF8Line
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flow
@@ -43,7 +42,7 @@ class LLMRepository(
 ) {
     fun textCompletionsWithStream(params: TextCompletionsParam): Flow<String> =
 //        callbackFlow {
-//            withContext(Dispatchers.IO) {
+//            withContext(Dispatchers.Default) {
 //                var response: HttpResponse? = null
 //                response = client.post (baseHostUrl+ urlChatCompletions){
 //                    headers {
@@ -76,7 +75,7 @@ class LLMRepository(
 
 
         callbackFlow {
-            withContext(Dispatchers.IO) {
+            withContext(Dispatchers.Default) {
                 var response: HttpResponse? = null
 //https://github.com/ktorio/ktor-documentation/blob/3.1.0/codeSnippets/snippets/client-sse/src/main/kotlin/com.example/Application.kt
 //直接sse是get请求，这不对呀
@@ -106,7 +105,7 @@ class LLMRepository(
                     channel?.let {
                         printD("channel-start>")
                         while (!channel.isClosedForRead) {
-                            val line = withContext(Dispatchers.IO) {
+                            val line = withContext(Dispatchers.Default) {
                                 channel.readUTF8Line()
                             } ?: continue
                             line.takeIf { it.startsWith("data:") }?.let {

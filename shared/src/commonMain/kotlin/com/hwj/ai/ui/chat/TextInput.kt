@@ -1,5 +1,6 @@
 package com.hwj.ai.ui.chat
 
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,9 +11,12 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Send
+import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -21,6 +25,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -28,12 +33,23 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.hwj.ai.checkSystem
+import com.hwj.ai.global.OsStatus
+import com.hwj.ai.global.printD
+import com.hwj.ai.models.MenuActModel
 import com.hwj.ai.ui.global.KeyEventEnter
 import com.hwj.ai.ui.viewmodel.ConversationViewModel
+import io.github.vinceglb.filekit.FileKit
+import io.github.vinceglb.filekit.PlatformFile
+import io.github.vinceglb.filekit.dialogs.FileKitType
+import io.github.vinceglb.filekit.dialogs.openFilePicker
+import io.github.vinceglb.filekit.name
 import kotlinx.coroutines.launch
+import moe.tlaster.precompose.koin.koinViewModel
 
 
 @Composable
@@ -54,10 +70,54 @@ fun TextInput(
 }
 
 @Composable
+fun InputTopIn(state: LazyListState) {
+    val subScope = rememberCoroutineScope()
+    val list = mutableListOf<MenuActModel>()
+    list.add(MenuActModel("相册"))
+    if (checkSystem() == OsStatus.ANDROID
+        || checkSystem() == OsStatus.IOS
+    ) {
+        list.add(MenuActModel("拍摄"))
+    } else {
+        list.add(MenuActModel("翻译"))
+    }
+    LazyRow(state = state, modifier = Modifier.animateContentSize()) {
+        items(list.size) { index ->
+            Button(
+                modifier = Modifier.padding(start = 10.dp, bottom = 4.dp).size(96.dp, 38.dp),
+                onClick = {
+                    subScope.launch {
+                        when (list[index].title) {
+                            "相册" -> {
+                                val imageFile: PlatformFile? =
+                                    FileKit.openFilePicker(type = FileKitType.Image)
+                                printD("file>${imageFile?.name}")
+                            }
+
+                            "拍摄" -> {}
+                            "翻译" -> {}
+                        }
+                    }
+                }) {
+                Text(
+                    text = list[index].title,
+                    fontSize = 15.sp,
+                    color = MaterialTheme.colorScheme.secondary,
+                    fontWeight = FontWeight.Bold, modifier = Modifier.padding(2.dp)
+                )
+            }
+        }
+    }
+}
+
+
+@Composable
 fun TextInputIn(
     sendMessage: (String) -> Unit
 ) {
     val scope = rememberCoroutineScope()
+    val conversationViewModel = koinViewModel(ConversationViewModel::class)
+    val isFabExpanded by conversationViewModel.isFabExpanded.collectAsState()
     var text by remember { mutableStateOf(TextFieldValue("")) }
 
     Box(
@@ -68,6 +128,9 @@ fun TextInputIn(
             .imePadding(),
     ) {
         Column {
+            if (!isFabExpanded) {
+                InputTopIn(rememberLazyListState())
+            }
             HorizontalDivider(Modifier.height(0.2.dp))
             Box(
                 Modifier

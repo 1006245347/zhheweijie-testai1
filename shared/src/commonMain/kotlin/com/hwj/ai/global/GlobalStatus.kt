@@ -10,6 +10,7 @@ enum class OsStatus {
     WINDOWS,
     MACOS,
     LINUX,
+    BROWSER,
     UNKNOWN
 }
 

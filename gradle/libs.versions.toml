@@ -31,13 +31,13 @@ pagingCommonVersion = "3.3.0-alpha02-0.5.1"
 precompose = "1.7.0-alpha01" #预发布
 okio = "3.9.0"
 bugly = "4.1.9"
-file = "0.6.1"
+file = "0.10.0-beta01"
 coroutines-core = "1.10.1"
 coreSplashscreen = "1.0.1"
 datastorePreferences = "1.1.1"
 lifecycleRuntimeKtx = "2.7.0"
 #coreKtx = "1.10.1"
-coreKtx="1.15.0"
+coreKtx = "1.15.0"
 jna = "5.15.0"
 toast4j = "0.2.0"
 kotlinxCoroutinesSwing = "1.10.1"
@@ -53,6 +53,9 @@ reveal = "3.2.0"
 capture = "0.3.0"
 ktoken = "0.3.0"
 openai-client = "4.0.1"
+#webview = "1.9.40"
+#kotlinx-browser = "0.3"
+peekaboo="0.5.2"
 
 [libraries]
 #UI框架相关
@@ -63,6 +66,7 @@ androidx-core = { group = "androidx.core", name = "core-ktx", version.ref = "cor
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines-core" }
 kotlinx-coroutines-swing = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-swing", version.ref = "kotlinxCoroutinesSwing" }
 kotlinX-serializationJson = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "kotlinxSerializationJson" }
+#kotlinx-browser = { module = "org.jetbrains.kotlinx:kotlinx-browser", version.ref = "kotlinx-browser" }
 
 uuid = { module = "com.benasher44:uuid", version.ref = "uuid" }
 windowSize = { module = "dev.chrisbanes.material3:material3-window-size-class-multiplatform", version.ref = "windowSize" }
@@ -73,10 +77,13 @@ toast4j = { module = "de.mobanisto:toast4j", version.ref = "toast4j" }
 jna = { module = "net.java.dev.jna:jna", version.ref = "jna" }
 desugar_jdk_libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugar_jdk_libs" }
 androidx-lifecycle-viewmodel-compose = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "androidx-lifecycle" }
-androidx-navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "androidx-navigation" }
+#androidx-navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "androidx-navigation" }
 accompanist-systemUIController = { module = "com.google.accompanist:accompanist-systemuicontroller", version.ref = "accompanist-systemUIController" }
 napier = { module = "io.github.aakira:napier", version.ref = "napier" }
 stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
+#https://github.com/KevinnZou/compose-webview-multiplatform
+#compose-webviews = { module = "io.github.kevinnzou:compose-webview-multiplatform", version.ref = "webview" }
+
 #没有iOS的富文本处理
 richtext-core = { module = "com.halilibo.compose-richtext:richtext-ui", version.ref = "richtext" }
 richtext-mark = { module = "com.halilibo.compose-richtext:richtext-commonmark", version.ref = "richtext" }
@@ -86,7 +93,7 @@ richtext-material3 = { module = "com.halilibo.compose-richtext:richtext-ui-mater
 rich-editor = { module = "com.mohamedrejeb.richeditor:richeditor-compose", version.ref = "richedit" }
 
 reveal = { module = "com.svenjacobs.reveal:reveal-core", version.ref = "reveal" }
-capture-shot = { module = "ir.mahozad.multiplatform:comshot", version.ref = "capture" }
+#capture-shot = { module = "ir.mahozad.multiplatform:comshot", version.ref = "capture" }
 
 #Android特有
 androidx-perference = { module = "androidx.preference:preference-ktx", version.ref = "perference" }
@@ -97,13 +104,17 @@ android-bugly = { module = "com.tencent.bugly:crashreport", version.ref = "bugly
 permissionX-android = { module = "com.guolindev.permissionx:permissionx", version.ref = "permissionX" }
 
 #数据处理
-file-picker = { module = "io.github.vinceglb:filekit-compose", version.ref = "file" }
+file-picker = { module = "io.github.vinceglb:filekit-core", version.ref = "file" }
+file-dialog= { module ="io.github.vinceglb:filekit-dialogs",version.ref="file"}
+file-dialog-compose= { module ="io.github.vinceglb:filekit-dialogs-compose",version.ref="file"}
+file-coil= { module ="io.github.vinceglb:filekit-coil",version.ref="file"}
 okio-core = { module = "com.squareup.okio:okio", version.ref = "okio" }
 datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }
 multiplatform-settings = { module = "com.russhwolf:multiplatform-settings", version.ref = "settings" }
 multiplatform-coroutines = { module = "com.russhwolf:multiplatform-settings-coroutines", version.ref = "settings" }
 multiplatform-datastore = { module = "com.russhwolf:multiplatform-settings-datastore", version.ref = "settings" }
 multiplatform-serialization = { module = "com.russhwolf:multiplatform-settings-serialization", version.ref = "settings" }
+multiplatform-make = { module = "com.russhwolf:multiplatform-settings-make-observable", version.ref = "settings" }
 
 compose-ui = { module = "androidx.compose.ui:ui", version.ref = "compose" }
 compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "compose" }
@@ -133,15 +144,16 @@ sqldelight-extensions = { module = "app.cash.sqldelight:coroutines-extensions", 
 sqlDelight-runtime = { module = "app.cash.sqldelight:runtime", version.ref = "sqlDelight" }
 primitive-adapters = { module = "app.cash.sqldelight:primitive-adapters", version.ref = "sqlDelight" }
 sqlite-driver = { module = "app.cash.sqldelight:sqlite-driver", version.ref = "sqlDelight" }
+sqlite-web = { module = "app.cash.sqldelight:web-worker-driver", version.ref = "sqlDelight" }
 
 #ktor 3.0网络连接
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
 ktor-client-logging = { module = "io.ktor:ktor-client-logging", version.ref = "ktor" }
-ktor-client-curl = { module = "io.ktor:ktor-client-curl", version.ref = "ktor" }
-ktor-client-auth = { module = "io.ktor:ktor-client-auth", version.ref = "ktor" }
+#ktor-client-curl = { module = "io.ktor:ktor-client-curl", version.ref = "ktor" }
+#ktor-client-auth = { module = "io.ktor:ktor-client-auth", version.ref = "ktor" }
 #ktor engines
-ktor-client-apache = { module = "io.ktor:ktor-client-apache", version.ref = "ktor" }
-ktor-client-jetty = { module = "io.ktor:ktor-client-jetty", version.ref = "ktor" }
+#ktor-client-apache = { module = "io.ktor:ktor-client-apache", version.ref = "ktor" }
+#ktor-client-jetty = { module = "io.ktor:ktor-client-jetty", version.ref = "ktor" }
 ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
 ktor-client-android = { module = "io.ktor:ktor-client-android", version.ref = "ktor" }
 ktor-client-ios = { module = "io.ktor:ktor-client-darwin", version.ref = "ktor" }
@@ -160,6 +172,10 @@ coil3-ktor = { module = "io.coil-kt.coil3:coil-network-ktor3", version.ref = "co
 #video/gif只有Android版
 #coil3-video = { module = "io.coil-kt.coil3:coil-video", version.ref = "coil3" }
 #coil3-gif = { module = "io.coil-kt.coil3:coil-gif", version.ref = "coil3" }
+
+#相机、图册
+peekaboo-ui={ module ="io.github.onseok:peekaboo-ui",version.ref="peekaboo"}
+peekaboo-picker={ module ="io.github.onseok:peekaboo-image-picker",version.ref="peekaboo"}
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

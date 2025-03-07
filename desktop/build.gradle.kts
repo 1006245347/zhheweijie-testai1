@@ -41,6 +41,7 @@ compose.desktop {
 
             linux {
                 iconFile.set(iconsRoot.resolve("launcher_icons/linuxos.png"))
+                modules("jdk.security.auth") //来自FileKit
             }
 
             windows {

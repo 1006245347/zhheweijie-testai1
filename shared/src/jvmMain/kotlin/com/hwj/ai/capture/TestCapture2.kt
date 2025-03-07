@@ -42,7 +42,7 @@ fun TestCapture2() {
         subScope.launch {
             isWindowVisble = false
 
-            subScope.launch(Dispatchers.IO) {
+            subScope.launch(Dispatchers.Default) {
                 captureScreenshot2(startPoint, endPoint) {
                     isWindowVisble = true
                 }
@@ -54,7 +54,7 @@ fun TestCapture2() {
         Text("点击并拖动以 选择裁剪区域")
 
         Button(onClick = {
-            subScope.launch(Dispatchers.IO) {
+            subScope.launch(Dispatchers.Default) {
 
             }
         }) {

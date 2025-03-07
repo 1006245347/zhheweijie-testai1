@@ -23,7 +23,9 @@ import androidx.compose.ui.text.capitalize
 import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
+import com.hwj.ai.data.local.SettingsFactory
 import com.hwj.ai.except.DataSettings
+import com.russhwolf.settings.coroutines.FlowSettings
 import com.russhwolf.settings.coroutines.toBlockingSettings
 import com.russhwolf.settings.serialization.decodeValueOrNull
 import com.russhwolf.settings.serialization.encodeValue
@@ -31,13 +33,9 @@ import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
-
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.Instant
@@ -53,8 +51,6 @@ import kotlinx.datetime.toLocalDateTime
 import kotlinx.serialization.ExperimentalSerializationApi
 import moe.tlaster.precompose.viewmodel.ViewModel
 import moe.tlaster.precompose.viewmodel.viewModelScope
-import testai1.shared.generated.resources.Res
-
 import kotlin.jvm.JvmInline
 
 @Composable
@@ -565,8 +561,8 @@ fun ViewModel.delayWork(
     }
 }
 
-val globalScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-val settingsCache = DataSettings().settingsCache
+val globalScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+val settingsCache :FlowSettings = DataSettings().settingsCache
 
 @OptIn(ExperimentalSerializationApi::class)
 inline fun <reified T> saveObj(key: String, value: T) {

@@ -33,7 +33,6 @@ import com.hwj.ai.ui.viewmodel.ChatViewModel
 import com.mohamedrejeb.richeditor.model.rememberRichTextState
 import com.mohamedrejeb.richeditor.ui.material3.RichText
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
 import kotlinx.coroutines.launch
 import moe.tlaster.precompose.koin.koinViewModel
 
@@ -103,7 +102,7 @@ fun BotCommonCard(message: MessageModel) {
 
     //用这种刷新会闪屏。。。
     LaunchedEffect(message.answer.trimIndent()) {
-//        subScope.launch(Dispatchers.IO) { //貌似频繁IO
+//        subScope.launch(Dispatchers.Default) { //貌似频繁IO
         val newMsg = message.answer.trimIndent().replace("```java", "`")
             .replace("```", "`")
         answerState.value = newMsg
@@ -114,7 +113,7 @@ fun BotCommonCard(message: MessageModel) {
 
     RichText(
         state = state.apply {
-//            subScope.launch(Dispatchers.IO) {
+//            subScope.launch(Dispatchers.Default) {
 //            val newMsg = message.answer.trimIndent().replace("```java", "`")
 //                .replace("```", "`") //两次转义报错？
 //                val newMsg = message.answer.trimIndent().replace("```", "`")
@@ -185,7 +184,8 @@ fun BotCommonCardApp(message: MessageModel) {
     val answerState = remember { mutableStateOf("") }
 
     LaunchedEffect(message.answer.trimIndent()) {
-        subScope.launch(Dispatchers.IO) { //貌似频繁IO
+        subScope.launch(Dispatchers.Default) { //貌似频==================================
+            // IO
             val newMsg = message.answer.trimIndent().replace("```java", "`")
                 .replace("```", "`")
             answerState.value = newMsg

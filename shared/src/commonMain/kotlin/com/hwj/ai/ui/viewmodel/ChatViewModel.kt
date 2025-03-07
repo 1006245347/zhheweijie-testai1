@@ -7,7 +7,6 @@ import com.hwj.ai.global.getMills
 import com.hwj.ai.models.LLMModel
 import com.hwj.ai.ui.global.GlobalIntent
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -61,7 +60,7 @@ class ChatViewModel(private val globalRepo: GlobalRepository) : ViewModel() {
 
     private fun fetchModelConfig() {
         _configObs.update { it.copy(isLoading = true) }
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(Dispatchers.Default) {
             try {
                 val result = globalRepo.fetchModelConfig()
                 _configObs.update { it.copy(isLoading = false, data = result) }

@@ -1,9 +1,12 @@
 package com.hwj.ai.ui.viewmodel
 
 import com.hwj.ai.data.repository.SettingsRepository
+import com.hwj.ai.except.DataSettings
 import com.hwj.ai.global.printD
+import com.russhwolf.settings.Settings
+import com.russhwolf.settings.coroutines.FlowSettings
+import com.russhwolf.settings.coroutines.toSuspendSettings
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.flow.asStateFlow
@@ -32,11 +35,12 @@ class SettingsViewModel(private val repository: SettingsRepository) : ViewModel(
                getItemData(intent.item)
             }
         }
+
     }
 
     fun getAppData() {
         _uiObs.update { it.copy(isLoading = true) } //设置状态为加载中
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(Dispatchers.Default) {
             try {
                 val list = repository.getAppData()
                 _uiObs.update { it.copy(isLoading = false, data = list) } //设置状态为加载完成

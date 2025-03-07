@@ -16,7 +16,6 @@ import com.hwj.ai.models.MessageTurbo
 import com.hwj.ai.models.TextCompletionsParam
 import com.hwj.ai.models.TurboRole
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -119,7 +118,7 @@ class ConversationViewModel(
 //        }
 
         //openAi sdk
-        withContext(Dispatchers.IO) {
+        withContext(Dispatchers.Default) {
             val flowControl = openRepo.receiveAIMessage(
                 TextCompletionsParam(
                     promptText = getPrompt(_currentConversation.value),

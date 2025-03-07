@@ -74,7 +74,7 @@ fun ShotCapture(
                 },
                 onDragEnd = {
                     dragEnd = true
-                    subScope.launch(Dispatchers.IO) {
+                    subScope.launch(Dispatchers.Default) {
                         state.isSelecting = false
                         /* 触发截图 */
                         val timeValue = measureTimedValue {

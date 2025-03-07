@@ -90,6 +90,7 @@ fun MessageList(
                 }
             }
         }
+
         ExtendedFloatingActionButton(
             text = {
                 Text(text = "Stop Generating", color = Color.White)
@@ -100,7 +101,7 @@ fun MessageList(
                     contentDescription = "Stop Generating",
                     tint = Color.White,
                     modifier = Modifier
-                        .size(35.dp)
+                        .size(25.dp)
                 )
             },
             onClick = {
@@ -109,7 +110,8 @@ fun MessageList(
             shape = RoundedCornerShape(16.dp),
             modifier = Modifier
                 .align(Alignment.BottomEnd)
-                .padding(bottom = 16.dp)
+                .padding(bottom = 8.dp)
+                .size(50.dp)
                 .animateContentSize(),
             expanded = isFabExpanded,
             containerColor = MaterialTheme.colorScheme.primary

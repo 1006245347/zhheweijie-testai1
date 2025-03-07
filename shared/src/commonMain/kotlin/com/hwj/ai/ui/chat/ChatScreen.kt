@@ -19,6 +19,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import com.hwj.ai.data.http.globalParams
@@ -110,6 +111,7 @@ fun ChatScreen(navigator: Navigator) {
 //                        printD("dark2>${darkTheme.value}")
                         darkTheme.value = !darkTheme.value
                         saveBoolean(CODE_IS_DARK, darkTheme.value)
+
                         chatViewModel.processGlobal(GlobalIntent.CheckDarkTheme)
 //                        printD("t>${getCacheBoolean(CODE_IS_DARK)}")
                     }
@@ -132,9 +134,9 @@ fun ChatScreen(navigator: Navigator) {
 @Composable
 fun ChatInit(state: ModelConfigState) {
     Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-        Box(modifier = Modifier.fillMaxSize()) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             if (state.isLoading) {
-                Text("加载中...")
+                Text("加载中...", color = MaterialTheme.colorScheme.secondary)
             } else if (state.error != null) {
                 Text(state.error)
             }

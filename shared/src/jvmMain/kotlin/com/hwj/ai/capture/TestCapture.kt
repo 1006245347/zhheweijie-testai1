@@ -183,7 +183,7 @@ private suspend fun captureSelection(
         rect.height.toInt()
     )
 
-    withContext(Dispatchers.IO) {
+    withContext(Dispatchers.Default) {
         val robot = Robot()
         val capture = robot.createScreenCapture(awtRect)
         state.screenshotBitmap = capture.toComposeImageBitmap()

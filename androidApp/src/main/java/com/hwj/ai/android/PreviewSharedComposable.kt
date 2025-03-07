@@ -37,9 +37,6 @@ fun PreviewMobile() {
 
     )
 
-//    TextInputIn(
-//        sendMessage = {}
-//    )
 }
 
 

@@ -2,6 +2,7 @@ package com.hwj.ai.data.local
 
 import com.russhwolf.settings.PreferencesSettings
 import com.russhwolf.settings.coroutines.FlowSettings
+import com.russhwolf.settings.coroutines.toBlockingObservableSettings
 import com.russhwolf.settings.coroutines.toFlowSettings
 import java.util.prefs.Preferences
 

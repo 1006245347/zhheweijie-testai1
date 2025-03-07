@@ -4,7 +4,6 @@ import androidx.compose.runtime.Composable
 import com.hwj.ai.data.local.mockMinList
 import io.ktor.client.request.forms.formData
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
@@ -19,7 +18,7 @@ fun  TestBotMsgCard (){
 }
 
 fun sendStreamMsg():Flow<String> =
-        flow { withContext(Dispatchers.IO){
+        flow { withContext(Dispatchers.Default){
             val list = mockMinList()
 
         } }
