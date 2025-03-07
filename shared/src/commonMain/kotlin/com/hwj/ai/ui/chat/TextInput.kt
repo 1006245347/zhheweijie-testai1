@@ -102,7 +102,7 @@ fun InputTopIn(state: LazyListState) {
                 Text(
                     text = list[index].title,
                     fontSize = 15.sp,
-                    color = MaterialTheme.colorScheme.secondary,
+                    color = Color.White,
                     fontWeight = FontWeight.Bold, modifier = Modifier.padding(2.dp)
                 )
             }

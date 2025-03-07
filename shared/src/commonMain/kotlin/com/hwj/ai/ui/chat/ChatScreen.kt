@@ -27,6 +27,7 @@ import com.hwj.ai.global.CODE_IS_DARK
 import com.hwj.ai.global.ThemeChatLite
 import com.hwj.ai.global.getCacheBoolean
 import com.hwj.ai.global.printD
+import com.hwj.ai.global.printList
 import com.hwj.ai.global.saveBoolean
 import com.hwj.ai.ui.global.AppBar
 import com.hwj.ai.ui.global.AppScaffold
@@ -122,7 +123,7 @@ fun ChatScreen(navigator: Navigator) {
                     if (configState.isLoading || configState.error != null) {
                         ChatInit(configState)
                     } else {
-//                        printList(configState.data) //大模型数据
+                        printList(configState.data) //大模型数据
                         Conversation()
                     }
                 }

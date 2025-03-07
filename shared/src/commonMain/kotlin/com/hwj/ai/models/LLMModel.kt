@@ -6,7 +6,6 @@ import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 
 //这是标准的模型实体，有很多参数都无用
-
 @Serializable
 data class LLMModel(
     val model: String? = null,
