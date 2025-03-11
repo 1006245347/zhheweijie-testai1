@@ -8,13 +8,13 @@ import kotlinx.serialization.json.put
 //这是标准的模型实体，有很多参数都无用
 @Serializable
 data class LLMModel(
+    val prompts: LLMPrompts? = null,
+    val url: String? = null,
+    val body: LLMBody? = null,
     val model: String? = null,
     val name: String? = null,
-    val url: String? = null,
-    val switchable: Boolean? = null,
-    val prompts: LLMPrompts? = null,
-
-    val body: LLMBody? = null,
+    val taskType: String? = null,
+    val textGenerationType:String? = null
 )
 
 fun LLMModel.toJson(): JsonObject {
@@ -22,7 +22,6 @@ fun LLMModel.toJson(): JsonObject {
         model?.let { put("model", it) }
         name?.let { put("name", it) }
         url?.let { put("url", it) }
-        switchable?.let { put("switchable", it) }
     }
     return jsObject
 }
@@ -40,7 +39,7 @@ data class LLMBody(
     val repetition_penalty: Float? = null,
     val temperature: Float? = null,
     val max_tokens: Int? = null,
-    val stop_token_ids: List<Long>? = null,
+    val stop_token_ids: String? = null,
     val stream_options: LLMStreamOptions? = null
 )
 

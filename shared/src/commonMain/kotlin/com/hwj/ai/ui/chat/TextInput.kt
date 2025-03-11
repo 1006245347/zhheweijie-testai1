@@ -38,6 +38,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hwj.ai.checkSystem
+import com.hwj.ai.global.NavigationScene
 import com.hwj.ai.global.OsStatus
 import com.hwj.ai.global.printD
 import com.hwj.ai.models.MenuActModel
@@ -50,11 +51,12 @@ import io.github.vinceglb.filekit.dialogs.openFilePicker
 import io.github.vinceglb.filekit.name
 import kotlinx.coroutines.launch
 import moe.tlaster.precompose.koin.koinViewModel
+import moe.tlaster.precompose.navigation.Navigator
 
 
 @Composable
 fun TextInput(
-    conversationViewModel: ConversationViewModel
+    conversationViewModel: ConversationViewModel,navigator: Navigator
 ) {
     val coroutineScope = rememberCoroutineScope()
     TextInputIn(
@@ -65,14 +67,15 @@ fun TextInput(
                     conversationViewModel.sendMessage(text)
                 }
             }
-        }
+        },navigator
     )
 }
 
 @Composable
-fun InputTopIn(state: LazyListState) {
+fun InputTopIn(state: LazyListState,navigator: Navigator) {
     val subScope = rememberCoroutineScope()
-    val list = mutableListOf<MenuActModel>()
+
+      val list = mutableListOf<MenuActModel>()
     list.add(MenuActModel("相册"))
     if (checkSystem() == OsStatus.ANDROID
         || checkSystem() == OsStatus.IOS
@@ -84,7 +87,7 @@ fun InputTopIn(state: LazyListState) {
     LazyRow(state = state, modifier = Modifier.animateContentSize()) {
         items(list.size) { index ->
             Button(
-                modifier = Modifier.padding(start = 10.dp, bottom = 4.dp).size(96.dp, 38.dp),
+                modifier = Modifier.padding(start = 10.dp, bottom = 4.dp).size(86.dp, 36.dp),
                 onClick = {
                     subScope.launch {
                         when (list[index].title) {
@@ -94,7 +97,10 @@ fun InputTopIn(state: LazyListState) {
                                 printD("file>${imageFile?.name}")
                             }
 
-                            "拍摄" -> {}
+                            "拍摄" -> {
+                                navigator.navigate(NavigationScene.Camera.path)
+                            }
+
                             "翻译" -> {}
                         }
                     }
@@ -113,7 +119,7 @@ fun InputTopIn(state: LazyListState) {
 
 @Composable
 fun TextInputIn(
-    sendMessage: (String) -> Unit
+    sendMessage: (String) -> Unit,navigator: Navigator
 ) {
     val scope = rememberCoroutineScope()
     val conversationViewModel = koinViewModel(ConversationViewModel::class)
@@ -129,7 +135,7 @@ fun TextInputIn(
     ) {
         Column {
             if (!isFabExpanded) {
-                InputTopIn(rememberLazyListState())
+                InputTopIn(rememberLazyListState(),navigator)
             }
             HorizontalDivider(Modifier.height(0.2.dp))
             Box(

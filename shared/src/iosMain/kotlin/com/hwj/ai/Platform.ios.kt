@@ -2,17 +2,11 @@ package com.hwj.ai
 
 import androidx.compose.material3.ColorScheme
 import androidx.compose.runtime.Composable
-import com.hwj.ai.data.local.SettingsFactory
 import com.hwj.ai.global.DarkColorScheme
 import com.hwj.ai.global.LightColorScheme
 import com.hwj.ai.global.OsStatus
-import com.hwj.ai.global.printD
 import com.hwj.ai.models.MessageModel
-import com.hwj.ai.ui.chat.BotCommonCard
 import com.hwj.ai.ui.chat.BotCommonCardApp
-import com.russhwolf.settings.NSUserDefaultsSettings
-import com.russhwolf.settings.Settings
-import com.russhwolf.settings.coroutines.FlowSettings
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.darwin.Darwin
 import io.ktor.client.plugins.HttpTimeout
@@ -20,10 +14,8 @@ import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
-import io.ktor.client.plugins.sse.SSE
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
-import platform.Foundation.NSUserDefaults
 import platform.UIKit.UIDevice
 
 class IOSPlatform : Platform {

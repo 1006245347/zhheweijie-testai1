@@ -123,8 +123,8 @@ fun ChatScreen(navigator: Navigator) {
                     if (configState.isLoading || configState.error != null) {
                         ChatInit(configState)
                     } else {
-                        printList(configState.data) //大模型数据
-                        Conversation()
+//                        printList(configState.data) //大模型数据
+                        Conversation(navigator)
                     }
                 }
             }

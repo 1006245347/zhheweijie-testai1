@@ -29,6 +29,7 @@ import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
+import moe.tlaster.precompose.navigation.rememberNavigator
 import org.koin.core.Koin
 import org.koin.core.context.startKoin
 import org.koin.core.module.Module
@@ -85,7 +86,7 @@ val mainModule = module {
                     })
                 }
                 install(Logging) {
-                    level = LogLevel.NONE //禁止流式对话日志
+                    level = LogLevel.BODY //禁止流式对话日志
                     logger = object : Logger {
                         override fun log(message: String) {
                             printD(message)

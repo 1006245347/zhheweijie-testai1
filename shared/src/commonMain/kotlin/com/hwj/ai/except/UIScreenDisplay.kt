@@ -4,4 +4,4 @@ import androidx.compose.runtime.Composable
 
 
 @Composable
-expect fun OpenCameraScreen(isOpen :Boolean)
+expect fun OpenCameraScreen(isOpen :Boolean,onBack: (Boolean) -> Unit)

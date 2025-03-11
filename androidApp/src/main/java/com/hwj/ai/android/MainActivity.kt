@@ -15,17 +15,15 @@ import com.hwj.ai.PlatformAppStart
 import com.hwj.ai.global.Greeting
 import com.hwj.ai.global.ThemeChatLite
 import com.hwj.ai.ui.global.TestPage
+import io.github.vinceglb.filekit.FileKit
+import io.github.vinceglb.filekit.dialogs.init
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
-//        setContent {
-//            ThemeChatLite {
-//                Surface(modifier = Modifier.fillMaxSize()) { PlatformAppStart() }
-//            }
-//        }
 
+        FileKit.init(this)
         setContentView(ComposeView(this).apply {
             consumeWindowInsets=false
 

@@ -5,11 +5,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.hwj.ai.global.NavigateRoute
+import com.hwj.ai.global.NavigationScene
 import com.hwj.ai.global.printD
 import com.hwj.ai.ui.chat.ChatScreen
 import com.hwj.ai.ui.chat.WelcomeScreen
 import com.hwj.ai.ui.viewmodel.AppUiState
 import com.hwj.ai.ui.viewmodel.WelcomeScreenModel
+import io.github.vinceglb.filekit.FileKit
 import moe.tlaster.precompose.PreComposeApp
 import moe.tlaster.precompose.koin.koinViewModel
 import moe.tlaster.precompose.navigation.Navigator
@@ -32,27 +34,16 @@ fun App(navigator: Navigator, setViews: @Composable () -> Unit = {}) {
             when (uiState) {
                 AppUiState.Loading -> null
                 is AppUiState.Success -> when (uiState.isWelcomeShown) {
-                    true -> ChatScreen(navigator)
-                    false -> WelcomeScreen(navigator)
+//                    true -> ChatScreen(navigator)
+//                    false -> WelcomeScreen(navigator)
+                    true -> navigator.navigate(NavigationScene.Chat.path)
+                    false -> navigator.navigate(NavigationScene.Welcome.path)
                 }
             }
         }
-//        ChatScreen(navigator)
     }
 
 
-//    CompositionLocalProvider(){
-//        ThemeChatLite {
-//            Surface {
-//                Crossfade (screen){ screen->
-//                    when (screen){
-//                        null-> Box(modifier = Modifier.fillMaxSize())
-//                        else->
-//                    }
-//                }
-//            }
-//        }
-//    }
 }
 
 /**

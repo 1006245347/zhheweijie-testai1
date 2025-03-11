@@ -1,5 +1,6 @@
 package com.hwj.ai.except
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,48 +24,53 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.unit.dp
 import com.hwj.ai.camera.PeekabooCameraView
 import com.hwj.ai.camera.PeekabooTheme
-import com.preat.peekaboo.image.picker.toImageBitmap
-import com.preat.peekaboo.ui.camera.PeekabooCamera
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import com.hwj.ai.camera.toImageBitmap
+import com.hwj.ai.global.printD
 
+@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
-actual  fun OpenCameraScreen(isOpen:Boolean) {
-    val scope = rememberCoroutineScope()
+actual fun OpenCameraScreen(isOpen: Boolean, onBack: (Boolean) -> Unit) {
     var images by remember { mutableStateOf(listOf<ImageBitmap>()) }
     var frames by remember { mutableStateOf(listOf<ImageBitmap>()) }
-    val snackbarHostState = remember { SnackbarHostState() }
-    var showCamera by rememberSaveable { mutableStateOf(false) }
-    var showGallery by rememberSaveable { mutableStateOf(false) }
-
+    val snackBarHostState = remember { SnackbarHostState() }
+//    var showCamera by rememberSaveable { mutableStateOf(false) }
     PeekabooTheme {
-        Scaffold(snackbarHost = { SnackbarHost(snackbarHostState) }) {
+        Scaffold(snackbarHost = { SnackbarHost(snackBarHostState) }) {
             Column(
                 modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
             ) {
                 when {
-                    showCamera -> {
+                    isOpen -> {
                         PeekabooCameraView(
                             modifier = Modifier.weight(1f),
-                            onBack = { showCamera = false },
+                            onBack = { onBack(true) },
                             onCapture = { byteArray ->
                                 byteArray?.let {
                                     images = listOf(it.toImageBitmap())
                                 }
-                                showCamera = false
+                                onBack(false)
                             },
                             onFrame = { frame ->
                                 frames = frames + frame.toImageBitmap()
-                                if (frames.size > 15) {
+                                if (frames.size > 10) {
                                     frames = frames.drop(1)
                                 }
                             },
                         )
+                        printD("size>${frames.size}")
                         LazyRow(
                             Modifier
                                 .heightIn(min = 50.dp)
-                                .fillMaxWidth(),
+                                .fillMaxWidth()
                         ) {
                             items(frames) { image ->
                                 Box {
@@ -80,7 +86,20 @@ actual  fun OpenCameraScreen(isOpen:Boolean) {
                     }
 
                     else -> {
-
+                        LazyRow(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            contentPadding = PaddingValues(horizontal = 8.dp)
+                        ) {
+                            items(images) { photo ->
+                                Image(
+                                    bitmap = photo,
+                                    contentDescription = "camera photo",
+                                    modifier = Modifier.size(300.dp)
+                                        .clip(shape = RoundedCornerShape(12.dp)),
+                                    contentScale = ContentScale.Crop
+                                )
+                            }
+                        }
                     }
                 }
             }

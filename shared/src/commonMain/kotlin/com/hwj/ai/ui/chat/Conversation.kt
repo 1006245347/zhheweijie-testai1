@@ -32,9 +32,10 @@ import com.hwj.ai.global.conversationTestTag
 import com.hwj.ai.models.MessageModel
 import com.hwj.ai.ui.viewmodel.ConversationViewModel
 import moe.tlaster.precompose.koin.koinViewModel
+import moe.tlaster.precompose.navigation.Navigator
 
 @Composable
-fun Conversation() {
+fun Conversation(navigator: Navigator) {
     val model = koinViewModel(ConversationViewModel::class)
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -47,7 +48,7 @@ fun Conversation() {
                         .weight(1f)
                         .padding(horizontal = 16.dp), model
                 )
-                TextInput(model)
+                TextInput(model,navigator)
             }
         }
     }
