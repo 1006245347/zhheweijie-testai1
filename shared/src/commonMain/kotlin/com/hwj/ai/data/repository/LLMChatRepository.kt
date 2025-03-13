@@ -9,7 +9,6 @@ import com.aallam.openai.client.OpenAI
 import com.hwj.ai.global.printE
 import com.hwj.ai.models.GPTModel
 import com.hwj.ai.models.TextCompletionsParam
-import com.hwj.ai.models.toAIList
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -23,7 +22,7 @@ class LLMChatRepository(private val openAI: OpenAI) {
 
         val requestArgs = ChatCompletionRequest(
             model = ModelId(GPTModel.gpt35Turbo.model),
-            messages = toAIList(params.messagesTurbo)
+            messages = (params.messagesTurbo)
         )
 
         try {
@@ -44,13 +43,36 @@ class LLMChatRepository(private val openAI: OpenAI) {
     suspend fun receiveCompletion(params: TextCompletionsParam): String? {
         val requestArgs = ChatCompletionRequest(
             model = ModelId(GPTModel.gpt35Turbo.model),
-            messages = toAIList(params.messagesTurbo)
+            messages = (params.messagesTurbo)
         )
         return openAI.chatCompletion(requestArgs).choices.first().message.content
     }
 
-//    @OptIn(InternalOpenAI::class)
-//    suspend fun receiveImage(){
-//        val imageRequest = ImageCreationRequest(prompt = "美女",n=1,size=is256x256,responseFormat= ImageResponseFormat("url"))
-//    }
+    suspend fun AnalyzeImage(params: TextCompletionsParam): Flow<ChatCompletionChunk>? {
+        val requestArgs = ChatCompletionRequest(
+            model = ModelId(GPTModel.gpt35Turbo.model),
+            messages = params.messagesTurbo
+        )
+
+        try {
+            return openAI.chatCompletions(requestArgs)
+        } catch (e: OpenAIAPIException) {
+            e.printStackTrace()
+        } catch (e: OpenAIHttpException) {
+            e.printStackTrace()
+        } catch (e: Exception) {
+            e.message?.let {
+                if (it.contains("HostException")) {
+
+                }
+            }
+            printE(e)
+        }
+        return null
+    }
+
+    suspend fun GenerateImage(params: TextCompletionsParam) {
+        //        val imageRequest = ImageCreationRequest(prompt = "美女",n=1,size=is256x256,responseFormat= ImageResponseFormat("url"))
+
+    }
 }

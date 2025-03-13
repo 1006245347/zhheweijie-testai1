@@ -75,7 +75,7 @@ val mainModule = module {
     single {
         val config = OpenAIConfig(token = LLM_API_KEY,
             host = OpenAIHost(baseHostUrl),
-            logging = LoggingConfig(com.aallam.openai.api.logging.LogLevel.None),
+            logging = LoggingConfig(com.aallam.openai.api.logging.LogLevel.Body),
             httpClientConfig = {
                 //换json配置
                 install(ContentNegotiation) {

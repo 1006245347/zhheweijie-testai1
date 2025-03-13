@@ -1,5 +1,6 @@
 package com.hwj.ai.models
 
+import com.aallam.openai.api.chat.ChatMessage
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonArray
@@ -9,7 +10,7 @@ import kotlinx.serialization.json.put
 
 data class TextCompletionsParam(
     @SerialName("prompt")
-    val promptText: String = "",
+    val promptText: String = "",//貌似没啥用
     @SerialName("temperature")
     val temperature: Double = 0.9,
     @SerialName("top_p")
@@ -23,7 +24,8 @@ data class TextCompletionsParam(
     @SerialName("model")
     val model: GPTModel = GPTModel.gpt35Turbo,
     @SerialName("messages")
-    val messagesTurbo: List<MessageTurbo> = emptyList(),
+    val messagesTurbo: List<ChatMessage> = emptyList(),
+//    val messagesTurbo: List<MessageTurbo> = emptyList(),
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

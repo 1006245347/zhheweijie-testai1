@@ -22,17 +22,20 @@ import androidx.compose.ui.window.rememberWindowState
 import androidx.compose.ui.window.singleWindowApplication
 import com.hwj.ai.global.ThemeChatLite
 import moe.tlaster.precompose.ProvidePreComposeLocals
+import java.awt.Dimension
 
 @Composable
 fun PlatformWindowStart(onCloseRequest: () -> Unit) {
+    val windowState = rememberWindowState(
+        position = WindowPosition.Aligned(Alignment.Center),
+        width = 700.dp,
+        height = 500.dp,
+    )
     return Window(
-        onCloseRequest, title = "hwj-ai-chat",
-        state = rememberWindowState(
-            position = WindowPosition.Aligned(Alignment.Center),
-            width = 700.dp,
-            height = 500.dp,
-        )
+        onCloseRequest, title = "hwj-ai-chat", state = windowState
     ) {
+        val window = this.window
+        window.minimumSize = Dimension(600, 450)
         ProvidePreComposeLocals {
             ThemeChatLite {
                 Surface(Modifier.fillMaxSize()) {

@@ -4,10 +4,13 @@ package com.hwj.ai.global
  * @author by jason-何伟杰，2025/2/11
  * des:所有接口地址
  */
-const val LLM_API_KEY="sk-d4c1947d19bb4b68ac3daac22d23985c"
-const val LLM_MODEL="deepseek-chat"
-const val baseHostUrl="https://api.deepseek.com/"
+const val LLM_API_KEY="sk-qylhzhkqljizdtsbqcssefvqbknxbxxydpwppumwfeijince"
+//const val LLM_MODEL="deepseek-chat"
+//const val baseHostUrl="https://api.deepseek.com/"
 const val urlChatCompletions="chat/completions"
+
+const val baseHostUrl="https://api.siliconflow.cn/"
+const val LLM_MODEL="deepseek-ai/DeepSeek-V3"
 
 //const val LLM_MODEL="gpt-4o"
 //const val urlChatCompletions="chat/completions"

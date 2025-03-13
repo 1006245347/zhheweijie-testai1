@@ -20,3 +20,9 @@ sealed class UiEvents {
     data object Navigation : UiEvents()
     data object NavigateBack : UiEvents()
 }
+
+
+//AsyncImage(
+//    model = Res.getUri("drawable/sample.jpg"),
+//    contentDescription = null,
+//)

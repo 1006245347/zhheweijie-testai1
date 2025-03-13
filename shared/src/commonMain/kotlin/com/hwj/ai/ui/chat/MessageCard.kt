@@ -25,8 +25,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hwj.ai.BotMessageCard
+import com.hwj.ai.getPlatform
 import com.hwj.ai.global.BackCodeGroundColor
 import com.hwj.ai.global.BackCodeTxtColor
+import com.hwj.ai.global.OsStatus
+import com.hwj.ai.global.max
 import com.hwj.ai.models.MessageModel
 import com.hwj.ai.ui.global.GlobalIntent
 import com.hwj.ai.ui.viewmodel.ChatViewModel
@@ -38,6 +41,12 @@ import moe.tlaster.precompose.koin.koinViewModel
 
 @Composable
 fun MessageCard(message: MessageModel, isHuman: Boolean = false, isLast: Boolean = false) {
+    var maxWidth = 260.dp
+    if (getPlatform().os == OsStatus.ANDROID || getPlatform().os == OsStatus.IOS) {
+        maxWidth = 260.dp
+    } else {
+        maxWidth = 450.dp
+    }
     Column(
         horizontalAlignment = if (isHuman) Alignment.End else Alignment.Start,
         modifier = Modifier
@@ -47,7 +56,7 @@ fun MessageCard(message: MessageModel, isHuman: Boolean = false, isLast: Boolean
     ) {
         Box(
             modifier = Modifier
-                .widthIn(0.dp, 260.dp) //mention max width here
+                .widthIn(0.dp, maxWidth) //mention max width here
                 .wrapContentHeight()
                 .background(
                     if (isHuman) MaterialTheme.colorScheme.onSecondary else

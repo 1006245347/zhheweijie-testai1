@@ -16,7 +16,10 @@ const val logTAG="yuy"
 const val thinking="思考中..."
 
 //数据
+const val DATA_USER_NAME="User"
+const val DATA_SYSTEM_NAME="BOT"
 const val DATA_APP_TOKEN="DATA_APP_TOKEN"
+const val DATA_IMAGE_TITLE="图像识别"
 
 //标识
 const val CODE_IS_DARK="CODE_IS_DARK" //是否黑暗模式

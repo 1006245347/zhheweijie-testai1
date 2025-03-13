@@ -17,6 +17,7 @@ package com.hwj.ai.global
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ParentDataModifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.capitalize
@@ -30,6 +31,10 @@ import com.russhwolf.settings.coroutines.toBlockingSettings
 import com.russhwolf.settings.serialization.decodeValueOrNull
 import com.russhwolf.settings.serialization.encodeValue
 import io.github.aakira.napier.Napier
+import io.github.vinceglb.filekit.FileKit
+import io.github.vinceglb.filekit.PlatformFile
+import io.github.vinceglb.filekit.compressImage
+import io.github.vinceglb.filekit.readBytes
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -51,6 +56,8 @@ import kotlinx.datetime.toLocalDateTime
 import kotlinx.serialization.ExperimentalSerializationApi
 import moe.tlaster.precompose.viewmodel.ViewModel
 import moe.tlaster.precompose.viewmodel.viewModelScope
+import kotlin.io.encoding.Base64
+import kotlin.io.encoding.ExperimentalEncodingApi
 import kotlin.jvm.JvmInline
 
 @Composable
@@ -561,8 +568,13 @@ fun ViewModel.delayWork(
     }
 }
 
+@OptIn(ExperimentalEncodingApi::class)
+suspend fun encodeImageToBase64(platformFile: PlatformFile): String {
+    return Base64.encode(platformFile.readBytes())
+}
+
 val globalScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
-val settingsCache :FlowSettings = DataSettings().settingsCache
+val settingsCache: FlowSettings = DataSettings().settingsCache
 
 @OptIn(ExperimentalSerializationApi::class)
 inline fun <reified T> saveObj(key: String, value: T) {

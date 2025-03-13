@@ -15,7 +15,7 @@ lateinit var koin: Koin
 //build/compose/binaries/main/deb/
 //Ubuntu/Debian: MyApp-1.0.0.deb
 
-//control +  option +O
+//control +  option +O       control + C 中断调试
 
 fun main() {
     //日志

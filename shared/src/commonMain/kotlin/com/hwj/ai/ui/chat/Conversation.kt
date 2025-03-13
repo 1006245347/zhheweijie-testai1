@@ -14,15 +14,20 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -31,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import com.hwj.ai.global.conversationTestTag
 import com.hwj.ai.models.MessageModel
 import com.hwj.ai.ui.viewmodel.ConversationViewModel
+import kotlinx.coroutines.launch
 import moe.tlaster.precompose.koin.koinViewModel
 import moe.tlaster.precompose.navigation.Navigator
 
@@ -48,7 +54,7 @@ fun Conversation(navigator: Navigator) {
                         .weight(1f)
                         .padding(horizontal = 16.dp), model
                 )
-                TextInput(model,navigator)
+                TextInput(model, navigator)
             }
         }
     }
@@ -60,14 +66,20 @@ fun MessageList(
     conversationViewModel: ConversationViewModel
 ) {
     val listState = rememberLazyListState()
-
+    val subScope = rememberCoroutineScope()
     val conversationId by conversationViewModel.currentConversationState.collectAsState()
     val messagesMap by conversationViewModel.messagesState.collectAsState()
     val isFabExpanded by conversationViewModel.isFabExpanded.collectAsState()
 
     val messages: List<MessageModel> =
         if (messagesMap[conversationId] == null) listOf() else messagesMap[conversationId]!!
-
+    val isListBottom by remember {
+        derivedStateOf {
+            val lastVisibleItemIndex =
+                listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+            lastVisibleItemIndex < messages.lastIndex
+        }
+    }
     Box(modifier = modifier) {
         LazyColumn(
             contentPadding =
@@ -80,7 +92,7 @@ fun MessageList(
         ) {
             items(messages.size) { index ->
                 Box(modifier = Modifier.padding(bottom = if (index == 0) 10.dp else 0.dp)) {
-                    Column {
+                    Column { //一轮对话，两条消息
                         MessageCard(
                             message = messages[index],
                             isLast = index == messages.size - 1,
@@ -92,30 +104,46 @@ fun MessageList(
             }
         }
 
-        ExtendedFloatingActionButton(
-            text = {
-                Text(text = "Stop Generating", color = Color.White)
-            },
-            icon = {
+        if (true) {
+            IconButton(onClick = {
+                subScope.launch {
+                    listState.animateScrollToItem(messages.size - 1)
+                }
+            }) {
                 Icon(
-                    imageVector = Icons.Default.Stop,
-                    contentDescription = "Stop Generating",
-                    tint = Color.White,
-                    modifier = Modifier
-                        .size(25.dp)
+                    imageVector = Icons.Default.ArrowDropDown,
+                    contentDescription = "more",
+                    tint = Color.Yellow,
+                    modifier = Modifier.size(30.dp)
                 )
-            },
-            onClick = {
-                conversationViewModel.stopReceivingResults()
-            },
-            shape = RoundedCornerShape(16.dp),
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(bottom = 8.dp)
-                .size(50.dp)
-                .animateContentSize(),
-            expanded = isFabExpanded,
-            containerColor = MaterialTheme.colorScheme.primary
-        )
+            }
+        }
+
+//        //中断按钮
+//        ExtendedFloatingActionButton(
+//            text = {
+//                Text(text = "Stop Generating", color = Color.White)
+//            },
+//            icon = {
+//                Icon(
+//                    imageVector = Icons.Default.Stop,
+//                    contentDescription = "Stop Generating",
+//                    tint = Color.White,
+//                    modifier = Modifier
+//                        .size(25.dp)
+//                )
+//            },
+//            onClick = {
+//                conversationViewModel.stopReceivingResults()
+//            },
+//            shape = RoundedCornerShape(16.dp),
+//            modifier = Modifier
+//                .align(Alignment.BottomEnd)
+//                .padding(bottom = 8.dp)
+//                .size(50.dp)
+//                .animateContentSize(),
+//            expanded = isFabExpanded,
+//            containerColor = MaterialTheme.colorScheme.primary
+//        )
     }
 }
