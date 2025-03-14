@@ -55,6 +55,7 @@ import com.hwj.ai.checkSystem
 import com.hwj.ai.global.NavigationScene
 import com.hwj.ai.global.OsStatus
 import com.hwj.ai.global.cHalfGrey80717171
+import com.hwj.ai.global.onlyDesktop
 import com.hwj.ai.global.printD
 import com.hwj.ai.models.MenuActModel
 import com.hwj.ai.ui.global.KeyEventEnter
@@ -79,9 +80,10 @@ fun TextInput(
             if (!conversationViewModel.getFabStatus()) {
                 coroutineScope.launch {
                     if (imagePathList.isNotEmpty()) {
+                        conversationViewModel.toast("image>", "rz?")
                         conversationViewModel.sendAnalyzeImageMsg(imagePathList.toList(), text)
                     } else {
-                        conversationViewModel.sendMessage(text)
+                        conversationViewModel.sendTxtMessage(text)
                     }
                 }
             }
@@ -149,7 +151,7 @@ fun TextInputIn(
         modifier = Modifier.navigationBarsPadding().imePadding(),
     ) {
         Column {
-            if (!isFabExpanded ) { //isFabExpanded=true正在回答
+            if (!isFabExpanded) { //isFabExpanded=true正在回答
                 InputTopIn(rememberLazyListState(), navigator)
             }
             HorizontalDivider(Modifier.height(0.2.dp))
@@ -250,6 +252,7 @@ fun EnterEventButton(isFabExpanded: Boolean, sendBlock: () -> Unit) {
 fun ImageSelectIn() {
     val conversationViewModel = koinViewModel(ConversationViewModel::class)
     val imagePathList by conversationViewModel.imageListState.collectAsState() //选中的图片
+    val isStopUseImageState by conversationViewModel.isStopUseImageState.collectAsState()
     //必须是最后一轮对话，且是图片解析，解析图片完清除所有？
     if (imagePathList.isNotEmpty()) {
         LazyRow(
@@ -264,21 +267,31 @@ fun ImageSelectIn() {
 //                        contentScale = ContentScale.Crop,
                         modifier = Modifier.fillMaxSize()
                     )
-//                    IconButton(
-//                        onClick = {
-//                            conversationViewModel.deleteImage(index)
-//                        },
-//                        modifier = Modifier.size(20.dp).align(Alignment.Center)
-//                    ) {
-//                        Icon(
-//                            Icons.Default.Delete,
-//                            modifier = Modifier.fillMaxSize(),
-//                            contentDescription = "Delete",
-//                            tint = Color.DarkGray
-//                        )
-//                    }
+                    IconButton(
+                        onClick = {
+                            conversationViewModel.deleteImage(index)
+                        },
+                        modifier = Modifier.size(20.dp).align(Alignment.TopEnd)
+                    ) {
+                        Icon(
+                            Icons.Default.Delete,
+                            modifier = Modifier.fillMaxSize(),
+                            contentDescription = "Delete",
+                            tint = Color.Gray
+                        )
+                    }
+                }
+            }
+            if (onlyDesktop()) {
+                item {
+                    Button(onClick = {
+                        conversationViewModel.setImageUseStatus(true)
+                    }) {
+                        Text("不再引用图 X")
+                    }
                 }
             }
         }
+
     }
 }

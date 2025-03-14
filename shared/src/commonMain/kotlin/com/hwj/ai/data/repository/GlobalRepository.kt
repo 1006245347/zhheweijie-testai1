@@ -47,4 +47,35 @@ class GlobalRepository(private val client: HttpClient) {
             return null
         }
     }
+
+    suspend fun localModelConfig(): List<LLMModel> {
+        val list = mutableListOf<LLMModel>()
+
+        val deepseek = LLMModel()
+        deepseek.model = "deepseek-chat"
+        deepseek.hostUrl = "https://api.deepseek.com/"
+        deepseek.url = "chat/completions"
+        deepseek.sk = "sk-6271abd28b07427ba84a38580ed76bc0"
+        val siliconflow = LLMModel()
+        siliconflow.model = "deepseek-ai/DeepSeek-V3"
+        siliconflow.hostUrl = "https://api.siliconflow.cn/"
+        siliconflow.url = "chat/completions"
+        siliconflow.sk = "sk-qylhzhkqljizdtsbqcssefvqbknxbxxydpwppumwfeijince"
+        val hunyuan = LLMModel()
+        hunyuan.model = "hunyuan-vision"
+//        hunyuan.hostUrl = "https://hunyuan.tencentcloudapi.com/"
+        hunyuan.hostUrl="https://api.hunyuan.cloud.tencent.com/v1/"
+        hunyuan.url = "ChatCompletions"
+        hunyuan.sk = "sk-NDI07Dpew9y1J7W0Fpoj1ywjo50p7H0cwKePxl4EEjJiLIlI"
+        val baitong = LLMModel()
+        baitong.model = "gpt-4o"
+        baitong.hostUrl = "https://copilot.gree.com/"
+        baitong.url = "chat/completions"
+        baitong.sk = "1"
+        list.add(deepseek)
+        list.add(siliconflow)
+        list.add(hunyuan)
+//        list.add(baitong)
+        return list
+    }
 }

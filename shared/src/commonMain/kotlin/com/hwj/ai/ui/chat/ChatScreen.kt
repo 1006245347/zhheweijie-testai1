@@ -106,7 +106,7 @@ fun ChatScreen(navigator: Navigator) {
                         conversationViewModel.stopReceivingResults()
                         drawerState.close()
                     }
-                },
+                }, navigator = navigator,
                 onIconClicked = {
                     scope.launch { //全是异步，好容易错
 //                        printD("dark2>${darkTheme.value}")

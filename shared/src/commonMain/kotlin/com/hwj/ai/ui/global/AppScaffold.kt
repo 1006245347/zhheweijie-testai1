@@ -11,14 +11,15 @@ import androidx.compose.runtime.rememberCoroutineScope
 import com.hwj.ai.ui.viewmodel.ConversationViewModel
 import kotlinx.coroutines.launch
 import moe.tlaster.precompose.koin.koinViewModel
+import moe.tlaster.precompose.navigation.Navigator
 
 @Composable
 fun AppScaffold(
     drawerState: DrawerState = rememberDrawerState(initialValue = Closed),
     onChatClicked: (String) -> Unit,
     onNewChatClicked: () -> Unit,
-    onIconClicked: () -> Unit = {},
-    content: @Composable () -> Unit,
+    onIconClicked: () -> Unit = {}, navigator: Navigator,
+    content: @Composable () -> Unit
 ) {
     val scope = rememberCoroutineScope()
     val conversationViewModel = koinViewModel(ConversationViewModel::class)
@@ -34,7 +35,7 @@ fun AppScaffold(
                     onChatClicked = onChatClicked,
                     onNewChatClicked = onNewChatClicked,
                     conversationViewModel,
-                    onIconClicked = onIconClicked,
+                    onIconClicked = onIconClicked, navigator
                 )
             }
         },

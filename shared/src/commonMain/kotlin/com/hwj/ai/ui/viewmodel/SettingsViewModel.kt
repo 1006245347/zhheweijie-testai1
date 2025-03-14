@@ -1,8 +1,12 @@
 package com.hwj.ai.ui.viewmodel
 
+import androidx.compose.runtime.mutableStateListOf
+import com.hwj.ai.data.repository.GlobalRepository
 import com.hwj.ai.data.repository.SettingsRepository
 import com.hwj.ai.except.DataSettings
+import com.hwj.ai.global.NotificationsManager
 import com.hwj.ai.global.printD
+import com.hwj.ai.models.LLMModel
 import com.russhwolf.settings.Settings
 import com.russhwolf.settings.coroutines.FlowSettings
 import com.russhwolf.settings.coroutines.toSuspendSettings
@@ -18,12 +22,22 @@ import moe.tlaster.precompose.viewmodel.viewModelScope
  * @author by jason-何伟杰，2025/2/26
  * des: MVI+Repository+Jetpack Compose
  */
-class SettingsViewModel(private val repository: SettingsRepository) : ViewModel() {
+class SettingsViewModel(
+    private val repository: SettingsRepository,
+    private val globalRepository: GlobalRepository,private val toastManager: NotificationsManager
+) : ViewModel() {
 
     //唯一可信数据源
     private val _uiObs = MutableStateFlow(SettingsUiState())
     val uiState = _uiObs.asStateFlow()
 
+    private val _localLLMObs = mutableStateListOf<LLMModel>()
+    val localLLMState = MutableStateFlow(_localLLMObs).asStateFlow()
+
+    suspend fun fetchLLMModels() {
+        _localLLMObs.clear()
+        _localLLMObs.addAll(globalRepository.localModelConfig())
+    }
 
     //触发对应的用户事件
     fun processIntent(intent: SettingsIntent) {
@@ -31,8 +45,9 @@ class SettingsViewModel(private val repository: SettingsRepository) : ViewModel(
             is SettingsIntent.LoadData -> {
                 getAppData()
             }
+
             is SettingsIntent.ItemClicked -> {
-               getItemData(intent.item)
+                getItemData(intent.item)
             }
         }
 
@@ -50,7 +65,7 @@ class SettingsViewModel(private val repository: SettingsRepository) : ViewModel(
         }
     }
 
-    fun getItemData(string: String){
+    fun getItemData(string: String) {
         printD(string)
     }
 

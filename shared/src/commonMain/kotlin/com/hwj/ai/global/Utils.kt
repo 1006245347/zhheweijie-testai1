@@ -570,7 +570,8 @@ fun ViewModel.delayWork(
 
 @OptIn(ExperimentalEncodingApi::class)
 suspend fun encodeImageToBase64(platformFile: PlatformFile): String {
-    return Base64.encode(platformFile.readBytes())
+    return "data:image/jpeg;base64,"+Base64.encode(platformFile.readBytes())
+//        .also { printD(it) }
 }
 
 val globalScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)

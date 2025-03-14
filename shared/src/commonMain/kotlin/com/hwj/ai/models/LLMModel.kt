@@ -9,9 +9,11 @@ import kotlinx.serialization.json.put
 @Serializable
 data class LLMModel(
     val prompts: LLMPrompts? = null,
-    val url: String? = null,
+    var url: String? = null,
+    var hostUrl:String?=null,
+    var sk:String?=null,
     val body: LLMBody? = null,
-    val model: String? = null,
+    var model: String? = null,
     val name: String? = null,
     val taskType: String? = null,
     val textGenerationType:String? = null

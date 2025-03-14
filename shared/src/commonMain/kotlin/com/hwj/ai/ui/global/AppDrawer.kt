@@ -51,18 +51,21 @@ import coil3.compose.LocalPlatformContext
 import coil3.compose.rememberAsyncImagePainter
 import coil3.request.ImageRequest
 import coil3.request.crossfade
+import com.hwj.ai.global.NavigateRoute
+import com.hwj.ai.global.NavigationScene
 import com.hwj.ai.global.urlToImageAppIcon
 import com.hwj.ai.global.urlToImageAuthor
 import com.hwj.ai.models.ConversationModel
 import com.hwj.ai.ui.viewmodel.ConversationViewModel
 import kotlinx.coroutines.launch
+import moe.tlaster.precompose.navigation.Navigator
 
 @Composable
 fun AppDrawer(
     onChatClicked: (String) -> Unit,
     onNewChatClicked: () -> Unit,
     conversationViewModel: ConversationViewModel,
-    onIconClicked: () -> Unit = {}
+    onIconClicked: () -> Unit = {}, navigator: Navigator
 ) {
     val coroutineScope = rememberCoroutineScope()
     AppDrawerIn(
@@ -79,13 +82,14 @@ fun AppDrawer(
             coroutineScope.launch { conversationViewModel.onConversation(conversationModel) }
         },
         currentConversationState = conversationViewModel.currentConversationState.collectAsState().value,
-        conversationState = conversationViewModel.conversationsState.collectAsState().value
+        conversationState = conversationViewModel.conversationsState.collectAsState().value,
+        navigator
     )
 }
 
 
 @Composable
- fun AppDrawerIn(
+fun AppDrawerIn(
     onChatClicked: (String) -> Unit,
     onNewChatClicked: () -> Unit,
     onIconClicked: () -> Unit,
@@ -94,6 +98,7 @@ fun AppDrawer(
     onConversation: (ConversationModel) -> Unit,
     currentConversationState: String,
     conversationState: MutableList<ConversationModel>,
+    navigator: Navigator? = null
 ) {
     val context = LocalPlatformContext.current
 
@@ -125,6 +130,7 @@ fun AppDrawer(
             urlToImageAuthor,
         ) {
 //            UrlLauncher().openUrl(context = context, urlToGithub)
+            navigator?.navigate(NavigationScene.SettingLLM.path)
         }
     }
 }

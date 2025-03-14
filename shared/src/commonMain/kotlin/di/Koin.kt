@@ -69,41 +69,41 @@ val mainModule = module {
     single { MessageRepository() }
     single { SettingsRepository() }
     single { LocalDataRepository(get()) }
-    single { LLMChatRepository(get()) }
+    single { LLMChatRepository() }
     single { GlobalRepository(get()) }
 
-    single {
-        val config = OpenAIConfig(token = LLM_API_KEY,
-            host = OpenAIHost(baseHostUrl),
-            logging = LoggingConfig(com.aallam.openai.api.logging.LogLevel.Body),
-            httpClientConfig = {
-                //换json配置
-                install(ContentNegotiation) {
-                    json(Json {
-                        ignoreUnknownKeys = true // 忽略未知字段
-                        prettyPrint = true
-                        isLenient = true
-                    })
-                }
-                install(Logging) {
-                    level = LogLevel.BODY //禁止流式对话日志
-                    logger = object : Logger {
-                        override fun log(message: String) {
-                            printD(message)
-                        }
-                    }
-                }
-            }
-        )
-        OpenAI(config)
-    }
+//    single {
+//        val config = OpenAIConfig(token = LLM_API_KEY,
+//            host = OpenAIHost(baseHostUrl),
+//            logging = LoggingConfig(com.aallam.openai.api.logging.LogLevel.Body),
+//            httpClientConfig = {
+//                //换json配置
+//                install(ContentNegotiation) {
+//                    json(Json {
+//                        ignoreUnknownKeys = true // 忽略未知字段
+//                        prettyPrint = true
+//                        isLenient = true
+//                    })
+//                }
+//                install(Logging) {
+//                    level = LogLevel.BODY //禁止流式对话日志
+//                    logger = object : Logger {
+//                        override fun log(message: String) {
+//                            printD(message)
+//                        }
+//                    }
+//                }
+//            }
+//        )
+//        OpenAI(config)
+//    }
 }
 
 val modelModule = module {
     factoryOf(::ConversationViewModel)
     factory { WelcomeScreenModel(get()) }
     single { ChatViewModel(get()) }
-    single { SettingsViewModel(get()) }
+    single { SettingsViewModel(get(),get(),get()) }
 }
 
 /**

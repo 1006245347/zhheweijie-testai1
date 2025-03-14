@@ -12,6 +12,7 @@ import com.hwj.ai.getPlatform
 import com.hwj.ai.global.DATA_IMAGE_TITLE
 import com.hwj.ai.global.DATA_SYSTEM_NAME
 import com.hwj.ai.global.DATA_USER_NAME
+import com.hwj.ai.global.NotificationsManager
 import com.hwj.ai.global.OsStatus
 import com.hwj.ai.global.encodeImageToBase64
 import com.hwj.ai.global.getMills
@@ -29,7 +30,6 @@ import io.github.vinceglb.filekit.PlatformFile
 import io.github.vinceglb.filekit.dialogs.FileKitMode
 import io.github.vinceglb.filekit.dialogs.FileKitType
 import io.github.vinceglb.filekit.dialogs.openFilePicker
-import io.github.vinceglb.filekit.readBytes
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -39,7 +39,6 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.withContext
 import moe.tlaster.precompose.viewmodel.ViewModel
-import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
 
 /**
@@ -48,7 +47,8 @@ import kotlin.io.encoding.ExperimentalEncodingApi
 class ConversationViewModel(
     private val conversationRepo: ConversationRepository,
     private val messageRepo: MessageRepository,
-    private val openAIRepo: LLMRepository, private val openRepo: LLMChatRepository
+    private val openAIRepo: LLMRepository, private val openRepo: LLMChatRepository,
+    private val toastManager: NotificationsManager
 ) : ViewModel() { //换掉这个viewModel
     private val _currentConversation: MutableStateFlow<String> =
         MutableStateFlow(getMills().toString())
@@ -81,6 +81,10 @@ class ConversationViewModel(
     private val _imageListObs = mutableStateListOf<PlatformFile>() //自动过滤重复？
     val imageListState = MutableStateFlow(_imageListObs).asStateFlow()
 
+    //桌面端图片处理，多轮对话可以多次引用图片，手机则发了就结束
+    private val _isStopUseImageObs = MutableStateFlow(false)
+    val isStopUseImageState = _isStopUseImageObs.asStateFlow()
+
     suspend fun initialize() {
         _isFetching.value = true
 
@@ -102,7 +106,7 @@ class ConversationViewModel(
         _isFetching.value = false
     }
 
-    suspend fun sendMessage(input: String) {
+    suspend fun sendTxtMessage(input: String) {
         _stopReceivingObs.value = false
         if (getMessagesByConversation(_currentConversation.value).isEmpty()) {
             createConversationRemote(input)
@@ -192,7 +196,7 @@ class ConversationViewModel(
         }
         //一轮对话两条问答消息
         val newMessageModel = MessageModel(
-            question = if (input.isNullOrEmpty())"" else input,
+            question = if (input.isNullOrEmpty()) "" else input,
             answer = thinking, conversationId = _currentConversation.value,
             imagePath = imagePaths
         )
@@ -214,7 +218,8 @@ class ConversationViewModel(
             try {
                 flowControl?.onCompletion {
                     setFabExpanded(false)
-                    deleteImage(0, true)
+                    if (_isStopUseImageObs.value) //如果每次都传图参，那就不删
+                        deleteImage(0, true)
                 }?.collect { chunk ->
                     if (_stopReceivingObs.value) {
                         setFabExpanded(false)
@@ -250,6 +255,8 @@ class ConversationViewModel(
         conversations.add(0, newConversation)
 
         _conversations.value = conversations
+
+        _isStopUseImageObs.value = true
     }
 
     fun newConversation() {
@@ -300,6 +307,15 @@ class ConversationViewModel(
 
         for (index in messagesMap[conversationId]!!.reversed().indices) { //拆解两条，按时间排序
             val message = messagesMap[conversationId]!!.reversed()[index]
+            var partsReq = mutableListOf<String>()
+
+            if (!_isStopUseImageObs.value) { //一直引用图
+                partsReq = coverBase64Data(message.imagePath)
+            } else {
+                if (index == messagesMap[conversationId]!!.size - 1) { //必须是当轮问答图片才传
+                    partsReq = coverBase64Data(message.imagePath)
+                }
+            }
             response.add(
                 chatMessage { //用户提问
                     role = ChatRole.User
@@ -311,15 +327,9 @@ class ConversationViewModel(
                         if (index == messagesMap[conversationId]!!.size - 1) { //最后一个又有图片，那么就转base64,不然都是历史图片
                             content {
                                 text("$DATA_IMAGE_TITLE，" + message.question)
-//                                workInSub {
-//                                    message.imagePath?.forEach { p ->
-//                                        image(encodeImageToBase64(p))//base64或url
-//                                    }
-//                                }
-
-//                                message.imagePath?.forEach { p->
-//                                    image(Base64.encode(p.readBytes()))
-//                                }
+                                partsReq.forEach { part ->
+                                    image(part)//base64或url
+                                }
                             }
                         } else {
                             content = message.question
@@ -338,7 +348,6 @@ class ConversationViewModel(
                 )
             }
         }
-//        printList(response.toList())
         return response.toList()
     }
 
@@ -416,15 +425,35 @@ class ConversationViewModel(
     fun deleteImage(index: Int, isRemoveAll: Boolean = false) {
         workInSub {
             if (isRemoveAll) {
-                printD("clear-all>")
-//                _imageListObs.clear()
+//                printD("clear-all>")
+                _imageListObs.clear()
             } else {
                 _imageListObs.removeAt(index)
             }
         }
     }
 
-    suspend fun checkUsefulStatus(){
+    suspend fun checkUsefulStatus() {
 
+    }
+
+    suspend fun coverBase64Data(imagePaths: List<PlatformFile>?): MutableList<String> {
+        val list = mutableListOf<String>()
+        imagePaths?.let {
+            it.forEach { p ->
+                list.add(encodeImageToBase64(p))
+                //测试图片
+//                list.add("https://qcloudimg.tencent-cloud.cn/raw/42c198dbc0b57ae490e57f89aa01ec23.png")
+            }
+        }
+        return list
+    }
+
+    fun toast(title: String, des: String) {
+        toastManager.showNotification(title, des)
+    }
+
+    fun setImageUseStatus(flag: Boolean) {
+        _isStopUseImageObs.value = flag
     }
 }

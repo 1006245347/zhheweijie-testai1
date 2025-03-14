@@ -25,17 +25,18 @@ fun PreviewSharedComposable() {
 fun PreviewMobile() {
 //    testPreview1()
 //    AppBar(onClickMenu = {})
-    AppDrawerIn(
-        onChatClicked = {},
-        onNewChatClicked = {},
-        onIconClicked = {},
-        conversationViewModel = {},
-        deleteConversation = {},
-        conversationState = mutableListOf(),
-        currentConversationState = String(),
-        onConversation = { _: ConversationModel -> }
 
-    )
+//    AppDrawerIn(
+//        onChatClicked = {},
+//        onNewChatClicked = {},
+//        onIconClicked = {},
+//        conversationViewModel = {},
+//        deleteConversation = {},
+//        conversationState = mutableListOf(),
+//        currentConversationState = String(),
+//        onConversation = { _: ConversationModel -> },
+//        navigator = null
+//    )
 
 }
 
