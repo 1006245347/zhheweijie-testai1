@@ -5,9 +5,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -15,12 +17,15 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Scaffold
 import androidx.compose.material.SnackbarHost
 import androidx.compose.material.SnackbarHostState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ContentCopy
+import androidx.compose.material.icons.filled.GeneratingTokens
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -31,6 +36,13 @@ import androidx.compose.ui.unit.dp
 import com.hwj.ai.camera.PeekabooCameraView
 import com.hwj.ai.camera.PeekabooTheme
 import com.hwj.ai.camera.toImageBitmap
+import com.hwj.ai.global.PrimaryColor
+import com.hwj.ai.global.printD
+import com.hwj.ai.global.workInSub
+import com.hwj.ai.models.MessageModel
+import com.hwj.ai.ui.chat.BotCommonMsgMenu
+import com.hwj.ai.ui.viewmodel.ConversationViewModel
+import moe.tlaster.precompose.koin.koinViewModel
 
 /**
  * @author by jason-何伟杰，2025/3/11
@@ -108,3 +120,12 @@ actual fun OpenCameraScreen(isOpen: Boolean, onBack: (Boolean) -> Unit) {
         }
     }
 }
+
+
+@Composable
+actual fun BotMsgMenu(message: MessageModel) {
+   BotCommonMsgMenu(message)
+}
+
+@Composable
+actual fun ToolTipCase(tip: String, content: @Composable () -> Unit){}

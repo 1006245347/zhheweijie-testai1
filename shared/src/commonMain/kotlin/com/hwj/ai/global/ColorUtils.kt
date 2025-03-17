@@ -50,8 +50,9 @@ val BackGroundColor1 = Color(0xFFF9FBFF) //白 明亮模式
 val BackGroundColor2 = Color(0xFF262828)//黑
 val BackInnerColor1 = Color(0xFFFFFFFF)//白色
 val BackInnerColor2 = Color(0xFF2C2E2F)//中黑 消息列表背景色
-val BackTxtColor1 = Color(0xFF464F5C)
-val BackTxtColor2 = Color(0xFFDFDFDF)
+val BackTxtColor1 = Color(0xFF464F5C) //0xFF464F5C=浅黑
+//val BackTxtColor2 = Color(0xFFDFDFDF) //0xFFDFDFDF=白
+val BackTxtColor2 = Color(0xE9E8E8FF) //0xFFDFDFDF=白
 val BackCodeTxtColor=Color(0xFF9798BA) //代码颜色
 val BackCodeGroundColor=Color(0xFF292C33) //代码背景框
 val BackHumanColor1=Color(0XFFEAF1FC)

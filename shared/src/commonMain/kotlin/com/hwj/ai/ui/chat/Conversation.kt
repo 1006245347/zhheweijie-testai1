@@ -1,6 +1,5 @@
 package com.hwj.ai.ui.chat
 
-import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
@@ -12,16 +11,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.Stop
-import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material.icons.filled.ArrowDropDownCircle
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
+import androidx.compose.material3.TooltipBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
@@ -33,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
+import com.hwj.ai.except.ToolTipCase
 import com.hwj.ai.global.conversationTestTag
 import com.hwj.ai.models.MessageModel
 import com.hwj.ai.ui.viewmodel.ConversationViewModel
@@ -95,28 +92,34 @@ fun MessageList(
                     Column { //一轮对话，两条消息
                         MessageCard(
                             message = messages[index],
-                            isLast = index == messages.size - 1,
-                            isHuman = true
+                            isHuman = true,
+                            isLast = index == messages.size - 1 //最旧的一轮对话
                         )
-                        MessageCard(message = messages[index])
+                        MessageCard(
+                            message = messages[index],
+                            isHuman = false,
+                            isLatest = index == 0
+                        )
                     }
                 }
             }
         }
 
-        if (true) {
-            IconButton(onClick = {
-                subScope.launch {
-                    listState.animateScrollToItem(messages.size - 1)
+        if (isListBottom && messages.size > 3) {
+            ToolTipCase(tip = "置底", content = {
+                IconButton(onClick = {
+                    subScope.launch {
+                        listState.animateScrollToItem(messages.size - 1)
+                    }
+                }, modifier = Modifier.align(Alignment.BottomCenter)) {
+                    Icon(
+                        imageVector = Icons.Default.ArrowDropDownCircle,
+                        contentDescription = "置底",
+                        tint = Color.Blue,
+                        modifier = Modifier.size(30.dp)
+                    )
                 }
-            }) {
-                Icon(
-                    imageVector = Icons.Default.ArrowDropDown,
-                    contentDescription = "more",
-                    tint = Color.Yellow,
-                    modifier = Modifier.size(30.dp)
-                )
-            }
+            })
         }
 
 //        //中断按钮

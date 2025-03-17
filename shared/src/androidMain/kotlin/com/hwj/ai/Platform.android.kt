@@ -11,6 +11,7 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
@@ -29,12 +30,19 @@ import com.halilibo.richtext.ui.RichTextThemeProvider
 import com.halilibo.richtext.ui.string.RichTextStringStyle
 import com.hwj.ai.global.BackCodeGroundColor
 import com.hwj.ai.global.BackCodeTxtColor
+import com.hwj.ai.global.BackTxtColor1
+import com.hwj.ai.global.BackTxtColor2
 import com.hwj.ai.global.DarkColorScheme
 import com.hwj.ai.global.LightColorScheme
 import com.hwj.ai.global.OsStatus
 import com.hwj.ai.global.baseHostUrl
+import com.hwj.ai.global.isDarkPanel
+import com.hwj.ai.global.isDarkTxt
+import com.hwj.ai.global.isLightPanel
+import com.hwj.ai.global.isLightTxt
 import com.hwj.ai.global.printD
 import com.hwj.ai.models.MessageModel
+import com.hwj.ai.ui.viewmodel.ChatViewModel
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -46,6 +54,7 @@ import io.ktor.http.URLBuilder
 import io.ktor.http.takeFrom
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
+import moe.tlaster.precompose.koin.koinViewModel
 
 class AndroidPlatform : Platform {
     override val name: String = "Android ${Build.VERSION.SDK_INT}"
@@ -77,7 +86,7 @@ actual fun createHttpClient(timeout: Long?): HttpClient {
             })
         }
         install(Logging) {
-            level = LogLevel.BODY
+            level = LogLevel.NONE
 //            level=LogLevel.HEADERS
 //            level= LogLevel.INFO
 //            level = LogLevel.NONE //接口日志屏蔽
@@ -92,7 +101,7 @@ actual fun createHttpClient(timeout: Long?): HttpClient {
     }
 }
 
-actual fun checkSystem(): OsStatus{
+actual fun checkSystem(): OsStatus {
     return OsStatus.ANDROID
 }
 
@@ -135,8 +144,8 @@ actual fun BotMessageCard(message: MessageModel) {
 
 @Composable
 private fun TestBotMsgCard1(message: MessageModel) {
-//    val chatViewModel = koinViewModel(ChatViewModel::class)
-//    val isDark = chatViewModel.darkState.collectAsState().value
+    val chatViewModel = koinViewModel(ChatViewModel::class)
+    val isDark = chatViewModel.darkState.collectAsState().value
     val richTextStyle = RichTextStyle(
         codeBlockStyle = CodeBlockStyle(
             textStyle = TextStyle(
@@ -199,17 +208,23 @@ private fun TestBotMsgCard1(message: MessageModel) {
 
     //第四  追踪源码查看 RichTextMaterialTheme-》contentColorProvider 修改内部字体颜色，自定义代码颜色
     RichTextThemeProvider(
-        contentColorProvider = { MaterialTheme.colorScheme.onTertiary }
+        contentColorProvider = {
+            if (isDark) {
+                isDarkTxt()
+            } else {
+
+                isLightTxt()
+            }
+        }
     ) {
         BasicRichText(
             modifier = Modifier.padding(
                 horizontal = 18.dp,
                 vertical = 12.dp
-            ).background(MaterialTheme.colorScheme.onPrimary),
+            ).background( if (isDark) isDarkPanel() else isLightPanel()),
             style = richTextStyle,
         ) {
             Markdown(message.answer.trimIndent())
         }
     }
-
 }

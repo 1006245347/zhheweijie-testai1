@@ -17,6 +17,7 @@ import com.hwj.ai.global.OsStatus
 import com.hwj.ai.global.encodeImageToBase64
 import com.hwj.ai.global.getMills
 import com.hwj.ai.global.getNowTime
+import com.hwj.ai.global.onlyDesktop
 import com.hwj.ai.global.printD
 import com.hwj.ai.global.printE
 import com.hwj.ai.global.printList
@@ -148,10 +149,13 @@ class ConversationViewModel(
 //            updateLocalAnswer(answerFromGPT.trim())
 //            setFabExpanded(true)
 //        }
+        updateTextMsg(newMessageModel)
+    }
 
+    suspend fun updateTextMsg(newMessageModel: MessageModel) {
         //openAi sdk
         withContext(Dispatchers.Default) {
-            val flowControl = openRepo.receiveAIMessage(
+            val flowControl = openRepo.receiveAIMessage( //调用大模型接口
                 TextCompletionsParam(
                     promptText = getPrompt(_currentConversation.value),
                     messagesTurbo = getMessagesParamsTurbo(_currentConversation.value)
@@ -206,7 +210,10 @@ class ConversationViewModel(
 
         currentListMessage.add(0, newMessageModel)
         setMessages(currentListMessage)
+        updateImageMsg(newMessageModel)
+    }
 
+    private fun updateImageMsg(newMessageModel: MessageModel) {
         workInSub {
             val flowControl = openRepo.AnalyzeImage(
                 TextCompletionsParam(
@@ -256,7 +263,11 @@ class ConversationViewModel(
 
         _conversations.value = conversations
 
-        _isStopUseImageObs.value = true
+        if (onlyDesktop()) {
+            setImageUseStatus(false)
+        } else {
+            setImageUseStatus(true)
+        }
     }
 
     fun newConversation() {
@@ -341,7 +352,7 @@ class ConversationViewModel(
             if (message.answer != thinking) { //AI回答中
                 response.add(
                     chatMessage {
-                        role = ChatRole.System
+                        role = ChatRole.Assistant
                         name = DATA_SYSTEM_NAME
                         content = message.answer
                     }
@@ -392,6 +403,20 @@ class ConversationViewModel(
             _messages.value.mapValues { entry -> entry.value.toMutableList() } as HashMap<String, MutableList<MessageModel>>
         messagesMap[_currentConversation.value] = messages//赋值
         _messages.value = messagesMap
+    }
+
+    suspend fun generateMsgAgain() {
+        val currentListMessage: MutableList<MessageModel> =
+            getMessagesByConversation(_currentConversation.value).toMutableList()
+        //给的数据是倒序，第一条就是最新的
+        currentListMessage[0] = currentListMessage[0].copy(answer = thinking)
+        setMessages(currentListMessage)
+        //重新生成，就应该删除最新的回答,还要分是文字问还是图问？
+        if (currentListMessage[0].imagePath == null) {
+            updateTextMsg(currentListMessage[0])
+        } else {
+            updateImageMsg(currentListMessage[0])
+        }
     }
 
     fun stopReceivingResults() {

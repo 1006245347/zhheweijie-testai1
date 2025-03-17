@@ -10,6 +10,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -84,7 +85,7 @@ val LightColorScheme = lightColorScheme(
     background = BackGroundColor1,
     surface = BackGroundColor1,*/
 
-val DarkColorScheme = darkColorScheme(
+val DarkColorScheme = darkColorScheme( //在Android15没反应
     primary = PrimaryColor,
     secondary = Purple80, //大标题颜色
     tertiary = PrimaryColor,
@@ -93,6 +94,7 @@ val DarkColorScheme = darkColorScheme(
     onPrimary = BackInnerColor2, //聊天列表背景
     onSecondary = BackHumanColor2,//用户消息背景
     onTertiary = BackTxtColor2, //消息文字颜色 问答一致
+    onPrimaryContainer = BackTxtColor2,
 )
 
 val LightColorScheme = lightColorScheme(
@@ -103,7 +105,8 @@ val LightColorScheme = lightColorScheme(
     surface = BackGroundColor1,
     onPrimary = BackInnerColor1,
     onSecondary = BackHumanColor1,
-    onTertiary = BackTxtColor1
+    onTertiary = BackTxtColor1,
+    onPrimaryContainer = BackTxtColor1,
 
     /* Other default colors to override
     background = Color(0xFFFFFBFE),

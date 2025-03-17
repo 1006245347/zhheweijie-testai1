@@ -15,6 +15,8 @@
  */
 package com.hwj.ai.global
 
+import androidx.compose.ui.graphics.Color
+
 sealed class UiEvents {
     data class ShowToast(val message: String) : UiEvents()
     data object Navigation : UiEvents()
@@ -26,3 +28,32 @@ sealed class UiEvents {
 //    model = Res.getUri("drawable/sample.jpg"),
 //    contentDescription = null,
 //)
+
+//Android15无法响应颜色切换
+fun isDarkTxt(): Color { //onTertiary =
+    return BackTxtColor2
+}
+
+fun isLightTxt(): Color {
+    return BackTxtColor1
+}
+
+fun isDarkBg(): Color { //onSecondary
+    return BackHumanColor2
+}
+
+fun isLightBg(): Color {
+    return BackHumanColor1
+}
+
+fun isDarkPanel():Color{ //onPrimary
+    return BackInnerColor2
+}
+
+fun isLightPanel():Color{
+    return BackInnerColor1
+}
+
+
+
+

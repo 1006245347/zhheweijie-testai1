@@ -18,13 +18,14 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -44,21 +45,24 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import com.hwj.ai.checkSystem
+import com.hwj.ai.except.ToolTipCase
+import com.hwj.ai.global.BackInnerColor1
 import com.hwj.ai.global.NavigationScene
 import com.hwj.ai.global.OsStatus
-import com.hwj.ai.global.cHalfGrey80717171
+import com.hwj.ai.global.PrimaryColor
+import com.hwj.ai.global.isLightTxt
 import com.hwj.ai.global.onlyDesktop
-import com.hwj.ai.global.printD
 import com.hwj.ai.models.MenuActModel
 import com.hwj.ai.ui.global.KeyEventEnter
+import com.hwj.ai.ui.viewmodel.ChatViewModel
 import com.hwj.ai.ui.viewmodel.ConversationViewModel
 import io.github.vinceglb.filekit.name
 import io.github.vinceglb.filekit.path
@@ -80,7 +84,7 @@ fun TextInput(
             if (!conversationViewModel.getFabStatus()) {
                 coroutineScope.launch {
                     if (imagePathList.isNotEmpty()) {
-                        conversationViewModel.toast("image>", "rz?")
+//                        conversationViewModel.toast("image>", "rz?")
                         conversationViewModel.sendAnalyzeImageMsg(imagePathList.toList(), text)
                     } else {
                         conversationViewModel.sendTxtMessage(text)
@@ -104,7 +108,8 @@ fun InputTopIn(state: LazyListState, navigator: Navigator) {
     }
     LazyRow(state = state, modifier = Modifier.animateContentSize()) {
         items(list.size) { index ->
-            Button(modifier = Modifier.padding(start = 10.dp, bottom = 4.dp).size(86.dp, 38.dp),
+            Button(
+                modifier = Modifier.padding(start = 10.dp, bottom = 4.dp).size(75.dp, 34.dp),
                 onClick = {
                     subScope.launch {
                         when (list[index].title) {
@@ -118,14 +123,15 @@ fun InputTopIn(state: LazyListState, navigator: Navigator) {
 
                             "翻译" -> {}
                         }
-                    }
-                }) {
+                    }//设置Button背景色
+                }, colors = ButtonDefaults.buttonColors(containerColor = PrimaryColor)
+            ) {
                 Text(
                     text = list[index].title,
-                    fontSize = 15.sp,
+                    fontSize = 12.sp,
                     color = Color.White,
                     fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(2.dp)
+                    modifier = Modifier.align(Alignment.CenterVertically)
                 )
             }
         }
@@ -144,6 +150,8 @@ fun TextInputIn(
     var hasFocus by remember { mutableStateOf(false) } //判断焦点
     val focusManager = LocalFocusManager.current
     val maxInputSize = 300
+    val chatViewModel = koinViewModel(ChatViewModel::class)
+    val isDark = chatViewModel.darkState.collectAsState().value
 
     Box(
         // Use navigationBarsPadding() imePadding() and , to move the input panel above both the
@@ -155,27 +163,36 @@ fun TextInputIn(
                 InputTopIn(rememberLazyListState(), navigator)
             }
             HorizontalDivider(Modifier.height(0.2.dp))
-            //如果有图片，要插入图片列表
-            ImageSelectIn()
-            //输入监听区域
-            Box(
+
+            ImageSelectIn()   //如果有图片，要插入图片列表
+
+            Box(      //输入监听区域
                 Modifier.padding(horizontal = 4.dp).padding(top = 6.dp, bottom = 10.dp)
             ) {
                 Row {
-                    TextField(value = text, onValueChange = { newText ->
-                        if (newText.text.length <= maxInputSize) {
-                            text = newText
-                        }
-                    },
-                        label = null, placeholder = {
+                    TextField(value = text,
+                        onValueChange = { newText ->
+                            if (newText.text.length <= maxInputSize) {
+                                text = newText
+                            }
+                        },
+                        label = null,
+                        placeholder = {
                             Text(
                                 "Ask me anything", fontSize = 12.sp
                             )
-                        },
+                        }, //固定行高，输入时应用高度就不会一直抖动
+                        maxLines = 3,
+                        textStyle = TextStyle(
+                            fontSize = 13.sp,
+                            lineHeight = 24.sp,
+                            color = if (isDark) BackInnerColor1 else isLightTxt()
+                        ),
 //                        shape = RoundedCornerShape(25.dp),
                         modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp)
                             .background(Color.Transparent)
                             .verticalScroll(rememberScrollState())
+                            .imePadding()//适配键盘高度
                             .onFocusChanged { focusState -> hasFocus = focusState.isFocused }
                             .weight(1f).KeyEventEnter {
                                 scope.launch {
@@ -183,7 +200,8 @@ fun TextInputIn(
                                     text = TextFieldValue("")
                                     sendMessage(textClone)
                                 }
-                            }, colors = TextFieldDefaults.colors(
+                            },
+                        colors = TextFieldDefaults.colors(
                             focusedContainerColor = Color.Transparent, //去除边框
                             unfocusedContainerColor = Color.Transparent,
                             unfocusedTextColor = Color.Transparent,
@@ -212,40 +230,43 @@ fun EnterEventButton(isFabExpanded: Boolean, sendBlock: () -> Unit) {
     val subScope = rememberCoroutineScope()
     val conversationViewModel = koinViewModel(ConversationViewModel::class)
 
-    ExtendedFloatingActionButton(
-        text = {
-            Text(text = "Stop Generating", color = Color.White)
-        },
-        icon = {
-            if (isFabExpanded) { //中断按钮
-                Icon(
-                    imageVector = Icons.Default.Stop,
-                    contentDescription = "Stop Generating",
-                    tint = Color.White,
-                    modifier = Modifier.size(23.dp)
-                )
-            } else { //发送按钮
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.Send,
-                    contentDescription = "sendMessage",
-                    tint = Color.White,
-                    modifier = Modifier.size(23.dp)
-                )
-            }
-        },
-        onClick = {
-            if (isFabExpanded) {
-                conversationViewModel.stopReceivingResults()
-            } else {
-                subScope.launch { sendBlock() }
-            }
-        },
-        shape = RoundedCornerShape(16.dp),
-        modifier = Modifier
-            .animateContentSize().padding(end = 6.dp),
-        expanded = isFabExpanded,
-        containerColor = MaterialTheme.colorScheme.primary
-    )
+    ToolTipCase(tip = "发送/停止", content = {
+        ExtendedFloatingActionButton(
+            text = {
+                Text(text = "Stop Generating", color = Color.White)
+            },
+            icon = {
+                if (isFabExpanded) { //中断按钮
+                    Icon(
+                        imageVector = Icons.Default.Stop,
+                        contentDescription = "Stop Generating",
+                        tint = Color.White,
+                        modifier = Modifier.size(23.dp)
+                    )
+                } else { //发送按钮
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.Send,
+                        contentDescription = "sendMessage",
+                        tint = Color.White,
+                        modifier = Modifier.size(23.dp)
+                    )
+                }
+            },
+            onClick = {
+                if (isFabExpanded) {
+                    conversationViewModel.stopReceivingResults()
+                } else {
+                    subScope.launch { sendBlock() }
+                }
+            },
+            shape = RoundedCornerShape(16.dp),
+            modifier = Modifier
+                .animateContentSize().padding(end = 6.dp),
+            expanded = isFabExpanded,
+            containerColor = PrimaryColor
+        )
+
+    })
 }
 
 @Composable
@@ -257,7 +278,7 @@ fun ImageSelectIn() {
     if (imagePathList.isNotEmpty()) {
         LazyRow(
             state = rememberLazyListState(), modifier = Modifier.padding(start = 10.dp, top = 4.dp)
-                .wrapContentSize().background(cHalfGrey80717171())
+                .wrapContentSize()//.background(cHalfGrey80717171())
         ) {
             items(imagePathList.size) { index ->
                 Box(modifier = Modifier.padding(3.dp).size(35.dp)) {
@@ -277,17 +298,21 @@ fun ImageSelectIn() {
                             Icons.Default.Delete,
                             modifier = Modifier.fillMaxSize(),
                             contentDescription = "Delete",
-                            tint = Color.Gray
+                            tint = PrimaryColor
                         )
                     }
                 }
             }
             if (onlyDesktop()) {
                 item {
-                    Button(onClick = {
+                    IconButton(onClick = {
                         conversationViewModel.setImageUseStatus(true)
-                    }) {
-                        Text("不再引用图 X")
+                    }, modifier = Modifier.padding(start = 5.dp)) {
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = "不再引用图 X",
+                            tint = PrimaryColor
+                        )
                     }
                 }
             }

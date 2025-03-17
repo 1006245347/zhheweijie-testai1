@@ -34,7 +34,7 @@ fun AppScaffold(
                 AppDrawer(
                     onChatClicked = onChatClicked,
                     onNewChatClicked = onNewChatClicked,
-                    conversationViewModel,
+                    conversationViewModel = conversationViewModel,
                     onIconClicked = onIconClicked, navigator
                 )
             }

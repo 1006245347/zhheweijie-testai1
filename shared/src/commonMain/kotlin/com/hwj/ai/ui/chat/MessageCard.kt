@@ -3,6 +3,7 @@ package com.hwj.ai.ui.chat
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -12,11 +13,17 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ContentCopy
+import androidx.compose.material.icons.filled.GeneratingTokens
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -31,14 +38,25 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import com.hwj.ai.BotMessageCard
+import com.hwj.ai.except.BotMsgMenu
 import com.hwj.ai.getPlatform
 import com.hwj.ai.global.BackCodeGroundColor
 import com.hwj.ai.global.BackCodeTxtColor
 import com.hwj.ai.global.OsStatus
-import com.hwj.ai.global.max
+import com.hwj.ai.global.PrimaryColor
+import com.hwj.ai.global.isDarkBg
+import com.hwj.ai.global.isDarkPanel
+import com.hwj.ai.global.isDarkTxt
+import com.hwj.ai.global.isLightBg
+import com.hwj.ai.global.isLightPanel
+import com.hwj.ai.global.isLightTxt
+import com.hwj.ai.global.printD
+import com.hwj.ai.global.thinking
+import com.hwj.ai.global.workInSub
 import com.hwj.ai.models.MessageModel
 import com.hwj.ai.ui.global.GlobalIntent
 import com.hwj.ai.ui.viewmodel.ChatViewModel
+import com.hwj.ai.ui.viewmodel.ConversationViewModel
 import com.mohamedrejeb.richeditor.model.rememberRichTextState
 import com.mohamedrejeb.richeditor.ui.material3.RichText
 import io.github.vinceglb.filekit.name
@@ -48,13 +66,23 @@ import kotlinx.coroutines.launch
 import moe.tlaster.precompose.koin.koinViewModel
 
 @Composable
-fun MessageCard(message: MessageModel, isHuman: Boolean = false, isLast: Boolean = false) {
+fun MessageCard(
+    message: MessageModel,
+    isHuman: Boolean = false,
+    isLast: Boolean = false,
+    isLatest: Boolean = false
+) {
+    val chatViewModel = koinViewModel(ChatViewModel::class)
+    val isDark = chatViewModel.darkState.collectAsState().value
+    val conversationViewModel = koinViewModel(ConversationViewModel::class)
+    val isFabExpanded by conversationViewModel.isFabExpanded.collectAsState()
     var maxWidth = 260.dp
     if (getPlatform().os == OsStatus.ANDROID || getPlatform().os == OsStatus.IOS) {
         maxWidth = 260.dp
     } else {
         maxWidth = 450.dp
     }
+
     Column(
         horizontalAlignment = if (isHuman) Alignment.End else Alignment.Start,
         modifier = Modifier
@@ -67,8 +95,14 @@ fun MessageCard(message: MessageModel, isHuman: Boolean = false, isLast: Boolean
                 .widthIn(0.dp, maxWidth) //mention max width here
                 .wrapContentHeight()
                 .background(
-                    if (isHuman) MaterialTheme.colorScheme.onSecondary else
-                        MaterialTheme.colorScheme.onPrimary,
+//                    printD("theme>$isDark")
+                    if (isHuman) {
+                        if (isDark) isDarkBg() else isLightBg()
+                    } else {
+                        if (isDark) isDarkPanel() else isLightPanel()
+                    },
+//                    if (isHuman) MaterialTheme.colorScheme.onSecondary else
+//                        MaterialTheme.colorScheme.onPrimary,
                     shape = RoundedCornerShape(12.dp)
                 ),
         ) {
@@ -78,11 +112,18 @@ fun MessageCard(message: MessageModel, isHuman: Boolean = false, isLast: Boolean
                 BotMessageCard(message = message)
             }
         }
+        if (!isHuman && isLatest && message.answer != thinking && !isFabExpanded) { //最后一条
+            BotMsgMenu(message)
+        }
     }
 }
 
+
+
 @Composable
 fun HumanMessageCard(message: MessageModel) {
+    val chatViewModel = koinViewModel(ChatViewModel::class)
+    val isDark = chatViewModel.darkState.collectAsState().value
     Column {
         message.imagePath?.let { imgList ->
             LazyRow {
@@ -100,7 +141,7 @@ fun HumanMessageCard(message: MessageModel) {
         Text(
             text = message.question,
             fontSize = 14.sp,
-            color = MaterialTheme.colorScheme.onTertiary,
+            color = if (isDark) isDarkTxt() else isLightTxt(),
             modifier = Modifier.padding(horizontal = 18.dp, vertical = 10.dp),
             textAlign = TextAlign.Justify,
         )
@@ -240,3 +281,30 @@ fun BotCommonCardApp(message: MessageModel) {
     )
 }
 
+
+@Composable
+fun BotCommonMsgMenu(message: MessageModel){
+    val conversationViewModel = koinViewModel(ConversationViewModel::class)
+    Row {
+        IconButton(onClick = { //复制
+            printD(message.answer)
+        }, modifier = Modifier.padding(start = 15.dp, end = 10.dp)) {
+            Icon(
+                imageVector = Icons.Default.ContentCopy,
+                contentDescription = "Copy",
+                tint = PrimaryColor, modifier = Modifier.size(20.dp)
+            )
+        }
+        IconButton(onClick = { //重新生成
+            conversationViewModel.workInSub {
+                conversationViewModel.generateMsgAgain()
+            }
+        }) {
+            Icon(
+                imageVector = Icons.Default.GeneratingTokens,
+                contentDescription = "Generate Again",
+                tint = PrimaryColor, modifier = Modifier.size(20.dp)
+            )
+        }
+    }
+}

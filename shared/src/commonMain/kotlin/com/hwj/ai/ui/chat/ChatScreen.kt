@@ -115,10 +115,19 @@ fun ChatScreen(navigator: Navigator) {
 
                         chatViewModel.processGlobal(GlobalIntent.CheckDarkTheme)
 //                        printD("t>${getCacheBoolean(CODE_IS_DARK)}")
+                        drawerState.close()
                     }
                 }) {
                 Column(modifier = Modifier.fillMaxSize()) {
-                    AppBar(onClickMenu = { scope.launch { drawerState.open() } })
+                    AppBar(onClickMenu = { scope.launch { drawerState.open() } },
+                        onNewChat = {
+                            scope.launch {
+                                conversationViewModel.stopReceivingResults()
+                                drawerState.close()
+                                conversationViewModel.newConversation()
+
+                            }
+                        })
                     HorizontalDivider()
                     if (configState.isLoading || configState.error != null) {
                         ChatInit(configState)

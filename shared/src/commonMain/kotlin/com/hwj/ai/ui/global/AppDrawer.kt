@@ -22,8 +22,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Message
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Message
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.WbSunny
 import androidx.compose.material.icons.outlined.AddComment
@@ -51,13 +51,19 @@ import coil3.compose.LocalPlatformContext
 import coil3.compose.rememberAsyncImagePainter
 import coil3.request.ImageRequest
 import coil3.request.crossfade
-import com.hwj.ai.global.NavigateRoute
 import com.hwj.ai.global.NavigationScene
+import com.hwj.ai.global.PrimaryColor
+import com.hwj.ai.global.isDarkBg
+import com.hwj.ai.global.isDarkPanel
+import com.hwj.ai.global.isLightBg
+import com.hwj.ai.global.isLightPanel
 import com.hwj.ai.global.urlToImageAppIcon
 import com.hwj.ai.global.urlToImageAuthor
 import com.hwj.ai.models.ConversationModel
+import com.hwj.ai.ui.viewmodel.ChatViewModel
 import com.hwj.ai.ui.viewmodel.ConversationViewModel
 import kotlinx.coroutines.launch
+import moe.tlaster.precompose.koin.koinViewModel
 import moe.tlaster.precompose.navigation.Navigator
 
 @Composable
@@ -72,7 +78,7 @@ fun AppDrawer(
         onChatClicked = onChatClicked,
         onNewChatClicked = onNewChatClicked,
         onIconClicked = onIconClicked,
-        conversationViewModel = { conversationViewModel.newConversation() },
+        conversationChat = { conversationViewModel.newConversation() },
         deleteConversation = { conversationId ->
             coroutineScope.launch {
                 conversationViewModel.deleteConversation(conversationId)
@@ -93,7 +99,7 @@ fun AppDrawerIn(
     onChatClicked: (String) -> Unit,
     onNewChatClicked: () -> Unit,
     onIconClicked: () -> Unit,
-    conversationViewModel: () -> Unit,
+    conversationChat: () -> Unit,
     deleteConversation: (String) -> Unit,
     onConversation: (ConversationModel) -> Unit,
     currentConversationState: String,
@@ -107,13 +113,13 @@ fun AppDrawerIn(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ) {
-        Spacer(Modifier.windowInsetsTopHeight(WindowInsets.statusBars))
+        Spacer(Modifier.windowInsetsTopHeight(WindowInsets.statusBars))//影响键盘？
         DrawerHeader(clickAction = onIconClicked)
         DividerItem()
         DrawerItemHeader("Chats")
         ChatItem("New Chat", Icons.Outlined.AddComment, false) {
             onNewChatClicked()
-            conversationViewModel()
+            conversationChat()
         }
         HistoryConversations(
             onChatClicked,
@@ -156,20 +162,22 @@ private fun DrawerHeader(
                 contentScale = ContentScale.Crop,
                 contentDescription = null
             )
+
             Column(modifier = Modifier.padding(horizontal = 12.dp)) {
                 Text(
                     "Chat Lite",
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.secondary,
+                    color = PrimaryColor
                 )
                 Text(
                     "Powered by DeepSeek",
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Normal,
-                    color = MaterialTheme.colorScheme.secondary,
+                    color = PrimaryColor,
                 )
             }
+
         }
 
         IconButton(
@@ -205,7 +213,7 @@ private fun ColumnScope.HistoryConversations(
         items(conversationState.size) { index ->
             RecycleChatItem(
                 text = conversationState[index].title,
-                Icons.Filled.Message,
+                Icons.AutoMirrored.Filled.Message,
                 selected = conversationState[index].id == currentConversationState,
                 onChatClicked = {
                     onChatClicked(conversationState[index].id)
@@ -275,12 +283,12 @@ private fun ChatItem(
             contentDescription = null,
         )
         Text(
-            text,
+            text = text,
             style = MaterialTheme.typography.bodyMedium,
             color = if (selected) {
                 MaterialTheme.colorScheme.primary
             } else {
-                MaterialTheme.colorScheme.onSurface
+                MaterialTheme.colorScheme.onSurface //其实Android15也是没有效果
             },
             modifier = Modifier.padding(start = 12.dp),
             maxLines = 1,
@@ -297,6 +305,8 @@ private fun RecycleChatItem(
     onChatClicked: () -> Unit,
     onDeleteClicked: () -> Unit
 ) {
+    val chatViewModel = koinViewModel(ChatViewModel::class)
+    val isDark = chatViewModel.darkState.collectAsState().value
     val background = if (selected) {
         Modifier.background(MaterialTheme.colorScheme.primaryContainer)
     } else {
@@ -313,9 +323,11 @@ private fun RecycleChatItem(
         verticalAlignment = CenterVertically
     ) {
         val iconTint = if (selected) {
-            MaterialTheme.colorScheme.primary
+//            MaterialTheme.colorScheme.primary
+            if (isDark) isDarkBg() else isLightBg()
         } else {
-            MaterialTheme.colorScheme.onSurfaceVariant
+            if (isDark) isDarkPanel() else isLightPanel()
+//            MaterialTheme.colorScheme.onSurfaceVariant
         }
         Icon(
             icon,

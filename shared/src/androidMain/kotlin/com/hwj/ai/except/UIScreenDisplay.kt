@@ -26,13 +26,26 @@ import com.hwj.ai.camera.PeekabooCameraView
 import com.hwj.ai.camera.PeekabooTheme
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ContentCopy
+import androidx.compose.material.icons.filled.GeneratingTokens
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import com.hwj.ai.camera.toImageBitmap
+import com.hwj.ai.global.PrimaryColor
 import com.hwj.ai.global.printD
+import com.hwj.ai.global.workInSub
+import com.hwj.ai.models.MessageModel
+import com.hwj.ai.ui.chat.BotCommonMsgMenu
+import com.hwj.ai.ui.viewmodel.ConversationViewModel
+import moe.tlaster.precompose.koin.koinViewModel
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
@@ -106,3 +119,11 @@ actual fun OpenCameraScreen(isOpen: Boolean, onBack: (Boolean) -> Unit) {
         }
     }
 }
+
+@Composable
+actual fun BotMsgMenu(message: MessageModel) {
+    BotCommonMsgMenu(message)
+}
+
+@Composable
+actual fun ToolTipCase(tip: String, content: @Composable () -> Unit){}
