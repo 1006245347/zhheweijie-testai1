@@ -1,6 +1,7 @@
 package di
 
 import com.hwj.ai.data.local.SettingsFactory
+import com.hwj.ai.except.ClipboardHelper
 import com.hwj.ai.except.DatabaseDriverFactory
 import com.hwj.ai.global.NotificationsManager
 import org.koin.core.module.Module
@@ -11,4 +12,5 @@ actual fun sharedPlatformModule():Module= module{
     single { SettingsFactory() }
     single { NotificationsManager() }
     single { DatabaseDriverFactory() }
+    factory { ClipboardHelper() }
 }

@@ -86,7 +86,7 @@ actual fun createHttpClient(timeout: Long?): HttpClient {
             })
         }
         install(Logging) {
-            level = LogLevel.NONE
+            level = LogLevel.BODY
 //            level=LogLevel.HEADERS
 //            level= LogLevel.INFO
 //            level = LogLevel.NONE //接口日志屏蔽

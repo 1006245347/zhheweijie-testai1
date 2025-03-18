@@ -35,17 +35,20 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
@@ -54,20 +57,29 @@ import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import com.hwj.ai.checkSystem
 import com.hwj.ai.except.ToolTipCase
+import com.hwj.ai.except.isMainThread
 import com.hwj.ai.global.BackInnerColor1
 import com.hwj.ai.global.NavigationScene
 import com.hwj.ai.global.OsStatus
 import com.hwj.ai.global.PrimaryColor
+import com.hwj.ai.global.cGrey666666
 import com.hwj.ai.global.isLightTxt
 import com.hwj.ai.global.onlyDesktop
+import com.hwj.ai.global.printD
+import com.hwj.ai.global.printList
 import com.hwj.ai.models.MenuActModel
 import com.hwj.ai.ui.global.KeyEventEnter
 import com.hwj.ai.ui.viewmodel.ChatViewModel
 import com.hwj.ai.ui.viewmodel.ConversationViewModel
+import io.github.vinceglb.filekit.FileKit
 import io.github.vinceglb.filekit.name
 import io.github.vinceglb.filekit.path
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlinx.io.discardingSink
 import moe.tlaster.precompose.koin.koinViewModel
+import moe.tlaster.precompose.navigation.NavOptions
 import moe.tlaster.precompose.navigation.Navigator
 
 
@@ -75,20 +87,20 @@ import moe.tlaster.precompose.navigation.Navigator
 fun TextInput(
     conversationViewModel: ConversationViewModel, navigator: Navigator
 ) {
-    val coroutineScope = rememberCoroutineScope()
+    val subScope = rememberCoroutineScope()
     val imagePathList by conversationViewModel.imageListState.collectAsState() //选中的图片
 
     TextInputIn(
         sendMessage = { text ->
             //判断是否在生成消息不让点击事件
             if (!conversationViewModel.getFabStatus()) {
-                coroutineScope.launch {
-                    if (imagePathList.isNotEmpty()) {
+                if (imagePathList.isNotEmpty()) {
 //                        conversationViewModel.toast("image>", "rz?")
+                    subScope.launch(Dispatchers.Default) {
                         conversationViewModel.sendAnalyzeImageMsg(imagePathList.toList(), text)
-                    } else {
-                        conversationViewModel.sendTxtMessage(text)
                     }
+                } else {
+                    conversationViewModel.sendTxtMessage(text)
                 }
             }
         }, navigator
@@ -99,6 +111,8 @@ fun TextInput(
 fun InputTopIn(state: LazyListState, navigator: Navigator) {
     val subScope = rememberCoroutineScope()
     val conversationViewModel = koinViewModel(ConversationViewModel::class)
+
+    val imageList = conversationViewModel.imageListState.collectAsState().value
     val list = mutableListOf<MenuActModel>()
     list.add(MenuActModel("相册"))
     if (checkSystem() == OsStatus.ANDROID || checkSystem() == OsStatus.IOS) {
@@ -118,10 +132,16 @@ fun InputTopIn(state: LazyListState, navigator: Navigator) {
                             }
 
                             "拍摄" -> {
-                                navigator.navigate(NavigationScene.Camera.path)
+                                if (imageList.size == 2) {
+                                    conversationViewModel.toast("最多选取两张图片", "toast")
+                                } else {
+                                    navigator.navigateForResult(NavigationScene.Camera.path)
+                                }
                             }
 
-                            "翻译" -> {}
+                            "翻译" -> {
+
+                            }
                         }
                     }//设置Button背景色
                 }, colors = ButtonDefaults.buttonColors(containerColor = PrimaryColor)
@@ -162,6 +182,7 @@ fun TextInputIn(
             if (!isFabExpanded) { //isFabExpanded=true正在回答
                 InputTopIn(rememberLazyListState(), navigator)
             }
+
             HorizontalDivider(Modifier.height(0.2.dp))
 
             ImageSelectIn()   //如果有图片，要插入图片列表
@@ -256,7 +277,8 @@ fun EnterEventButton(isFabExpanded: Boolean, sendBlock: () -> Unit) {
                 if (isFabExpanded) {
                     conversationViewModel.stopReceivingResults()
                 } else {
-                    subScope.launch { sendBlock() }
+//                    subScope.launch { sendBlock() }
+                    sendBlock()
                 }
             },
             shape = RoundedCornerShape(16.dp),
@@ -275,37 +297,38 @@ fun ImageSelectIn() {
     val imagePathList by conversationViewModel.imageListState.collectAsState() //选中的图片
     val isStopUseImageState by conversationViewModel.isStopUseImageState.collectAsState()
     //必须是最后一轮对话，且是图片解析，解析图片完清除所有？
-    if (imagePathList.isNotEmpty()) {
-        LazyRow(
-            state = rememberLazyListState(), modifier = Modifier.padding(start = 10.dp, top = 4.dp)
-                .wrapContentSize()//.background(cHalfGrey80717171())
-        ) {
-            items(imagePathList.size) { index ->
-                Box(modifier = Modifier.padding(3.dp).size(35.dp)) {
-                    AsyncImage(
-                        imagePathList[index].path,
-                        contentDescription = imagePathList[index].name,
+    LazyRow(
+        state = rememberLazyListState(), modifier = Modifier.padding(start = 10.dp, top = 4.dp)
+            .wrapContentSize()//.background(cHalfGrey80717171())
+    ) {
+        items(imagePathList.size) { index ->
+            Box(modifier = Modifier.padding(3.dp).size(35.dp)) {
+                AsyncImage(
+                    imagePathList[index].path,
+                    contentDescription = imagePathList[index].name,
 //                        contentScale = ContentScale.Crop,
-                        modifier = Modifier.fillMaxSize()
+                    modifier = Modifier.fillMaxSize()
+                )
+                IconButton(
+                    onClick = {
+                        conversationViewModel.deleteImage(index)
+                    },
+                    modifier = Modifier.size(20.dp).align(Alignment.TopEnd)
+                ) {
+                    Icon(
+                        Icons.Default.Delete,
+                        modifier = Modifier.fillMaxSize(),
+                        contentDescription = "Delete",
+                        tint = cGrey666666()
                     )
-                    IconButton(
-                        onClick = {
-                            conversationViewModel.deleteImage(index)
-                        },
-                        modifier = Modifier.size(20.dp).align(Alignment.TopEnd)
-                    ) {
-                        Icon(
-                            Icons.Default.Delete,
-                            modifier = Modifier.fillMaxSize(),
-                            contentDescription = "Delete",
-                            tint = PrimaryColor
-                        )
-                    }
                 }
             }
-            if (onlyDesktop()) {
-                item {
+        }
+        if (onlyDesktop() && imagePathList.size > 0) {
+            item {
+                ToolTipCase(tip = "不再引用图片", content = {
                     IconButton(onClick = {
+                        conversationViewModel.deleteImage(0, true)
                         conversationViewModel.setImageUseStatus(true)
                     }, modifier = Modifier.padding(start = 5.dp)) {
                         Icon(
@@ -314,9 +337,8 @@ fun ImageSelectIn() {
                             tint = PrimaryColor
                         )
                     }
-                }
+                })
             }
         }
-
     }
 }

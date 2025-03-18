@@ -39,11 +39,13 @@ import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import com.hwj.ai.BotMessageCard
 import com.hwj.ai.except.BotMsgMenu
+import com.hwj.ai.except.ClipboardHelper
 import com.hwj.ai.getPlatform
 import com.hwj.ai.global.BackCodeGroundColor
 import com.hwj.ai.global.BackCodeTxtColor
 import com.hwj.ai.global.OsStatus
 import com.hwj.ai.global.PrimaryColor
+import com.hwj.ai.global.ToastUtils
 import com.hwj.ai.global.isDarkBg
 import com.hwj.ai.global.isDarkPanel
 import com.hwj.ai.global.isDarkTxt
@@ -103,7 +105,7 @@ fun MessageCard(
                     },
 //                    if (isHuman) MaterialTheme.colorScheme.onSecondary else
 //                        MaterialTheme.colorScheme.onPrimary,
-                    shape = RoundedCornerShape(12.dp)
+                    shape = RoundedCornerShape(8.dp)
                 ),
         ) {
             if (isHuman) {//人类消息右对齐
@@ -118,8 +120,6 @@ fun MessageCard(
     }
 }
 
-
-
 @Composable
 fun HumanMessageCard(message: MessageModel) {
     val chatViewModel = koinViewModel(ChatViewModel::class)
@@ -128,7 +128,7 @@ fun HumanMessageCard(message: MessageModel) {
         message.imagePath?.let { imgList ->
             LazyRow {
                 items(imgList) { img ->
-                    Box(modifier = Modifier.padding(3.dp).size(60.dp, 50.dp)) {
+                    Box(modifier = Modifier.padding(5.dp).size(60.dp, 50.dp)) {
                         AsyncImage(
                             img.path, contentDescription = img.name,
                             contentScale = ContentScale.Crop,
@@ -142,7 +142,7 @@ fun HumanMessageCard(message: MessageModel) {
             text = message.question,
             fontSize = 14.sp,
             color = if (isDark) isDarkTxt() else isLightTxt(),
-            modifier = Modifier.padding(horizontal = 18.dp, vertical = 10.dp),
+            modifier = Modifier.padding(horizontal = 15.dp, vertical = 8.dp),
             textAlign = TextAlign.Justify,
         )
     }
@@ -283,11 +283,14 @@ fun BotCommonCardApp(message: MessageModel) {
 
 
 @Composable
-fun BotCommonMsgMenu(message: MessageModel){
+fun BotCommonMsgMenu(message: MessageModel) {
     val conversationViewModel = koinViewModel(ConversationViewModel::class)
+    val subScope= rememberCoroutineScope()
     Row {
         IconButton(onClick = { //复制
             printD(message.answer)
+            conversationViewModel.copyToClipboard(message.answer)
+            ToastUtils.show("复制成功")
         }, modifier = Modifier.padding(start = 15.dp, end = 10.dp)) {
             Icon(
                 imageVector = Icons.Default.ContentCopy,
@@ -296,9 +299,14 @@ fun BotCommonMsgMenu(message: MessageModel){
             )
         }
         IconButton(onClick = { //重新生成
-            conversationViewModel.workInSub {
+            printD("clickSend>")
+
+//            conversationViewModel.workInSub {
+//            subScope.launch {
+
                 conversationViewModel.generateMsgAgain()
-            }
+//            }
+//            }
         }) {
             Icon(
                 imageVector = Icons.Default.GeneratingTokens,

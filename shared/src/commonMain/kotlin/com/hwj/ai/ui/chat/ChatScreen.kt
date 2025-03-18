@@ -29,6 +29,7 @@ import com.hwj.ai.global.getCacheBoolean
 import com.hwj.ai.global.printD
 import com.hwj.ai.global.printList
 import com.hwj.ai.global.saveBoolean
+import com.hwj.ai.hideKeyBoard
 import com.hwj.ai.ui.global.AppBar
 import com.hwj.ai.ui.global.AppScaffold
 import com.hwj.ai.ui.global.GlobalIntent
@@ -79,6 +80,7 @@ fun ChatScreen(navigator: Navigator) {
     LaunchedEffect(Unit) {
         scope.launch {
             darkTheme.value = getCacheBoolean(CODE_IS_DARK)
+            chatViewModel.processGlobal(GlobalIntent.CheckDarkTheme)
         }
         //主动获取数据
         chatViewModel.processConfig(ModelConfigIntent.LoadData)

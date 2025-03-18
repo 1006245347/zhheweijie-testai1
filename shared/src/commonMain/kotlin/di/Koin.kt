@@ -1,9 +1,5 @@
 package di
 
-import com.aallam.openai.client.LoggingConfig
-import com.aallam.openai.client.OpenAI
-import com.aallam.openai.client.OpenAIConfig
-import com.aallam.openai.client.OpenAIHost
 import com.hwj.ai.createHttpClient
 import com.hwj.ai.data.local.PreferenceLocalDataSource
 import com.hwj.ai.data.local.SettingsFactory
@@ -15,21 +11,10 @@ import com.hwj.ai.data.repository.LocalDataRepository
 import com.hwj.ai.data.repository.MessageRepository
 import com.hwj.ai.data.repository.SettingsRepository
 import com.hwj.ai.except.DataSettings
-import com.hwj.ai.global.LLM_API_KEY
-import com.hwj.ai.global.baseHostUrl
-import com.hwj.ai.global.printD
 import com.hwj.ai.ui.viewmodel.ChatViewModel
 import com.hwj.ai.ui.viewmodel.ConversationViewModel
 import com.hwj.ai.ui.viewmodel.SettingsViewModel
 import com.hwj.ai.ui.viewmodel.WelcomeScreenModel
-import com.russhwolf.settings.coroutines.FlowSettings
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.client.plugins.logging.LogLevel
-import io.ktor.client.plugins.logging.Logger
-import io.ktor.client.plugins.logging.Logging
-import io.ktor.serialization.kotlinx.json.json
-import kotlinx.serialization.json.Json
-import moe.tlaster.precompose.navigation.rememberNavigator
 import org.koin.core.Koin
 import org.koin.core.context.startKoin
 import org.koin.core.module.Module
@@ -100,10 +85,11 @@ val mainModule = module {
 }
 
 val modelModule = module {
-    factoryOf(::ConversationViewModel)
+//    factoryOf(::ConversationViewModel)
+    single { ConversationViewModel(get(), get(), get(), get(), get(),get()) }
     factory { WelcomeScreenModel(get()) }
     single { ChatViewModel(get()) }
-    single { SettingsViewModel(get(),get(),get()) }
+    single { SettingsViewModel(get(), get(), get()) }
 }
 
 /**

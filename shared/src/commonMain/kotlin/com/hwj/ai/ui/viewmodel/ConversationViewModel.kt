@@ -1,13 +1,17 @@
 package com.hwj.ai.ui.viewmodel
 
 import androidx.compose.runtime.mutableStateListOf
+import androidx.lifecycle.ViewModelStore
 import com.aallam.openai.api.chat.ChatMessage
 import com.aallam.openai.api.chat.ChatRole
 import com.aallam.openai.api.chat.chatMessage
+import com.hwj.ai.checkSystem
 import com.hwj.ai.data.repository.ConversationRepository
 import com.hwj.ai.data.repository.LLMChatRepository
 import com.hwj.ai.data.repository.LLMRepository
 import com.hwj.ai.data.repository.MessageRepository
+import com.hwj.ai.except.ClipboardHelper
+import com.hwj.ai.except.isMainThread
 import com.hwj.ai.getPlatform
 import com.hwj.ai.global.DATA_IMAGE_TITLE
 import com.hwj.ai.global.DATA_SYSTEM_NAME
@@ -28,19 +32,26 @@ import com.hwj.ai.models.MessageModel
 import com.hwj.ai.models.TextCompletionsParam
 import io.github.vinceglb.filekit.FileKit
 import io.github.vinceglb.filekit.PlatformFile
+import io.github.vinceglb.filekit.compressImage
 import io.github.vinceglb.filekit.dialogs.FileKitMode
 import io.github.vinceglb.filekit.dialogs.FileKitType
 import io.github.vinceglb.filekit.dialogs.openFilePicker
+import io.github.vinceglb.filekit.size
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
+import kotlinx.coroutines.async
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import moe.tlaster.precompose.viewmodel.ViewModel
-import kotlin.io.encoding.ExperimentalEncodingApi
+import moe.tlaster.precompose.viewmodel.viewModelScope
 
 /**
  * Used to communicate between screens.
@@ -49,7 +60,7 @@ class ConversationViewModel(
     private val conversationRepo: ConversationRepository,
     private val messageRepo: MessageRepository,
     private val openAIRepo: LLMRepository, private val openRepo: LLMChatRepository,
-    private val toastManager: NotificationsManager
+    private val toastManager: NotificationsManager, private val clipboardHelper: ClipboardHelper
 ) : ViewModel() { //换掉这个viewModel
     private val _currentConversation: MutableStateFlow<String> =
         MutableStateFlow(getMills().toString())
@@ -86,6 +97,8 @@ class ConversationViewModel(
     private val _isStopUseImageObs = MutableStateFlow(false)
     val isStopUseImageState = _isStopUseImageObs.asStateFlow()
 
+    var curJob: kotlinx.coroutines.Job? = null
+
     suspend fun initialize() {
         _isFetching.value = true
 
@@ -107,7 +120,7 @@ class ConversationViewModel(
         _isFetching.value = false
     }
 
-    suspend fun sendTxtMessage(input: String) {
+    fun sendTxtMessage(input: String) {
         _stopReceivingObs.value = false
         if (getMessagesByConversation(_currentConversation.value).isEmpty()) {
             createConversationRemote(input)
@@ -152,9 +165,9 @@ class ConversationViewModel(
         updateTextMsg(newMessageModel)
     }
 
-    suspend fun updateTextMsg(newMessageModel: MessageModel) {
+    fun updateTextMsg(newMessageModel: MessageModel) {
         //openAi sdk
-        withContext(Dispatchers.Default) {
+        curJob = viewModelScope.launch(Dispatchers.Default) {
             val flowControl = openRepo.receiveAIMessage( //调用大模型接口
                 TextCompletionsParam(
                     promptText = getPrompt(_currentConversation.value),
@@ -164,25 +177,27 @@ class ConversationViewModel(
 
             var answerFromGPT = ""
             try {
-                flowControl?.onCompletion {
-                    printD("done>")
-                    setFabExpanded(false)
-                }?.collect { chunk -> //被强制类型
-                    if (_stopReceivingObs.value) {
+                flowControl?.onStart { setFabExpanded(true) }
+                    ?.onCompletion {
                         setFabExpanded(false)
-                        return@collect
-                    }
-                    try {
-                        chunk.choices.first().delta?.content?.let {
-                            answerFromGPT += it
-//                            printD(answerFromGPT.trim()) //打印
-                            updateLocalAnswer(answerFromGPT.trim())
-                            setFabExpanded(true)
+                    }?.collect { chunk -> //被强制类型
+                        if (_stopReceivingObs.value) {
+                            setFabExpanded(false)
+                            curJob?.cancel()
+                            curJob = null
+                            return@collect
                         }
-                    } catch (e: Exception) {
+                        try {
+                            chunk.choices.first().delta?.content?.let {
+                                answerFromGPT += it
+//                                printD(it) //打印
+                                updateLocalAnswer(answerFromGPT.trim())
+//                            setFabExpanded(true) //有数据才显示终止
+                            }
+                        } catch (e: Exception) {
 //                    printE(e)
+                        }
                     }
-                }
             } catch (e: Exception) {
 //            printE(e) //gpt-4o 返回的数据格式好多异常
             }
@@ -194,7 +209,6 @@ class ConversationViewModel(
     //对多张图片进行解析？多轮对话后不再续传图片，当AI反复查询细节则要
     suspend fun sendAnalyzeImageMsg(imagePaths: List<PlatformFile>, input: String? = null) {
         _stopReceivingObs.value = false
-
         if (getMessagesByConversation(_currentConversation.value).isEmpty()) {
             createConversationRemote(DATA_IMAGE_TITLE) //创建新的会话
         }
@@ -210,43 +224,69 @@ class ConversationViewModel(
 
         currentListMessage.add(0, newMessageModel)
         setMessages(currentListMessage)
+//        a()
+
         updateImageMsg(newMessageModel)
+
     }
 
-    private fun updateImageMsg(newMessageModel: MessageModel) {
-        workInSub {
-            val flowControl = openRepo.AnalyzeImage(
-                TextCompletionsParam(
-                    promptText = getPrompt(_currentConversation.value),
-                    messagesTurbo = getMessagesParamsTurbo(_currentConversation.value)
-                )
+    private fun a() {
+        b()
+    }
+
+    private fun b() {
+        printD("ex2> ${isMainThread()}")
+        viewModelScope.launch(Dispatchers.Main) {
+            printD("ex3>${isMainThread()}")
+            println("无法执行？")
+            printD("无法执行")
+        }
+        viewModelScope.launch(Dispatchers.IO) {
+            printD("ex4")
+        }
+    }
+
+    private suspend fun updateImageMsg(newMessageModel: MessageModel) {
+        printD("updateImageMsg1>$newMessageModel")
+//        curJob = viewModelScope.launch() {   //加线程切换，无法执行？
+        printD("updateImageMsg2>$newMessageModel")
+        val flowControl = openRepo.AnalyzeImage(
+            TextCompletionsParam(
+                promptText = getPrompt(_currentConversation.value),
+                messagesTurbo = getMessagesParamsTurbo(_currentConversation.value)
             )
-            var answerFromGPT = ""
-            try {
-                flowControl?.onCompletion {
+        )
+
+        var answerFromGPT = ""
+
+        try {
+            flowControl?.onStart { setFabExpanded(true) }
+                ?.onCompletion {
                     setFabExpanded(false)
                     if (_isStopUseImageObs.value) //如果每次都传图参，那就不删
                         deleteImage(0, true)
                 }?.collect { chunk ->
                     if (_stopReceivingObs.value) {
                         setFabExpanded(false)
+                        curJob?.cancel()
+                        curJob = null
                         return@collect
                     }
 
                     try {
                         chunk.choices.first().delta?.content?.let {
                             answerFromGPT += it
+                            printD(it)
                             updateLocalAnswer(answerFromGPT.trim())
-                            setFabExpanded(true)
+//                        setFabExpanded(true)
                         }
                     } catch (e: Exception) {
                     }
                 }
-            } catch (e: Exception) {
-                printE(e)
-            }
-            messageRepo.createMessage(newMessageModel.copy(answerFromGPT))
+        } catch (e: Exception) {
+            printE(e)
         }
+        messageRepo.createMessage(newMessageModel.copy(answer = answerFromGPT))
     }
 
     private fun createConversationRemote(title: String) {
@@ -302,7 +342,6 @@ class ConversationViewModel(
         return response
     }
 
-    @OptIn(ExperimentalEncodingApi::class)
     private suspend fun getMessagesParamsTurbo(conversationId: String): List<ChatMessage> {
         if (_messages.value[conversationId] == null) return listOf()
 
@@ -318,13 +357,49 @@ class ConversationViewModel(
 
         for (index in messagesMap[conversationId]!!.reversed().indices) { //拆解两条，按时间排序
             val message = messagesMap[conversationId]!!.reversed()[index]
-            var partsReq = mutableListOf<String>()
+            val partsReq = mutableListOf<String>()
 
             if (!_isStopUseImageObs.value) { //一直引用图
-                partsReq = coverBase64Data(message.imagePath)
+                try {
+                    message.imagePath?.let { pics ->
+                        pics.forEach { pic ->
+                            if (pic.size() > 1000 * 1000 * 5) { //压缩再base64
+                                val newPic =
+                                    encodeImageToBase64(FileKit.compressImage(pic, quality = 70))
+                                partsReq.add(newPic)
+                            } else {
+                                partsReq.add(encodeImageToBase64(pic))
+                            }
+                        }
+
+                    }
+                } catch (e: Exception) {
+                    printE(e)
+                    toast(e.message.toString(), "toast")
+                }
+
             } else {
                 if (index == messagesMap[conversationId]!!.size - 1) { //必须是当轮问答图片才传
-                    partsReq = coverBase64Data(message.imagePath)
+                    try {
+                        message.imagePath?.let { pics ->
+                            pics.forEach { pic ->
+                                if (pic.size() > 1000 * 1000 * 5) { //压缩再base64
+                                    val newPic =
+                                        encodeImageToBase64(
+                                            FileKit.compressImage(
+                                                pic,
+                                                quality = 70
+                                            )
+                                        )
+                                    partsReq.add(newPic)
+                                } else {
+                                    partsReq.add(encodeImageToBase64(pic))
+                                }
+                            }
+                        }
+                    } catch (e: Exception) {
+                        toast(e.message.toString(), "toast")
+                    }
                 }
             }
             response.add(
@@ -405,7 +480,10 @@ class ConversationViewModel(
         _messages.value = messagesMap
     }
 
-    suspend fun generateMsgAgain() {
+     fun generateMsgAgain() {
+        viewModelScope.launch {
+
+        printD("generateMsgAgain>")
         val currentListMessage: MutableList<MessageModel> =
             getMessagesByConversation(_currentConversation.value).toMutableList()
         //给的数据是倒序，第一条就是最新的
@@ -416,6 +494,7 @@ class ConversationViewModel(
             updateTextMsg(currentListMessage[0])
         } else {
             updateImageMsg(currentListMessage[0])
+        }
         }
     }
 
@@ -432,10 +511,12 @@ class ConversationViewModel(
     }
 
     suspend fun selectImage() {
+        if (_imageListObs.size == 2) return //最多两张图
         if (getPlatform().os == OsStatus.ANDROID
             || getPlatform().os == OsStatus.IOS
         ) {
             val model = FileKitMode.Multiple(2)
+            //需要对选取的图片进行压缩不
             val files = FileKit.openFilePicker(mode = model, type = FileKitType.Image)
             files?.let {
                 _imageListObs.addAll(it)
@@ -447,14 +528,15 @@ class ConversationViewModel(
         }
     }
 
+    suspend fun addCameraImage(pic: PlatformFile) {
+        _imageListObs.add(pic)
+    }
+
     fun deleteImage(index: Int, isRemoveAll: Boolean = false) {
-        workInSub {
-            if (isRemoveAll) {
-//                printD("clear-all>")
-                _imageListObs.clear()
-            } else {
-                _imageListObs.removeAt(index)
-            }
+        if (isRemoveAll) {
+            _imageListObs.clear()
+        } else {
+            _imageListObs.removeAt(index)
         }
     }
 
@@ -462,7 +544,7 @@ class ConversationViewModel(
 
     }
 
-    suspend fun coverBase64Data(imagePaths: List<PlatformFile>?): MutableList<String> {
+    private suspend fun coverBase64Data(imagePaths: List<PlatformFile>?): MutableList<String> {
         val list = mutableListOf<String>()
         imagePaths?.let {
             it.forEach { p ->
@@ -475,10 +557,35 @@ class ConversationViewModel(
     }
 
     fun toast(title: String, des: String) {
-        toastManager.showNotification(title, des)
+        if (checkSystem() == OsStatus.ANDROID) {
+            if (des != "toast") {
+                toastManager.showNotification(title, des)
+            } else {
+                toastManager.showNotification(title, "toast")
+            }
+        } else {
+            toastManager.showNotification(title, des)
+        }
     }
+
 
     fun setImageUseStatus(flag: Boolean) {
         _isStopUseImageObs.value = flag
+    }
+
+    fun copyToClipboard(text: String) {
+        try {
+            clipboardHelper.copyToClipboard(text)
+        } catch (e: Exception) {
+            toast("err", e.message.toString())
+        }
+    }
+
+    fun readFromClipboard(): String? {
+        return try {
+            clipboardHelper.readFromClipboard()
+        } catch (e: Exception) {
+            null
+        }
     }
 }

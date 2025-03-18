@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import com.hwj.ai.camera.icon.IconCached
 import com.hwj.ai.camera.icon.IconClose
 import com.hwj.ai.camera.icon.IconWarning
+import com.hwj.ai.global.cHalfGrey80717171
 
 @Composable
 internal fun PeekabooCameraView(
@@ -104,12 +105,12 @@ private fun CameraOverlay(
             modifier =
             Modifier
                 .align(Alignment.TopStart)
-                .padding(top = 16.dp, start = 16.dp),
+                .padding(top = 35.dp, start = 16.dp),
         ) {
             Icon(
                 imageVector = IconClose,
                 contentDescription = "Back Button",
-                tint = Color.White,
+                tint = Color.White, modifier = Modifier.background(cHalfGrey80717171())
             )
         }
         if (isCapturing) {

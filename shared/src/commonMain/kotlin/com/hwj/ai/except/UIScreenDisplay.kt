@@ -5,10 +5,12 @@ import com.hwj.ai.models.MessageModel
 
 
 @Composable
-expect fun OpenCameraScreen(isOpen: Boolean, onBack: (Boolean) -> Unit)
+expect fun OpenCameraScreen(isOpen: Boolean, onBack: (Boolean,ByteArray?) -> Unit)
 
 @Composable
 expect fun BotMsgMenu(message: MessageModel)
 
 @Composable
 expect fun ToolTipCase(tip: String, content: @Composable () -> Unit)
+
+expect fun isMainThread():Boolean

@@ -23,6 +23,7 @@ import android.content.ContentResolver
 import android.content.Context
 import android.net.Uri
 import android.os.Build
+import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.hwj.ai.R
@@ -32,8 +33,26 @@ actual class NotificationsManager(
 ) {
     private val notificationManager get() = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-    @SuppressLint("MissingPermission")
+
     actual fun showNotification(
+        title: String,
+        description: String,
+    ) {
+        if (description == "toast") {
+            toast(title)
+        } else {
+            notificationSound(title, description)
+        }
+    }
+
+    private fun toast(
+        title: String
+    ) {
+        Toast.makeText(context, title, Toast.LENGTH_SHORT).show()
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun notificationSound(
         title: String,
         description: String,
     ) {

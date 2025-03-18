@@ -548,6 +548,10 @@ fun printList(list: List<Any>?, des: String? = null, tag: String = logTAG) {
     }
 }
 
+fun createImageName():String{
+    return "ai_${getMills()}.jpg"
+}
+
 fun ViewModel.workInSub(
     defaultDispatcher: CoroutineDispatcher =
         Dispatchers.Default, block: suspend CoroutineScope.() -> Unit
@@ -570,8 +574,13 @@ fun ViewModel.delayWork(
 
 @OptIn(ExperimentalEncodingApi::class)
 suspend fun encodeImageToBase64(platformFile: PlatformFile): String {
-    return "data:image/jpeg;base64,"+Base64.encode(platformFile.readBytes())
+    return "data:image/jpeg;base64," + Base64.encode(platformFile.readBytes())
 //        .also { printD(it) }
+}
+
+@OptIn(ExperimentalEncodingApi::class)
+suspend fun encodeImageToBase64(byteArray: ByteArray): String {
+    return "data:image/jpeg;base64," + Base64.encode(byteArray)
 }
 
 val globalScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)

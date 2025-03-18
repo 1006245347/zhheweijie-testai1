@@ -25,7 +25,7 @@ import com.hwj.ai.ui.viewmodel.ConversationViewModel
 import moe.tlaster.precompose.koin.koinViewModel
 
 @Composable
-actual fun OpenCameraScreen(isOpen: Boolean, onBack: (Boolean) -> Unit) {
+actual fun OpenCameraScreen(isOpen: Boolean, onBack: (Boolean, ByteArray?) -> Unit) {
 }
 
 @Composable
@@ -55,7 +55,7 @@ actual fun BotMsgMenu(message: MessageModel) {
         TooltipArea(
             tooltip = { //鼠标移动浮动指向提示
                 Surface(modifier = Modifier.padding(2.dp)) {
-                    Text(text = "复制", Modifier.padding(4.dp), fontSize = 12.sp)
+                    Text(text = "重新生成", Modifier.padding(4.dp), fontSize = 12.sp)
                 }
             },
             delayMillis = 100,
@@ -89,4 +89,9 @@ actual fun ToolTipCase(tip: String, content: @Composable () -> Unit) {
     ) {
         content()
     }
+}
+
+
+actual fun isMainThread(): Boolean {
+    return Thread.currentThread().name == "main"
 }

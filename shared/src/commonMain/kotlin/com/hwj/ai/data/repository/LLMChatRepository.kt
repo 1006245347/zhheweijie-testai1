@@ -28,7 +28,7 @@ import kotlinx.serialization.json.Json
  * @author by jason-何伟杰，2025/2/24
  * des:用第三方数据sdk获取大模型接口数据
  */
-class LLMChatRepository() {//private val openAI: OpenAI,单例的话无法变更模型参数
+class LLMChatRepository {//private val openAI: OpenAI,单例的话无法变更模型参数
 
 
     //流式回复
@@ -123,10 +123,10 @@ class LLMChatRepository() {//private val openAI: OpenAI,单例的话无法变更
                     })
                 }
                 install(Logging) {
-                    level = LogLevel.BODY //禁止流式对话日志
+                    level = LogLevel.NONE //禁止流式对话日志
                     logger = object : Logger {
                         override fun log(message: String) {
-                            printD(message)
+//                            printD(message)
                         }
                     }
                 }

@@ -9,6 +9,7 @@ import com.hwj.ai.global.NavigationScene
 import com.hwj.ai.global.printD
 import com.hwj.ai.ui.chat.ChatScreen
 import com.hwj.ai.ui.chat.WelcomeScreen
+import com.hwj.ai.ui.global.ToastHost
 import com.hwj.ai.ui.viewmodel.AppUiState
 import com.hwj.ai.ui.viewmodel.WelcomeScreenModel
 import io.github.vinceglb.filekit.FileKit
@@ -41,6 +42,7 @@ fun App(navigator: Navigator, setViews: @Composable () -> Unit = {}) {
                 }
             }
         }
+        ToastHost()
     }
 
 

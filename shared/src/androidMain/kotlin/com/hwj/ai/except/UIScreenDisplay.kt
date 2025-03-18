@@ -1,6 +1,7 @@
 package com.hwj.ai.except
 
 import android.annotation.SuppressLint
+import android.os.Looper
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,6 +30,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -38,23 +40,34 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import coil3.compose.AsyncImage
 import com.hwj.ai.camera.toImageBitmap
 import com.hwj.ai.global.PrimaryColor
+import com.hwj.ai.global.ThemeChatLite
 import com.hwj.ai.global.printD
 import com.hwj.ai.global.workInSub
 import com.hwj.ai.models.MessageModel
 import com.hwj.ai.ui.chat.BotCommonMsgMenu
 import com.hwj.ai.ui.viewmodel.ConversationViewModel
+import io.github.vinceglb.filekit.FileKit
+import io.github.vinceglb.filekit.compressImage
+import kotlinx.coroutines.launch
 import moe.tlaster.precompose.koin.koinViewModel
 
+/**
+ * @author by jason-何伟杰，2025/3/18
+ * des:照相机界面
+ */
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
-actual fun OpenCameraScreen(isOpen: Boolean, onBack: (Boolean) -> Unit) {
-    var images by remember { mutableStateOf(listOf<ImageBitmap>()) }
+actual fun OpenCameraScreen(isOpen: Boolean, onBack: (Boolean, ByteArray?) -> Unit) {
+//    var images by remember { mutableStateOf(listOf<ImageBitmap>()) }
+    var images by remember { mutableStateOf<ByteArray?>(null) }
     var frames by remember { mutableStateOf(listOf<ImageBitmap>()) }
     val snackBarHostState = remember { SnackbarHostState() }
-//    var showCamera by rememberSaveable { mutableStateOf(false) }
-    PeekabooTheme {
+    val subScope = rememberCoroutineScope()
+
+    ThemeChatLite {
         Scaffold(snackbarHost = { SnackbarHost(snackBarHostState) }) {
             Column(
                 modifier = Modifier.fillMaxSize(),
@@ -65,37 +78,44 @@ actual fun OpenCameraScreen(isOpen: Boolean, onBack: (Boolean) -> Unit) {
                     isOpen -> {
                         PeekabooCameraView(
                             modifier = Modifier.weight(1f),
-                            onBack = { onBack(true) },
+                            onBack = { onBack(true, null) },
                             onCapture = { byteArray ->
-                                byteArray?.let {
-                                    images = listOf(it.toImageBitmap())
+                                subScope.launch {
+                                    byteArray?.let { //压缩下好大17->2.2
+                                        images = FileKit.compressImage(it, quality = 70)
+                                    }
+//                                    images = listOf(it.toImageBitmap())
+                                    //这里保存图片？
+//                                    FileKit.compressImage(it, quality = 80)
+                                    onBack(false, images) //是否finish
                                 }
-                                onBack(false)
                             },
                             onFrame = { frame ->
-                                frames = frames + frame.toImageBitmap()
-                                if (frames.size > 10) {
-                                    frames = frames.drop(1)
-                                }
+
+//                                frames = frames + frame.toImageBitmap()
+//                                frames = (frames + frame.toImageBitmap()).takeLast(2)//只要最新的5个
+////                                printD("frames?${frames.size}")
+//                                if (frames.size > 2) {
+//                                    frames = frames.drop(1)
+//                                }
                             },
                         )
-                        printD("size>${frames.size}")
-                        LazyRow(
-                            Modifier
-                                .heightIn(min = 50.dp)
-                                .fillMaxWidth()
-                        ) {
-                            items(frames) { image ->
-                                Box {
-                                    Image(
-                                        bitmap = image,
-                                        contentDescription = "frame",
-                                        contentScale = ContentScale.Crop,
-                                        modifier = Modifier.size(50.dp),
-                                    )
-                                }
-                            }
-                        }
+//                        LazyRow(
+//                            Modifier
+//                                .heightIn(min = 50.dp)
+//                                .fillMaxWidth()
+//                        ) {
+//                            items(frames) { image ->
+//                                Box {
+//                                    Image(
+//                                        bitmap = image,
+//                                        contentDescription = "Frame",
+//                                        contentScale = ContentScale.Crop,
+//                                        modifier = Modifier.size(50.dp),
+//                                    )
+//                                }
+//                            }
+//                        }
                     }
 
                     else -> {
@@ -103,11 +123,13 @@ actual fun OpenCameraScreen(isOpen: Boolean, onBack: (Boolean) -> Unit) {
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
                             contentPadding = PaddingValues(horizontal = 8.dp)
                         ) {
-                            items(images) { photo ->
-                                Image(
-                                    bitmap = photo,
-                                    contentDescription = "camera photo",
-                                    modifier = Modifier.size(300.dp)
+
+                            items(1) { photo ->
+                                AsyncImage(
+                                    images,
+                                    contentDescription = "Camera photo",
+                                    modifier = //Modifier.size(300.dp)
+                                    Modifier.wrapContentSize()
                                         .clip(shape = RoundedCornerShape(12.dp)),
                                     contentScale = ContentScale.Crop
                                 )
@@ -126,4 +148,10 @@ actual fun BotMsgMenu(message: MessageModel) {
 }
 
 @Composable
-actual fun ToolTipCase(tip: String, content: @Composable () -> Unit){}
+actual fun ToolTipCase(tip: String, content: @Composable () -> Unit) {
+    content()
+}
+
+actual fun isMainThread():Boolean{
+    return Looper.getMainLooper().thread==Thread.currentThread().also { printD("thread=${it.name}") }
+}
