@@ -3,6 +3,7 @@ package com.hwj.ai
 import androidx.compose.material3.ColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import com.aallam.openai.api.model.ModelPermission
 import com.hwj.ai.global.OsStatus
 import com.hwj.ai.models.MessageModel
 import io.ktor.client.HttpClient
@@ -29,4 +30,7 @@ expect fun checkSystem(): OsStatus
 fun hideKeyBoard() {
     LocalSoftwareKeyboardController.current?.hide()
 }
+
+//@Composable
+//expect  fun askPermission(permission)
 

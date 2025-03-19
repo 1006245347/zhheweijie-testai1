@@ -43,6 +43,7 @@ import com.hwj.ai.global.isLightTxt
 import com.hwj.ai.global.printD
 import com.hwj.ai.models.MessageModel
 import com.hwj.ai.ui.viewmodel.ChatViewModel
+import dev.icerock.moko.permissions.Permission
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -227,4 +228,10 @@ private fun TestBotMsgCard1(message: MessageModel) {
             Markdown(message.answer.trimIndent())
         }
     }
+}
+
+
+@Composable
+fun  askPermission(permission: Permission){
+
 }

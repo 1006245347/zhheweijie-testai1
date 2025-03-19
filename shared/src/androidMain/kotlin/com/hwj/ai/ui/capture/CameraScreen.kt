@@ -71,7 +71,7 @@ actual fun CameraScreen(navigator: Navigator) {
                             val pic = PlatformFile(FileKit.filesDir, createImageName())
                             pic.write(image!!)
                             FileKit.saveImageToGallery(file = pic)//存到图册
-                            printD("pic>${pic.path}") //私有目录
+                            printD("pic>${pic.path}") //私有目录 /data/user/0/com.hwj.ai.android/files/ai_1742345072737.jpg
                             conversationViewModel.addCameraImage(pic)
                             navigator.goBackWith(pic.path)
                         }

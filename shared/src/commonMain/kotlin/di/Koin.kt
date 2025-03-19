@@ -85,8 +85,8 @@ val mainModule = module {
 }
 
 val modelModule = module {
-//    factoryOf(::ConversationViewModel)
-    single { ConversationViewModel(get(), get(), get(), get(), get(),get()) }
+    factoryOf(::ConversationViewModel)
+//    single { ConversationViewModel(get(), get(), get(), get(), get(),get()) }
     factory { WelcomeScreenModel(get()) }
     single { ChatViewModel(get()) }
     single { SettingsViewModel(get(), get(), get()) }
