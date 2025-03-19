@@ -41,17 +41,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
@@ -59,7 +56,6 @@ import com.hwj.ai.checkSystem
 import com.hwj.ai.createPermission
 import com.hwj.ai.data.local.PermissionPlatform
 import com.hwj.ai.except.ToolTipCase
-import com.hwj.ai.except.isMainThread
 import com.hwj.ai.global.BackInnerColor1
 import com.hwj.ai.global.NavigationScene
 import com.hwj.ai.global.OsStatus
@@ -68,21 +64,16 @@ import com.hwj.ai.global.cGrey666666
 import com.hwj.ai.global.isLightTxt
 import com.hwj.ai.global.onlyDesktop
 import com.hwj.ai.global.printD
-import com.hwj.ai.global.printList
 import com.hwj.ai.models.MenuActModel
 import com.hwj.ai.ui.global.KeyEventEnter
 import com.hwj.ai.ui.viewmodel.ChatViewModel
 import com.hwj.ai.ui.viewmodel.ConversationViewModel
-import io.github.vinceglb.filekit.FileKit
 import io.github.vinceglb.filekit.PlatformFile
 import io.github.vinceglb.filekit.name
 import io.github.vinceglb.filekit.path
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import kotlinx.io.discardingSink
 import moe.tlaster.precompose.koin.koinViewModel
-import moe.tlaster.precompose.navigation.NavOptions
 import moe.tlaster.precompose.navigation.Navigator
 
 
@@ -208,7 +199,7 @@ fun TextInputIn(
     val maxInputSize = 300
     val chatViewModel = koinViewModel(ChatViewModel::class)
     val isDark = chatViewModel.darkState.collectAsState().value
-    val inputHint = if(onlyDesktop()) "给AI发送问题（Enter或）" else "给AI发送消息"
+    val inputHint = if(onlyDesktop()) "给AI发送问题（Enter+Shift换行、Enter发送）" else "给AI发送消息"
     Box(
         // Use navigationBarsPadding() imePadding() and , to move the input panel above both the
         // navigation bar, and on-screen keyboard (IME)
@@ -250,7 +241,6 @@ fun TextInputIn(
                             .background(Color.Transparent)
                             .verticalScroll(rememberScrollState())
                             .imePadding()//适配键盘高度
-
                             .onFocusChanged { focusState -> hasFocus = focusState.isFocused }
                             .weight(1f).KeyEventEnter(enter = {
                                 scope.launch {
@@ -260,8 +250,7 @@ fun TextInputIn(
                                 }
                             }, shift = {
                               val textClone =conversationViewModel.inputTxt.text
-
-                              conversationViewModel.onInputChange(textClone+"\n")
+                                conversationViewModel.onInputChange(textClone+"\n")
                             }),
                         colors = TextFieldDefaults.colors(
                             focusedContainerColor = Color.Transparent, //去除边框
