@@ -204,9 +204,9 @@ private fun CompatOverlay(
                     cameraPermissionState.launchPermissionRequest()
                 }
             } else {
-                Box(modifier = modifier) {
-                    permissionDeniedContent()
-                }
+//                Box(modifier = modifier) {
+//                    permissionDeniedContent()
+//                }
             }
         }
     }

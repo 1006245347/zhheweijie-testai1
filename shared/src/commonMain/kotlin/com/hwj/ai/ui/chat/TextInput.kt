@@ -56,6 +56,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import com.hwj.ai.checkSystem
+import com.hwj.ai.createPermission
+import com.hwj.ai.data.local.PermissionPlatform
 import com.hwj.ai.except.ToolTipCase
 import com.hwj.ai.except.isMainThread
 import com.hwj.ai.global.BackInnerColor1
@@ -72,6 +74,7 @@ import com.hwj.ai.ui.global.KeyEventEnter
 import com.hwj.ai.ui.viewmodel.ChatViewModel
 import com.hwj.ai.ui.viewmodel.ConversationViewModel
 import io.github.vinceglb.filekit.FileKit
+import io.github.vinceglb.filekit.PlatformFile
 import io.github.vinceglb.filekit.name
 import io.github.vinceglb.filekit.path
 import kotlinx.coroutines.Dispatchers
@@ -111,8 +114,10 @@ fun TextInput(
 fun InputTopIn(state: LazyListState, navigator: Navigator) {
     val subScope = rememberCoroutineScope()
     val conversationViewModel = koinViewModel(ConversationViewModel::class)
-
+    val needPermissionCamera = remember { mutableStateOf(false) }
+    val needPermissionGallery = remember { mutableStateOf(false) }
     val imageList = conversationViewModel.imageListState.collectAsState().value
+    val cameraPath = remember { mutableStateOf<String?>(null) }
     val list = mutableListOf<MenuActModel>()
     list.add(MenuActModel("相册"))
     if (checkSystem() == OsStatus.ANDROID || checkSystem() == OsStatus.IOS) {
@@ -120,30 +125,59 @@ fun InputTopIn(state: LazyListState, navigator: Navigator) {
     } else {
         list.add(MenuActModel("翻译"))
     }
+
+    LaunchedEffect(cameraPath.value) {
+        cameraPath.value?.let {
+            printD("add>$it")
+//            conversationViewModel.addCameraImage(PlatformFile(it))
+        }
+    }
+
+    if (needPermissionCamera.value) {
+        createPermission(PermissionPlatform.CAMERA, grantedAction = {
+            subScope.launch {
+                if (imageList.size == 2) {
+                    conversationViewModel.toast("最多选取两张图片", "toast")
+                } else {
+                    cameraPath.value =
+                        navigator.navigateForResult(NavigationScene.Camera.path).toString()
+                    cameraPath.value?.let {
+                        conversationViewModel.addCameraImage(PlatformFile(it))
+                    }
+                }
+            }
+        }, deniedAction = {
+            needPermissionCamera.value = false
+        })
+    }
+    if (needPermissionGallery.value) {
+        createPermission(PermissionPlatform.GALLERY, grantedAction = {
+            subScope.launch {
+                conversationViewModel.selectImage()
+            }
+        }, deniedAction = {
+            needPermissionGallery.value = false
+        })
+    }
+
     LazyRow(state = state, modifier = Modifier.animateContentSize()) {
         items(list.size) { index ->
             Button(
                 modifier = Modifier.padding(start = 10.dp, bottom = 4.dp).size(75.dp, 34.dp),
                 onClick = {
-                    subScope.launch {
-                        when (list[index].title) {
-                            "相册" -> {
-                                conversationViewModel.selectImage()
-                            }
-
-                            "拍摄" -> {
-                                if (imageList.size == 2) {
-                                    conversationViewModel.toast("最多选取两张图片", "toast")
-                                } else {
-                                    navigator.navigateForResult(NavigationScene.Camera.path)
-                                }
-                            }
-
-                            "翻译" -> {
-
-                            }
+                    when (list[index].title) {
+                        "相册" -> {
+                            needPermissionGallery.value = true
                         }
-                    }//设置Button背景色
+
+                        "拍摄" -> {
+                            needPermissionCamera.value = true
+                        }
+
+                        "翻译" -> {
+
+                        }
+                    }
                 }, colors = ButtonDefaults.buttonColors(containerColor = PrimaryColor)
             ) {
                 Text(
@@ -166,7 +200,9 @@ fun TextInputIn(
     val scope = rememberCoroutineScope()
     val conversationViewModel = koinViewModel(ConversationViewModel::class)
     val isFabExpanded by conversationViewModel.isFabExpanded.collectAsState()
-    var text by remember { mutableStateOf(TextFieldValue("")) }
+//    var inputTxt by remember { mutableStateOf(TextFieldValue("")) }
+//    var inputTxt  by mutableStateOf("")
+//    var inputTxt by remember { mutableStateOf("") }
     var hasFocus by remember { mutableStateOf(false) } //判断焦点
     val focusManager = LocalFocusManager.current
     val maxInputSize = 300
@@ -191,10 +227,11 @@ fun TextInputIn(
                 Modifier.padding(horizontal = 4.dp).padding(top = 6.dp, bottom = 10.dp)
             ) {
                 Row {
-                    TextField(value = text,
+                    TextField(value = conversationViewModel.inputTxt,
                         onValueChange = { newText ->
-                            if (newText.text.length <= maxInputSize) {
-                                text = newText
+                            if (newText.length <= maxInputSize) {
+//                                inputTxt = newText
+                                conversationViewModel.onInputChange(newText)
                             }
                         },
                         label = null,
@@ -217,8 +254,8 @@ fun TextInputIn(
                             .onFocusChanged { focusState -> hasFocus = focusState.isFocused }
                             .weight(1f).KeyEventEnter {
                                 scope.launch {
-                                    val textClone = text.text
-                                    text = TextFieldValue("")
+                                    val textClone = conversationViewModel.inputTxt
+                                    conversationViewModel.onInputChange("")
                                     sendMessage(textClone)
                                 }
                             },
@@ -233,10 +270,10 @@ fun TextInputIn(
                     )
                     //发生、中断 融合为一个按钮
                     EnterEventButton(isFabExpanded, sendBlock = {
-                        if (text.text.trim().isNotEmpty()) {
-                            val textClone = text.text
-                            text = TextFieldValue("")
-//                            focusManager.clearFocus() //清除焦点，注意线程
+                        if (conversationViewModel.inputTxt.trim().isNotEmpty()) {
+                            val textClone = conversationViewModel.inputTxt
+                            conversationViewModel.onInputChange("")
+                            focusManager.clearFocus()  //清除焦点，注意线程
                             sendMessage(textClone)
                         }
                     })

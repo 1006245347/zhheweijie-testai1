@@ -1,7 +1,5 @@
 package com.hwj.ai.global
 
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
@@ -14,6 +12,7 @@ private val _message = MutableStateFlow<String?>(null)
     val messageState= _message.asStateFlow()
     fun show(msg: String) {
         _message.value = msg
+//        printD("show>$msg")
     }
 
     fun dismiss() {

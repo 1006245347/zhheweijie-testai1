@@ -28,6 +28,7 @@ import com.halilibo.richtext.ui.CodeBlockStyle
 import com.halilibo.richtext.ui.RichTextStyle
 import com.halilibo.richtext.ui.RichTextThemeProvider
 import com.halilibo.richtext.ui.string.RichTextStringStyle
+import com.hwj.ai.data.local.PermissionPlatform
 import com.hwj.ai.global.BackCodeGroundColor
 import com.hwj.ai.global.BackCodeTxtColor
 import com.hwj.ai.global.BackTxtColor1
@@ -35,6 +36,7 @@ import com.hwj.ai.global.BackTxtColor2
 import com.hwj.ai.global.DarkColorScheme
 import com.hwj.ai.global.LightColorScheme
 import com.hwj.ai.global.OsStatus
+import com.hwj.ai.global.askPermission
 import com.hwj.ai.global.baseHostUrl
 import com.hwj.ai.global.isDarkPanel
 import com.hwj.ai.global.isDarkTxt
@@ -44,6 +46,11 @@ import com.hwj.ai.global.printD
 import com.hwj.ai.models.MessageModel
 import com.hwj.ai.ui.viewmodel.ChatViewModel
 import dev.icerock.moko.permissions.Permission
+import dev.icerock.moko.permissions.camera.CAMERA
+import dev.icerock.moko.permissions.gallery.GALLERY
+import dev.icerock.moko.permissions.notifications.REMOTE_NOTIFICATION
+import dev.icerock.moko.permissions.storage.STORAGE
+import dev.icerock.moko.permissions.storage.WRITE_STORAGE
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -87,7 +94,7 @@ actual fun createHttpClient(timeout: Long?): HttpClient {
             })
         }
         install(Logging) {
-            level = LogLevel.BODY
+            level = LogLevel.NONE
 //            level=LogLevel.HEADERS
 //            level= LogLevel.INFO
 //            level = LogLevel.NONE //接口日志屏蔽
@@ -232,6 +239,33 @@ private fun TestBotMsgCard1(message: MessageModel) {
 
 
 @Composable
-fun  askPermission(permission: Permission){
-
+actual fun createPermission(
+    permission: PermissionPlatform,
+    grantedAction: () -> Unit,
+    deniedAction: () -> Unit
+) { val p = when (permission) {
+    PermissionPlatform.CAMERA -> Permission.CAMERA
+    PermissionPlatform.GALLERY -> Permission.GALLERY
+    PermissionPlatform.STORAGE -> Permission.STORAGE
+    PermissionPlatform.WRITE_STORAGE -> Permission.WRITE_STORAGE
+    PermissionPlatform.REMOTE_NOTIFICATION->Permission.REMOTE_NOTIFICATION
+    else -> Permission.STORAGE
 }
+    askPermission(p, grantedAction, deniedAction)
+}
+
+//CAMERA,
+//GALLERY,
+//STORAGE,
+//WRITE_STORAGE,
+//LOCATION,
+//COARSE_LOCATION,
+//BACKGROUND_LOCATION,
+//BLUETOOTH_LE,
+//REMOTE_NOTIFICATION,
+//RECORD_AUDIO,
+//BLUETOOTH_SCAN,
+//BLUETOOTH_ADVERTISE,
+//BLUETOOTH_CONNECT,
+//CONTACTS,
+//MOTION,

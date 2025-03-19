@@ -19,6 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.hwj.ai.global.ToastUtils
 import com.hwj.ai.global.printD
 import kotlinx.coroutines.delay
@@ -28,29 +29,24 @@ import kotlinx.coroutines.delay
  * des:没反应？
  */
 @Composable
-fun ToastHost() {
+fun ToastHost(modifier: Modifier) {
     val messageState by ToastUtils.messageState.collectAsState()
-    printD("toast>$messageState")
+//    printD("toast>$messageState")
     messageState?.let {
         var visible by remember { mutableStateOf(true) }
         LaunchedEffect(it) {
-            delay(2000)
+            delay(1500)
             visible = false
             ToastUtils.dismiss()
         }
 
-        AnimatedVisibility(visible = visible) {
+//        AnimatedVisibility(visible = visible) {
             Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 100.dp)
-                    .wrapContentHeight()
-                    .background(Color.Black.copy(alpha = 0.7f), RoundedCornerShape(8.dp))
-                    .padding(horizontal = 16.dp, vertical = 12.dp)
-//                    .align(Alignment.Center)
+                modifier =modifier
             ) {
-                Text(text = it, color = Color.White)
-            }
+                Text(text = it, color = Color.White, fontSize = 14.sp,
+                    modifier = Modifier.align(Alignment.Center))
+//            }
         }
     }
 }

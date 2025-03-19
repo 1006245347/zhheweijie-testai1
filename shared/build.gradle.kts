@@ -164,6 +164,10 @@ kotlin {
 
             implementation(libs.mokopermission)
             implementation(libs.mokopermission.compose)
+            implementation(libs.mokopermission.camera)
+            implementation(libs.mokopermission.gallery)
+            implementation(libs.mokopermission.storage)
+            implementation(libs.mokopermission.notifications)
 
             // Koin
             api(libs.koin.android)
@@ -216,6 +220,10 @@ kotlin {
         iosMain.dependencies {
             implementation(libs.mokopermission)
             implementation(libs.mokopermission.compose)
+            implementation(libs.mokopermission.camera)
+            implementation(libs.mokopermission.gallery)
+            implementation(libs.mokopermission.storage)
+            implementation(libs.mokopermission.notifications)
 
             implementation(libs.multiplatform.settings)
             implementation(libs.multiplatform.coroutines)

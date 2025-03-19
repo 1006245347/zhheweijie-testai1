@@ -66,6 +66,7 @@ import io.github.vinceglb.filekit.path
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import moe.tlaster.precompose.koin.koinViewModel
+import moe.tlaster.precompose.viewmodel.viewModelScope
 
 @Composable
 fun MessageCard(
@@ -285,12 +286,14 @@ fun BotCommonCardApp(message: MessageModel) {
 @Composable
 fun BotCommonMsgMenu(message: MessageModel) {
     val conversationViewModel = koinViewModel(ConversationViewModel::class)
-    val subScope= rememberCoroutineScope()
+    val subScope = rememberCoroutineScope()
     Row {
         IconButton(onClick = { //复制
-            printD(message.answer)
+//            printD(message.answer)
             conversationViewModel.copyToClipboard(message.answer)
-            ToastUtils.show("复制成功")
+            conversationViewModel.viewModelScope.launch(Dispatchers.Main) {
+                ToastUtils.show("复制成功")
+            }
         }, modifier = Modifier.padding(start = 15.dp, end = 10.dp)) {
             Icon(
                 imageVector = Icons.Default.ContentCopy,
@@ -304,7 +307,7 @@ fun BotCommonMsgMenu(message: MessageModel) {
 //            conversationViewModel.workInSub {
 //            subScope.launch {
 
-                conversationViewModel.generateMsgAgain()
+            conversationViewModel.generateMsgAgain()
 //            }
 //            }
         }) {

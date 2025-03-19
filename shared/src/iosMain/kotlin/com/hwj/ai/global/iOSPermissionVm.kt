@@ -7,21 +7,17 @@ import dev.icerock.moko.permissions.DeniedAlwaysException
 import dev.icerock.moko.permissions.DeniedException
 import dev.icerock.moko.permissions.Permission
 import dev.icerock.moko.permissions.PermissionState
-import dev.icerock.moko.permissions.PermissionsController
+import dev.icerock.moko.permissions.ios.PermissionsController
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-/**
- * @author by jason-何伟杰，2024/7/24
- * des:android权限申请，也可通用
- */
-class SampleViewModel(
+class iOSPermissionVm(
     override val eventsDispatcher: EventsDispatcher<EventListener>,
     val permissionsController: PermissionsController,
     private val permissionType: Permission
 
-) : ViewModel(), EventsDispatcherOwner<SampleViewModel.EventListener> {
+) : ViewModel(), EventsDispatcherOwner<iOSPermissionVm.EventListener> {
 
     val permissionState = MutableStateFlow(PermissionState.NotDetermined)
 
@@ -43,7 +39,7 @@ class SampleViewModel(
         viewModelScope.launch {
             try {
                 permissionsController.getPermissionState(permission)
-//                    .also { printD("pre provide $it") }
+                    .also { printD("pre provide $it") }
 
                 // Calls suspend function in a coroutine to request some permission.
                 permissionsController.providePermission(permission)
@@ -57,7 +53,7 @@ class SampleViewModel(
             } finally {
                 permissionState.update {
                     permissionsController.getPermissionState(permission)
-//                        .also { printD("post provide $it") } //有可能 granted 或 denied
+                        .also { printD("post provide $it") } //有可能 granted 或 denied
                 }
             }
         }
@@ -90,7 +86,7 @@ class PermissionsViewModel(
 
     fun onRequest(
         newPermission: Permission? = null,
-        grantedAction: (PermissionsViewModel) -> Unit
+        grantedAction: (PermissionsViewModel) -> Unit,deniedAction:(PermissionsViewModel)->Unit
     ) {
         viewModelScope.launch {
             try {
@@ -109,6 +105,7 @@ class PermissionsViewModel(
                 printD("DeniedAlwaysException")
             } catch (deniedException: DeniedException) {
                 printD("DeniedException")
+                deniedAction(this@PermissionsViewModel)
             } finally {
                 permissionState.update {
                     permissionsController.getPermissionState(curPermission.value)

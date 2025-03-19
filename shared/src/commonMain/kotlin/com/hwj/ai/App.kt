@@ -2,10 +2,13 @@ package com.hwj.ai
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material.Button
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.hwj.ai.global.NavigateRoute
 import com.hwj.ai.global.NavigationScene
+import com.hwj.ai.global.ToastUtils
 import com.hwj.ai.global.printD
 import com.hwj.ai.ui.chat.ChatScreen
 import com.hwj.ai.ui.chat.WelcomeScreen
@@ -30,22 +33,16 @@ fun App(navigator: Navigator, setViews: @Composable () -> Unit = {}) {
 
     Box(modifier = Modifier.fillMaxSize()) {
         printD("OS>${getPlatform()}")
-        printD("model>$welcomeScreenModel")
-        val screen = welcomeScreenModel.uiState.let { uiState ->
+         welcomeScreenModel.uiState.let { uiState ->
             when (uiState) {
                 AppUiState.Loading -> null
                 is AppUiState.Success -> when (uiState.isWelcomeShown) {
-//                    true -> ChatScreen(navigator)
-//                    false -> WelcomeScreen(navigator)
                     true -> navigator.navigate(NavigationScene.Chat.path)
                     false -> navigator.navigate(NavigationScene.Welcome.path)
                 }
             }
         }
-        ToastHost()
     }
-
-
 }
 
 /**

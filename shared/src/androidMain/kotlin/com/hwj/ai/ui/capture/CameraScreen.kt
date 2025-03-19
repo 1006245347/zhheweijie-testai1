@@ -1,9 +1,11 @@
 package com.hwj.ai.ui.capture
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
@@ -44,10 +46,10 @@ import moe.tlaster.precompose.navigation.Navigator
 @Composable
 actual fun CameraScreen(navigator: Navigator) {
     var showCamera by rememberSaveable { mutableStateOf(true) }
-    val conversationViewModel= koinViewModel(ConversationViewModel::class)
+//    val conversationViewModel= koinViewModel(ConversationViewModel::class)
     val subScope = rememberCoroutineScope()
     var image by remember { mutableStateOf<ByteArray?>(null) }
-    Box(Modifier.fillMaxSize()) {
+    Box(Modifier.fillMaxSize().background(MaterialTheme.colors.background)) {
         OpenCameraScreen(showCamera, onBack = { isFinish, imageArray ->
             showCamera = false
             image = imageArray
@@ -72,7 +74,7 @@ actual fun CameraScreen(navigator: Navigator) {
                             pic.write(image!!)
                             FileKit.saveImageToGallery(file = pic)//存到图册
                             printD("pic>${pic.path}") //私有目录 /data/user/0/com.hwj.ai.android/files/ai_1742345072737.jpg
-                            conversationViewModel.addCameraImage(pic)
+//                            conversationViewModel.addCameraImage(pic) //这里viewModel必须是单例
                             navigator.goBackWith(pic.path)
                         }
                     } else {

@@ -48,6 +48,7 @@ actual class NotificationsManager(
     private fun toast(
         title: String
     ) {
+
         Toast.makeText(context, title, Toast.LENGTH_SHORT).show()
     }
 

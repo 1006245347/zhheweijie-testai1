@@ -18,6 +18,7 @@ import com.halilibo.richtext.ui.CodeBlockStyle
 import com.halilibo.richtext.ui.RichTextStyle
 import com.halilibo.richtext.ui.RichTextThemeProvider
 import com.halilibo.richtext.ui.string.RichTextStringStyle
+import com.hwj.ai.data.local.PermissionPlatform
 import com.hwj.ai.global.BackCodeGroundColor
 import com.hwj.ai.global.BackCodeTxtColor
 import com.hwj.ai.global.DarkColorScheme
@@ -170,3 +171,13 @@ private fun TestBotMsgCard1(message: MessageModel) {
     }
 
 }
+
+@Composable
+actual fun createPermission(
+    permission: PermissionPlatform,
+    grantedAction: () -> Unit,
+    deniedAction: () -> Unit
+) {
+    grantedAction()
+}
+

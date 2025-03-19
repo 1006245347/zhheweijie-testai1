@@ -1,6 +1,9 @@
 package com.hwj.ai.ui.viewmodel
 
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModelStore
 import com.aallam.openai.api.chat.ChatMessage
 import com.aallam.openai.api.chat.ChatRole
@@ -98,6 +101,8 @@ class ConversationViewModel(
     val isStopUseImageState = _isStopUseImageObs.asStateFlow()
 
     var curJob: kotlinx.coroutines.Job? = null
+    var inputTxt by mutableStateOf("")
+        private set
 
     suspend fun initialize() {
         _isFetching.value = true
@@ -112,6 +117,9 @@ class ConversationViewModel(
         _isFetching.value = false
     }
 
+    fun onInputChange(newTxt:String){
+        inputTxt=newTxt
+    }
     suspend fun onConversation(conversation: ConversationModel) {
         _isFetching.value = true
         _currentConversation.value = conversation.id
@@ -247,9 +255,9 @@ class ConversationViewModel(
     }
 
     private suspend fun updateImageMsg(newMessageModel: MessageModel) {
-        printD("updateImageMsg1>$newMessageModel")
+//        printD("updateImageMsg1>")
 //        curJob = viewModelScope.launch() {   //加线程切换，无法执行？
-        printD("updateImageMsg2>$newMessageModel")
+//        printD("updateImageMsg2>")
         val flowControl = openRepo.AnalyzeImage(
             TextCompletionsParam(
                 promptText = getPrompt(_currentConversation.value),
@@ -286,6 +294,7 @@ class ConversationViewModel(
         } catch (e: Exception) {
             printE(e)
         }
+        //数据库保存
         messageRepo.createMessage(newMessageModel.copy(answer = answerFromGPT))
     }
 
@@ -359,6 +368,7 @@ class ConversationViewModel(
             val message = messagesMap[conversationId]!!.reversed()[index]
             val partsReq = mutableListOf<String>()
 
+//            printList(message.imagePath,des="moreList")
             if (!_isStopUseImageObs.value) { //一直引用图
                 try {
                     message.imagePath?.let { pics ->
@@ -480,21 +490,21 @@ class ConversationViewModel(
         _messages.value = messagesMap
     }
 
-     fun generateMsgAgain() {
+    fun generateMsgAgain() {
         viewModelScope.launch {
 
-        printD("generateMsgAgain>")
-        val currentListMessage: MutableList<MessageModel> =
-            getMessagesByConversation(_currentConversation.value).toMutableList()
-        //给的数据是倒序，第一条就是最新的
-        currentListMessage[0] = currentListMessage[0].copy(answer = thinking)
-        setMessages(currentListMessage)
-        //重新生成，就应该删除最新的回答,还要分是文字问还是图问？
-        if (currentListMessage[0].imagePath == null) {
-            updateTextMsg(currentListMessage[0])
-        } else {
-            updateImageMsg(currentListMessage[0])
-        }
+            printD("generateMsgAgain>")
+            val currentListMessage: MutableList<MessageModel> =
+                getMessagesByConversation(_currentConversation.value).toMutableList()
+            //给的数据是倒序，第一条就是最新的
+            currentListMessage[0] = currentListMessage[0].copy(answer = thinking)
+            setMessages(currentListMessage)
+            //重新生成，就应该删除最新的回答,还要分是文字问还是图问？
+            if (currentListMessage[0].imagePath == null) {
+                updateTextMsg(currentListMessage[0])
+            } else {
+                updateImageMsg(currentListMessage[0])
+            }
         }
     }
 
@@ -557,14 +567,16 @@ class ConversationViewModel(
     }
 
     fun toast(title: String, des: String) {
-        if (checkSystem() == OsStatus.ANDROID) {
-            if (des != "toast") {
-                toastManager.showNotification(title, des)
+        viewModelScope.launch(Dispatchers.Main) {
+            if (checkSystem() == OsStatus.ANDROID) {
+                if (des != "toast") {
+                    toastManager.showNotification(title, des)
+                } else {
+                    toastManager.showNotification(title, "toast")
+                }
             } else {
-                toastManager.showNotification(title, "toast")
+                toastManager.showNotification(title, des)
             }
-        } else {
-            toastManager.showNotification(title, des)
         }
     }
 

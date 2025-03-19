@@ -10,6 +10,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.fragment.app.FragmentActivity
+import com.hwj.ai.data.local.PermissionPlatform
 import com.permissionx.guolindev.PermissionX
 import dev.icerock.moko.mvvm.compose.getViewModel
 import dev.icerock.moko.mvvm.compose.viewModelFactory
@@ -18,7 +19,11 @@ import dev.icerock.moko.permissions.DeniedAlwaysException
 import dev.icerock.moko.permissions.DeniedException
 import dev.icerock.moko.permissions.Permission
 import dev.icerock.moko.permissions.PermissionsController
+import dev.icerock.moko.permissions.camera.CAMERA
 import dev.icerock.moko.permissions.compose.BindEffect
+import dev.icerock.moko.permissions.gallery.GALLERY
+import dev.icerock.moko.permissions.storage.STORAGE
+import dev.icerock.moko.permissions.storage.WRITE_STORAGE
 import kotlinx.coroutines.launch
 import java.util.concurrent.Executor
 
@@ -27,7 +32,11 @@ import java.util.concurrent.Executor
  * des:android权限申请
  */
 @Composable
-private fun AskPer(permissionType: Permission,grantedAction:() ->Unit) {
+private fun AskPer(
+    permissionType: Permission,
+    grantedAction: () -> Unit,
+    deniedAction: () -> Unit
+) {
     val viewModel = getViewModel(key = "x", factory = viewModelFactory {
         SampleViewModel(
             eventsDispatcher = eventsDispatcherOnMain(),
@@ -41,22 +50,25 @@ private fun AskPer(permissionType: Permission,grantedAction:() ->Unit) {
         object : SampleViewModel.EventListener {
             override fun onSuccess() {
                 coroutineScope.launch {
-                    printLogW("permission suc!")
+                    printD("permission suc!")
                     grantedAction()
                 }
             }
 
             override fun onDenied(exception: DeniedException) {
-                printLogW("per denied")
+                printD("permission denied")
+                deniedAction()
             }
 
             override fun onDeniedAlways(exception: DeniedAlwaysException) {
-                printLogW("per den alway $exception") //第一次安装走这里了？
+                printD("permission den always $exception") //第一次安装走这里了？
 //                viewModel.permissionsController.openAppSettings() //跳转权限设置
             }
         }
     }
-    val lifecycleOwner = LocalLifecycleOwner.current
+
+    val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
+
     LaunchedEffect(true) {
         viewModel.eventsDispatcher.bind(lifecycleOwner, eventsListener)
     }
@@ -68,6 +80,8 @@ private fun AskPer(permissionType: Permission,grantedAction:() ->Unit) {
 //            Text(" request permission")
 //        }
 //    }
+
+//    viewModel.
     viewModel.onRequestPermissionButtonPressed() //触发请求
 }
 
@@ -83,8 +97,8 @@ inline fun <reified T : Any> eventsDispatcherOnMain(): EventsDispatcher<T> {
 
 //Android权限申请
 @Composable
-actual fun askPermission(permission: Permission,grantedAction:() ->Unit) {
-    AskPer(permission,grantedAction)
+fun askPermission(permission: Permission, grantedAction: () -> Unit, deniedAction: () -> Unit) {
+    AskPer(permission, grantedAction, deniedAction)
 }
 
 @Composable
@@ -95,16 +109,15 @@ fun purePermission() {
 
     //Activity的类型转变不兼容，尴尬
     PermissionX.init(LocalContext.current as FragmentActivity)
-
         .permissions(requestList)
         .onExplainRequestReason { scope, deniedList ->
             val msg = "同意以下权限使用："
             scope.showRequestReasonDialog(deniedList, msg, "同意", "取消")
         }.request { allGranted, grantedList, deniedList ->
             if (allGranted) { //重新回调
-                printLogW("同意》")
+                printD("同意》")
             } else {
-                printLogW("warning>")
+                printD("warning>")
             }
         }
 }

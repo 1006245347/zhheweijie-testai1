@@ -2,11 +2,18 @@ package com.hwj.ai
 
 import androidx.compose.material3.ColorScheme
 import androidx.compose.runtime.Composable
+import com.hwj.ai.data.local.PermissionPlatform
 import com.hwj.ai.global.DarkColorScheme
 import com.hwj.ai.global.LightColorScheme
 import com.hwj.ai.global.OsStatus
+import com.hwj.ai.global.askPermission
 import com.hwj.ai.models.MessageModel
 import com.hwj.ai.ui.chat.BotCommonCardApp
+import dev.icerock.moko.permissions.Permission
+import dev.icerock.moko.permissions.camera.CAMERA
+import dev.icerock.moko.permissions.gallery.GALLERY
+import dev.icerock.moko.permissions.storage.STORAGE
+import dev.icerock.moko.permissions.storage.WRITE_STORAGE
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.darwin.Darwin
 import io.ktor.client.plugins.HttpTimeout
@@ -69,6 +76,20 @@ actual fun setColorScheme(isDark: Boolean): ColorScheme {
 actual fun BotMessageCard(message: MessageModel) {
 //    BotCommonCard(message)
 
-
     BotCommonCardApp(message) //可平稳运行
+}
+
+@Composable
+actual fun createPermission(
+    permission: PermissionPlatform,
+    grantedAction: () -> Unit,
+    deniedAction: () -> Unit
+) { val p = when (permission) {
+    PermissionPlatform.CAMERA -> Permission.CAMERA
+    PermissionPlatform.GALLERY -> Permission.GALLERY
+    PermissionPlatform.STORAGE -> Permission.STORAGE
+    PermissionPlatform.WRITE_STORAGE -> Permission.WRITE_STORAGE
+    else -> Permission.STORAGE
+}
+    askPermission(p, grantedAction, deniedAction)
 }

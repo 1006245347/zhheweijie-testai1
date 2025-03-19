@@ -133,6 +133,10 @@ stately-common = { module = "co.touchlab:stately-common", version.ref = "stately
 #权限申请，兼容Android
 mokopermission = { module = "dev.icerock.moko:permissions", version.ref = "mokopermission" }
 mokopermission-compose = { module = "dev.icerock.moko:permissions-compose", version.ref = "mokopermission" }
+mokopermission-camera={module="dev.icerock.moko:permissions-camera",version.ref="mokopermission"}
+mokopermission-storage={module="dev.icerock.moko:permissions-storage",version.ref="mokopermission"}
+mokopermission-gallery={module="dev.icerock.moko:permissions-gallery",version.ref="mokopermission"}
+mokopermission-notifications={module="dev.icerock.moko:permissions-notifications",version.ref="mokopermission"}
 mokoMvvmCompose = { module = "dev.icerock.moko:mvvm-compose", version.ref = "mokoMvvmVersion" }
 precompose-navigator = { module = "moe.tlaster:precompose", version.ref = "precompose" }
 precompose-koin = { module = "moe.tlaster:precompose-koin", version.ref = "precompose" }
