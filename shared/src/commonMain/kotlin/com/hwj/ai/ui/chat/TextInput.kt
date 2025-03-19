@@ -119,7 +119,7 @@ fun InputTopIn(state: LazyListState, navigator: Navigator) {
 
     LaunchedEffect(cameraPath.value) {
         cameraPath.value?.let {
-            printD("add>$it")
+//            printD("add>$it")
 //            conversationViewModel.addCameraImage(PlatformFile(it))
         }
     }
@@ -192,14 +192,12 @@ fun TextInputIn(
     val conversationViewModel = koinViewModel(ConversationViewModel::class)
     val isFabExpanded by conversationViewModel.isFabExpanded.collectAsState()
 //    var inputTxt by remember { mutableStateOf(TextFieldValue("")) }
-//    var inputTxt  by mutableStateOf("")
-//    var inputTxt by remember { mutableStateOf("") }
     var hasFocus by remember { mutableStateOf(false) } //判断焦点
     val focusManager = LocalFocusManager.current
     val maxInputSize = 300
     val chatViewModel = koinViewModel(ChatViewModel::class)
     val isDark = chatViewModel.darkState.collectAsState().value
-    val inputHint = if(onlyDesktop()) "给AI发送问题（Enter+Shift换行、Enter发送）" else "给AI发送消息"
+    val inputHint = if(onlyDesktop()) "给AI发送消息（Enter+Shift换行、Enter发送）" else "给AI发送消息"
     Box(
         // Use navigationBarsPadding() imePadding() and , to move the input panel above both the
         // navigation bar, and on-screen keyboard (IME)
@@ -244,7 +242,7 @@ fun TextInputIn(
                             .onFocusChanged { focusState -> hasFocus = focusState.isFocused }
                             .weight(1f).KeyEventEnter(enter = {
                                 scope.launch {
-                                    val textClone = conversationViewModel.inputTxt.text
+                                    val textClone = conversationViewModel.inputTxt.text.trim()
                                     conversationViewModel.onInputChange("")
                                     sendMessage(textClone)
                                 }
@@ -264,10 +262,10 @@ fun TextInputIn(
                     //发生、中断 融合为一个按钮
                     EnterEventButton(isFabExpanded, sendBlock = {
                         if (conversationViewModel.inputTxt.text.trim().isNotEmpty()) {
-                            val textClone = conversationViewModel.inputTxt
+                            val textClone = conversationViewModel.inputTxt.text.trim()
                             conversationViewModel.onInputChange("")
-                            focusManager.clearFocus()  //清除焦点，注意线程
-                            sendMessage(textClone.text)
+//                            focusManager.clearFocus()  //清除焦点，注意线程
+                            sendMessage(textClone)
                         }
                     })
                 }
