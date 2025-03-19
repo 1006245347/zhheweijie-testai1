@@ -73,7 +73,7 @@ actual fun CameraScreen(navigator: Navigator) {
                                 pic.write(image!!)
                                 FileKit.saveImageToGallery(file = pic)//存到图册
                                 printD("pic>${pic.path}") //私有目录
-                                conversationViewModel.addCameraImage(pic)
+//                                conversationViewModel.addCameraImage(pic)
                                 navigator.goBackWith(pic.path)
                             }
                         } else {

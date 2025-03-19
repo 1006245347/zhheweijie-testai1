@@ -99,23 +99,15 @@ actual fun OpenCameraScreen(isOpen: Boolean, onBack: (Boolean, ByteArray?) -> Un
                     }
 
                     else -> {
-                        LazyRow(
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            contentPadding = PaddingValues(horizontal = 8.dp)
-                        ) {
-
-                            items(1) { photo ->
-                                AsyncImage(
-                                    images,
-                                    contentDescription = "Camera photo",
-                                    modifier = //Modifier.size(300.dp)
-                                    Modifier.wrapContentSize()
-                                        .clip(shape = RoundedCornerShape(12.dp)),
-                                    contentScale = ContentScale.Crop
-                                )
-                            }
-                        }
+                        AsyncImage(
+                            images,
+                            contentDescription = "Camera photo",
+                            modifier = //Modifier.size(300.dp)
+                            Modifier.wrapContentSize(),
+                            contentScale = ContentScale.Crop
+                        )
                     }
+
                 }
             }
         }
@@ -132,6 +124,7 @@ actual fun ToolTipCase(tip: String, content: @Composable () -> Unit) {
     content()
 }
 
-actual fun isMainThread():Boolean{
-    return Looper.getMainLooper().thread==Thread.currentThread().also { printD("thread=${it.name}") }
+actual fun isMainThread(): Boolean {
+    return Looper.getMainLooper().thread == Thread.currentThread()
+        .also { printD("thread=${it.name}") }
 }

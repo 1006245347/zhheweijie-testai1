@@ -55,8 +55,10 @@ import com.hwj.ai.global.NavigationScene
 import com.hwj.ai.global.PrimaryColor
 import com.hwj.ai.global.isDarkBg
 import com.hwj.ai.global.isDarkPanel
+import com.hwj.ai.global.isDarkTxt
 import com.hwj.ai.global.isLightBg
 import com.hwj.ai.global.isLightPanel
+import com.hwj.ai.global.isLightTxt
 import com.hwj.ai.global.urlToImageAppIcon
 import com.hwj.ai.global.urlToImageAuthor
 import com.hwj.ai.models.ConversationModel
@@ -254,6 +256,8 @@ private fun ChatItem(
     selected: Boolean,
     onChatClicked: () -> Unit
 ) {
+    val chatViewModel= koinViewModel(ChatViewModel::class)
+    val  isDark=chatViewModel.darkState.collectAsState()
     val background = if (selected) {
         Modifier.background(MaterialTheme.colorScheme.primaryContainer)
     } else {
@@ -270,7 +274,11 @@ private fun ChatItem(
         verticalAlignment = CenterVertically
     ) {
         val iconTint = if (selected) {
-            MaterialTheme.colorScheme.primary
+            if (isDark.value){
+                isDarkPanel()
+            }else{
+                isLightPanel()
+            }
         } else {
             MaterialTheme.colorScheme.onSurfaceVariant
         }
@@ -286,7 +294,11 @@ private fun ChatItem(
             text = text,
             style = MaterialTheme.typography.bodyMedium,
             color = if (selected) {
-                MaterialTheme.colorScheme.primary
+               if (isDark.value){
+                   isDarkTxt()
+               }else{
+                   isLightTxt()
+               }
             } else {
                 MaterialTheme.colorScheme.onSurface //其实Android15也是没有效果
             },

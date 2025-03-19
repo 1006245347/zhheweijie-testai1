@@ -208,7 +208,7 @@ fun TextInputIn(
     val maxInputSize = 300
     val chatViewModel = koinViewModel(ChatViewModel::class)
     val isDark = chatViewModel.darkState.collectAsState().value
-
+    val inputHint = if(onlyDesktop()) "给AI发送问题（Enter或）" else "给AI发送消息"
     Box(
         // Use navigationBarsPadding() imePadding() and , to move the input panel above both the
         // navigation bar, and on-screen keyboard (IME)
@@ -237,7 +237,7 @@ fun TextInputIn(
                         label = null,
                         placeholder = {
                             Text(
-                                "Ask me anything", fontSize = 12.sp
+                                inputHint, fontSize = 12.sp
                             )
                         }, //固定行高，输入时应用高度就不会一直抖动
                         maxLines = 3,
@@ -288,7 +288,7 @@ fun EnterEventButton(isFabExpanded: Boolean, sendBlock: () -> Unit) {
     val subScope = rememberCoroutineScope()
     val conversationViewModel = koinViewModel(ConversationViewModel::class)
 
-    ToolTipCase(tip = "发送/停止", content = {
+//    ToolTipCase(tip = "发送/停止", content = {
         ExtendedFloatingActionButton(
             text = {
                 Text(text = "Stop Generating", color = Color.White)
@@ -325,7 +325,7 @@ fun EnterEventButton(isFabExpanded: Boolean, sendBlock: () -> Unit) {
             containerColor = PrimaryColor
         )
 
-    })
+//    })
 }
 
 @Composable
