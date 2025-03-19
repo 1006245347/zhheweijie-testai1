@@ -10,25 +10,26 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
+import com.hwj.ai.global.onlyDesktop
 
 /**
  * @author by jason-何伟杰，2025/2/28
  * des:识别 键盘按键
  */
 @Composable
-fun Modifier.KeyEventEnter(block: () -> Unit): Modifier {
+fun Modifier.KeyEventEnter(enter: () -> Unit, shift: () -> Unit): Modifier {
     return this.then( //合并之前的样式，不然会覆盖
         Modifier.onPreviewKeyEvent { event: KeyEvent ->
             when {
                 event.key == Key.Enter && event.isShiftPressed
                         && event.type == KeyEventType.KeyDown -> {
-                    block()
-                    true
+                    shift()
+                    false
                 }
 
                 event.key == Key.Enter
-                        && event.type == KeyEventType.KeyDown -> {
-                    block()
+                        && event.type == KeyEventType.KeyDown && onlyDesktop() -> {
+                    enter()
                     true
                 }
 

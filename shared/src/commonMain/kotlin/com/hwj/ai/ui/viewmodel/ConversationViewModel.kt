@@ -4,6 +4,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModelStore
 import com.aallam.openai.api.chat.ChatMessage
 import com.aallam.openai.api.chat.ChatRole
@@ -101,8 +103,12 @@ class ConversationViewModel(
     val isStopUseImageState = _isStopUseImageObs.asStateFlow()
 
     var curJob: kotlinx.coroutines.Job? = null
-    var inputTxt by mutableStateOf("")
-        private set
+
+    //    var inputTxt by mutableStateOf("")
+//        private set
+    var inputTxt by mutableStateOf(TextFieldValue(""))
+//    private set
+
 
     suspend fun initialize() {
         _isFetching.value = true
@@ -117,9 +123,10 @@ class ConversationViewModel(
         _isFetching.value = false
     }
 
-    fun onInputChange(newTxt:String){
-        inputTxt=newTxt
+    fun onInputChange(newTxt: String, selection: TextRange = TextRange(newTxt.length)) {
+        inputTxt = TextFieldValue(text = newTxt, selection = selection)
     }
+
     suspend fun onConversation(conversation: ConversationModel) {
         _isFetching.value = true
         _currentConversation.value = conversation.id

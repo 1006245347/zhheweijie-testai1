@@ -229,12 +229,11 @@ fun TextInputIn(
                 Row {
                     TextField(value = conversationViewModel.inputTxt,
                         onValueChange = { newText ->
-                            if (newText.length <= maxInputSize) {
-//                                inputTxt = newText
-                                conversationViewModel.onInputChange(newText)
+                            if (newText.text.length <= maxInputSize) {
+                                conversationViewModel.onInputChange(newText.text)
                             }
                         },
-                        label = null,
+                        label = null, singleLine = false,
                         placeholder = {
                             Text(
                                 inputHint, fontSize = 12.sp
@@ -251,14 +250,19 @@ fun TextInputIn(
                             .background(Color.Transparent)
                             .verticalScroll(rememberScrollState())
                             .imePadding()//适配键盘高度
+
                             .onFocusChanged { focusState -> hasFocus = focusState.isFocused }
-                            .weight(1f).KeyEventEnter {
+                            .weight(1f).KeyEventEnter(enter = {
                                 scope.launch {
-                                    val textClone = conversationViewModel.inputTxt
+                                    val textClone = conversationViewModel.inputTxt.text
                                     conversationViewModel.onInputChange("")
                                     sendMessage(textClone)
                                 }
-                            },
+                            }, shift = {
+                              val textClone =conversationViewModel.inputTxt.text
+
+                              conversationViewModel.onInputChange(textClone+"\n")
+                            }),
                         colors = TextFieldDefaults.colors(
                             focusedContainerColor = Color.Transparent, //去除边框
                             unfocusedContainerColor = Color.Transparent,
@@ -270,11 +274,11 @@ fun TextInputIn(
                     )
                     //发生、中断 融合为一个按钮
                     EnterEventButton(isFabExpanded, sendBlock = {
-                        if (conversationViewModel.inputTxt.trim().isNotEmpty()) {
+                        if (conversationViewModel.inputTxt.text.trim().isNotEmpty()) {
                             val textClone = conversationViewModel.inputTxt
                             conversationViewModel.onInputChange("")
                             focusManager.clearFocus()  //清除焦点，注意线程
-                            sendMessage(textClone)
+                            sendMessage(textClone.text)
                         }
                     })
                 }
