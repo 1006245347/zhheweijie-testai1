@@ -117,7 +117,7 @@ fun AppDrawerIn(
     ) {
         Spacer(Modifier.windowInsetsTopHeight(WindowInsets.statusBars))//影响键盘？
         DrawerHeader(clickAction = onIconClicked)
-        DividerItem()
+//        DividerItem()
         DrawerItemHeader("Chats")
         ChatItem("New Chat", Icons.Outlined.AddComment, false) {
             onNewChatClicked()
@@ -185,7 +185,7 @@ private fun DrawerHeader(
         IconButton(
             onClick = {
                 clickAction.invoke()
-            },
+            }, modifier = Modifier.padding(bottom = 40.dp)
         ) {
             Icon(
                 Icons.Filled.WbSunny,

@@ -36,6 +36,9 @@ class ChatViewModel(private val globalRepo: GlobalRepository) : ViewModel() {
     private val _darkObs = MutableStateFlow(false)
     val darkState = _darkObs.asStateFlow()
 
+    private val _isCollapsedObs= MutableStateFlow(false)
+    val isCollapsedState =_isCollapsedObs.asStateFlow()
+
     fun processConfig(intent: ModelConfigIntent) {
         when (intent) {
             is ModelConfigIntent.LoadData -> {
@@ -75,6 +78,10 @@ class ChatViewModel(private val globalRepo: GlobalRepository) : ViewModel() {
             val isDark = getCacheBoolean(CODE_IS_DARK)
             _darkObs.value = isDark
         }
+    }
+
+    fun collapsedPage(){
+        _isCollapsedObs.value=!_isCollapsedObs.value
     }
 }
 

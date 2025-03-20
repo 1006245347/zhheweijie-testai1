@@ -33,11 +33,13 @@ import coil3.compose.rememberAsyncImagePainter
 import com.hwj.ai.checkSystem
 import com.hwj.ai.except.ToolTipCase
 import com.hwj.ai.global.PrimaryColor
+import com.hwj.ai.ui.viewmodel.ChatViewModel
+import moe.tlaster.precompose.koin.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppBar(onClickMenu: () -> Unit, onNewChat: () -> Unit) {
-
+    val chatViewModel = koinViewModel(ChatViewModel::class)
     CenterAlignedTopAppBar(
         title = {
             val paddingSizeModifier = Modifier
@@ -63,15 +65,16 @@ fun AppBar(onClickMenu: () -> Unit, onNewChat: () -> Unit) {
             }
         },
         navigationIcon = {
-            ToolTipCase(tip = "菜单", content = {
+            ToolTipCase(tip = "边栏", content = {
                 IconButton(
                     onClick = {
+                        chatViewModel.collapsedPage()
                         onClickMenu()
                     },
                 ) {
                     Icon(
                         Icons.Filled.Menu,
-                        "菜单",
+                        "边栏",
                         modifier = Modifier.size(26.dp),
                         tint = PrimaryColor,
                     )

@@ -60,6 +60,7 @@ import com.hwj.ai.global.BackInnerColor1
 import com.hwj.ai.global.NavigationScene
 import com.hwj.ai.global.OsStatus
 import com.hwj.ai.global.PrimaryColor
+import com.hwj.ai.global.cDeepLine
 import com.hwj.ai.global.cGrey666666
 import com.hwj.ai.global.isLightTxt
 import com.hwj.ai.global.onlyDesktop
@@ -208,7 +209,7 @@ fun TextInputIn(
                 InputTopIn(rememberLazyListState(), navigator)
             }
 
-            HorizontalDivider(Modifier.height(0.2.dp))
+            HorizontalDivider(thickness = (0.5f).dp, color = cDeepLine())
 
             ImageSelectIn()   //如果有图片，要插入图片列表
 

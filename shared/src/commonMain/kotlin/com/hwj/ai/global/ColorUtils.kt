@@ -34,6 +34,7 @@ fun cBlack333333() = Color(0xFF333333)
 fun cBlue1A629DE8() = Color(0x1A629DE8) //1A629DE8
 fun cBlueE658B2F6() = Color(0xE658B2F6)
 fun cBlueFFF7FAFE() = Color(0xFFF7FAFE)
+fun cDeepLine()=Color(0xFF3B3C3D)
 
 
 val Purple80 = Color(0xFFD0BCFF)//粉

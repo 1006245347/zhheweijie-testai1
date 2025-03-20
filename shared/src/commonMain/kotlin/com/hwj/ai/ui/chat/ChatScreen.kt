@@ -33,6 +33,7 @@ import com.hwj.ai.data.local.PermissionPlatform
 import com.hwj.ai.global.CODE_IS_DARK
 import com.hwj.ai.global.ThemeChatLite
 import com.hwj.ai.global.ToastUtils
+import com.hwj.ai.global.cDeepLine
 import com.hwj.ai.global.getCacheBoolean
 import com.hwj.ai.global.printD
 import com.hwj.ai.global.saveBoolean
@@ -138,7 +139,7 @@ fun ChatScreen(navigator: Navigator) {
 
                                 }
                             })
-                        HorizontalDivider()
+                        HorizontalDivider(thickness = (0.5f).dp, color = cDeepLine())
                         if (configState.isLoading || configState.error != null) {
                             ChatInit(configState)
                         } else {
