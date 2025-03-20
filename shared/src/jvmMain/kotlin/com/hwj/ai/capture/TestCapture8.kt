@@ -4,13 +4,18 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowPosition
@@ -23,11 +28,10 @@ import java.awt.image.BufferedImage
 import java.io.File
 import javax.imageio.ImageIO
 
-/**
- * @author by jason-何伟杰，2025/3/20
- * des:mac下截图区域不准确
- */
-class ScreenshotState7 {
+//UI 拖拽得到的坐标 * scaleFactor ≠ 实际屏幕坐标
+//macOS 多屏/高DPI 下 Robot 截图区域错位
+
+class ScreenshotState8 {
     var startOffset by mutableStateOf(Offset.Zero)
     var endOffset by mutableStateOf(Offset.Zero)
     val selectionRect: Rect
@@ -36,15 +40,16 @@ class ScreenshotState7 {
 }
 
 @Composable
-fun ScreenshotOverlay7(
+fun ScreenshotOverlay8(
     onCapture: (BufferedImage) -> Unit,
     onCancel: () -> Unit
 ) {
-    val state = remember { ScreenshotState7() }
+    val state = remember { ScreenshotState8() }
     val screenSize = Toolkit.getDefaultToolkit().screenSize
     val windowState = rememberWindowState(
         position = WindowPosition(0.dp, 0.dp),
-        size = WindowSize(screenSize.width.dp, screenSize.height.dp)
+//        size = WindowSize(screenSize.width.dp, screenSize.height.dp)
+        size= DpSize(screenSize.width.dp,screenSize.height.dp)
     )
 
     Window(
@@ -101,57 +106,79 @@ fun ScreenshotOverlay7(
     }
 }
 
-/**
- * 截图核心：做坐标归一化、避免负数，防止崩溃
- */
 private fun captureSelectedArea(rect: Rect, onSuccess: (BufferedImage) -> Unit) {
     val normalizedRect = rect.normalize()
 
-    val width = normalizedRect.width.toInt()
-    val height = normalizedRect.height.toInt()
+    val screenDevices = java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment().screenDevices
+    var targetDevice: java.awt.GraphicsDevice? = null
 
-    if (width <= 0 || height <= 0) return
+    // 找到选区落在哪块屏幕上
+    for (device in screenDevices) {
+        val bounds = device.defaultConfiguration.bounds
+        if (bounds.contains(normalizedRect.left.toInt(), normalizedRect.top.toInt())) {
+            targetDevice = device
+            break
+        }
+    }
+    if (targetDevice == null) {
+        targetDevice = java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment().defaultScreenDevice
+    }
 
-    // 先获取当前窗口（Compose Window），然后隐藏
-    val awtWindow = java.awt.KeyboardFocusManager.getCurrentKeyboardFocusManager().activeWindow
-    awtWindow?.isVisible = false
-    Thread.sleep(100)
+    val config = targetDevice!!.defaultConfiguration
+    val screenBounds = config.bounds // 屏幕偏移（多屏布局下重要）
+    val transform = config.defaultTransform
+    val scaleX = transform.scaleX
+    val scaleY = transform.scaleY
 
-    val screenRect = Rectangle(
-        normalizedRect.left.toInt(),
-        normalizedRect.top.toInt(),
-        width,
-        height
-    )
+    println("屏幕 bounds: $screenBounds, scaleX: $scaleX, scaleY: $scaleY")
+
+    // 关键：Compose 逻辑坐标 → 物理像素坐标
+    val captureX = ((normalizedRect.left + screenBounds.x) * scaleX).toInt()
+    val captureY = ((normalizedRect.top + screenBounds.y) * scaleY).toInt()
+    val captureW = (normalizedRect.width * scaleX).toInt()
+    val captureH = (normalizedRect.height * scaleY).toInt()
+
+    println("最终截图区域 (物理像素): x=$captureX, y=$captureY, w=$captureW, h=$captureH")
+
+    if (captureW <= 0 || captureH <= 0) return
 
     try {
-        val robot = Robot()  //macos 系统设置 → 隐私与安全性 → 屏幕录制,否则返回空白
+        // 隐藏截图窗口，防止蒙层被截进去
+        val awtWindow = java.awt.KeyboardFocusManager.getCurrentKeyboardFocusManager().activeWindow
+        awtWindow?.isVisible = false
+        Thread.sleep(100) // 等隐藏生效
+
+        val robot = Robot(targetDevice)
+        val screenRect = Rectangle(captureX, captureY, captureW, captureH)
         val image = robot.createScreenCapture(screenRect)
+
         onSuccess(image)
+
     } catch (e: Exception) {
         e.printStackTrace()
     }
 }
 
- fun saveToFile7(image: BufferedImage) :Boolean{
+
+fun saveToFile8(image: BufferedImage) :Boolean{
 
 //     val desktopPath = System.getProperty("user.home") + File.separator + "Desktop"
 //     val file = File(desktopPath, "screenshot_${System.currentTimeMillis()}.png")
 
-     val cacheDir  = getPlatformCacheImgDir()
-     if (!cacheDir.exists()) cacheDir.mkdirs()
+    val cacheDir  = getPlatformCacheImgDir()
+    if (!cacheDir.exists()) cacheDir.mkdirs()
 
-     val file = File(cacheDir, "screenshot_${System.currentTimeMillis()}.png")
+    val file = File(cacheDir, "screenshot_${System.currentTimeMillis()}.png")
 
-     ImageIO.write(image, "PNG", file)
-     println("截图已保存到：${file.absolutePath}")
-  return   ImageIO.write(image, "PNG", file)
+    ImageIO.write(image, "PNG", file)
+    println("截图已保存到：${file.absolutePath}")
+    return   ImageIO.write(image, "PNG", file)
 }
 
 //截图已保存到缓存目录：/Users/你的用户名/Library/Caches/com.hwj.ai.capture/screenshot_1710918988888.png
 //截图已保存到缓存目录：C:\Users\你的用户名\AppData\Local\com.hwj.ai.capture\cache\screenshot_1710918988888.png
 //截图已保存到缓存目录：/home/你的用户名/.cache/com.hwj.ai.capture/screenshot_1710918988888.png
-private fun getPlatformCacheImgDir():File{
+private fun getPlatformCacheImgDir(): File {
     val osName = System.getProperty("os.name").lowercase()
     return if (osName.contains("mac")) {
         File(System.getProperty("user.home"), "Library/Caches/com.hwj.ai.capture")
