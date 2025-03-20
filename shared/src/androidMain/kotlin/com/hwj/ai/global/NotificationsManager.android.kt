@@ -106,9 +106,9 @@ actual class NotificationsManager(
     }
 
     companion object {
-        private const val channelName = "FocusBloom"
-        const val channelDescription = "FocusBloom notifications"
+        private const val channelName = "HWJ"
+        const val channelDescription = " notifications"
         const val notificationId = 44
-        const val channelId = "FocusBloom"
+        const val channelId = "HWJ"
     }
 }

@@ -121,7 +121,7 @@ private fun captureSelectedArea(rect: Rect, onSuccess: (BufferedImage) -> Unit) 
     )
 
     try {
-        val robot = Robot()
+        val robot = Robot()  //macos 系统设置 → 隐私与安全性 → 屏幕录制,否则返回空白
         val image = robot.createScreenCapture(screenRect)
         onSuccess(image)
     } catch (e: Exception) {
@@ -131,11 +131,28 @@ private fun captureSelectedArea(rect: Rect, onSuccess: (BufferedImage) -> Unit) 
 
  fun saveToFile7(image: BufferedImage) :Boolean{
 
-     val desktopPath = System.getProperty("user.home") + File.separator + "Desktop"
-     val file = File(desktopPath, "screenshot_${System.currentTimeMillis()}.png")
+//     val desktopPath = System.getProperty("user.home") + File.separator + "Desktop"
+//     val file = File(desktopPath, "screenshot_${System.currentTimeMillis()}.png")
+
+     val cacheDir  = getPlatformCacheImgDir()
+     if (!cacheDir.exists()) cacheDir.mkdirs()
+
+     val file = File(cacheDir, "screenshot_${System.currentTimeMillis()}.png")
+
      ImageIO.write(image, "PNG", file)
      println("截图已保存到：${file.absolutePath}")
   return   ImageIO.write(image, "PNG", file)
+}
+
+private fun getPlatformCacheImgDir():File{
+    val osName = System.getProperty("os.name").lowercase()
+    return if (osName.contains("mac")) {
+        File(System.getProperty("user.home"), "Library/Caches/com.hwj.ai.capture")
+    } else if (osName.contains("win")) {
+        File(System.getenv("LOCALAPPDATA"), "com.hwj.ai.capture/cache")
+    } else {
+        File(System.getProperty("user.home"), ".cache/com.hwj.ai.capture")
+    }
 }
 
 /**

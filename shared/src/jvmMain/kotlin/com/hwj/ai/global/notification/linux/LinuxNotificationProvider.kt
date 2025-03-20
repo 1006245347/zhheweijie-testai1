@@ -44,7 +44,7 @@ object LinuxNotificationProvider : NotificationProvider {
             return
         }
 
-        available = libNotify.notify_init("FocusBloom") // NON-NLS
+        available = libNotify.notify_init("HWJ") // NON-NLS
         if (!available) {
             error = Error.INIT
             println("unable to initialize libnotify")
@@ -92,7 +92,7 @@ object LinuxNotificationProvider : NotificationProvider {
          * This can be used by the daemon to retrieve the correct icon for the application, for logging purposes, etc.
          */
         // todo: desktop file usually not present for jar file, provide app_icon/image instead?
-        libNotify.notify_notification_set_desktop_entry(notification, "com.joelkanyi.focusbloom")
+        libNotify.notify_notification_set_desktop_entry(notification, "com.joelkanyi.HWJ")
 
         /**
          * suppress-sound

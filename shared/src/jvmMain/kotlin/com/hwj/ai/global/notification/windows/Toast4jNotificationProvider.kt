@@ -36,7 +36,7 @@ object Toast4jNotificationProvider : NotificationProvider {
         get() = ""
 
     override fun init() {
-//        toaster = Toaster.forAumi("com.joelkanyi.focusbloom")
+//        toaster = Toaster.forAumi("com.joelkanyi.HWJ")
         toaster = Toaster.forAumi("com.hwj.ai")
         available = toaster.initialize()
         if (!available) {
