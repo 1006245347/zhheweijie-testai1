@@ -21,6 +21,7 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowPosition
 import androidx.compose.ui.window.WindowSize
 import androidx.compose.ui.window.rememberWindowState
+import com.hwj.ai.global.NotificationsManager
 import com.hwj.ai.global.printD
 import java.awt.GraphicsEnvironment
 import java.awt.Rectangle
@@ -33,7 +34,7 @@ import javax.imageio.ImageIO
 //UI 拖拽得到的坐标 * scaleFactor ≠ 实际屏幕坐标
 //macOS 多屏/高DPI 下 Robot 截图区域错位
 
-class ScreenshotState8 {
+class ScreenshotState9 {
     var startOffset by mutableStateOf(Offset.Zero)
     var endOffset by mutableStateOf(Offset.Zero)
     val selectionRect: Rect
@@ -42,7 +43,7 @@ class ScreenshotState8 {
 }
 
 @Composable
-fun ScreenshotOverlay8(
+fun ScreenshotOverlay9(
     onCapture: (BufferedImage) -> Unit,
     onCancel: () -> Unit
 ) {
@@ -114,7 +115,7 @@ private fun captureSelectedArea(rect: Rect, onSuccess: (BufferedImage) -> Unit) 
     val screenDevices = java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment().screenDevices
     var targetDevice: java.awt.GraphicsDevice? = null
 
-    // 找到选区落在哪块屏幕上
+//    // 找到选区落在哪块屏幕上
     for (device in screenDevices) {
         val bounds = device.defaultConfiguration.bounds
         if (bounds.contains(normalizedRect.left.toInt(), normalizedRect.top.toInt())) {
@@ -122,9 +123,20 @@ private fun captureSelectedArea(rect: Rect, onSuccess: (BufferedImage) -> Unit) 
             break
         }
     }
+
+
+  //多屏不让用
+  if (screenDevices.size>1){
+      NotificationsManager().showNotification("不支持多屏截图！","不支持多屏截图")
+      return
+  }
+
+//    targetDevice=screenDevices[0]
+
+
+
     if (targetDevice == null) {
         targetDevice = java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment().defaultScreenDevice
-//        GraphicsEnvironment.getLocalGraphicsEnvironment().screenDevices.size>1 //多屏不让用
     }
 
     val config = targetDevice!!.defaultConfiguration
@@ -136,8 +148,8 @@ private fun captureSelectedArea(rect: Rect, onSuccess: (BufferedImage) -> Unit) 
     printD("屏幕 bounds: $screenBounds, scaleX: $scaleX, scaleY: $scaleY")
 
     // 关键：Compose 逻辑坐标 → 物理像素坐标
-    val captureX = ((normalizedRect.left + screenBounds.x) * scaleX).toInt()
-    val captureY = ((normalizedRect.top + screenBounds.y) * scaleY).toInt()
+    val captureX = ((normalizedRect.left +screenBounds.x) * scaleX).toInt()
+    val captureY = ((normalizedRect.top +screenBounds.y ) * scaleY).toInt()
     val captureW = (normalizedRect.width * scaleX).toInt()
     val captureH = (normalizedRect.height * scaleY).toInt()
 
@@ -163,7 +175,7 @@ private fun captureSelectedArea(rect: Rect, onSuccess: (BufferedImage) -> Unit) 
 }
 
 
-fun saveToFile8(image: BufferedImage) :Boolean{
+fun saveToFile9(image: BufferedImage) :Boolean{
 
 //     val desktopPath = System.getProperty("user.home") + File.separator + "Desktop"
 //     val file = File(desktopPath, "screenshot_${System.currentTimeMillis()}.png")
@@ -174,7 +186,7 @@ fun saveToFile8(image: BufferedImage) :Boolean{
     val file = File(cacheDir, "screenshot_${System.currentTimeMillis()}.png")
 
     ImageIO.write(image, "PNG", file)
-    printD("截图已保存到：${file.absolutePath}")
+    println("截图已保存到：${file.absolutePath}")
     return   ImageIO.write(image, "PNG", file)
 }
 

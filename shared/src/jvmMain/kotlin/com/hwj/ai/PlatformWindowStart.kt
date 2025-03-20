@@ -26,9 +26,12 @@ import androidx.compose.ui.window.singleWindowApplication
 import com.hwj.ai.capture.ScreenshotOverlay6
 import com.hwj.ai.capture.ScreenshotOverlay7
 import com.hwj.ai.capture.ScreenshotOverlay8
+import com.hwj.ai.capture.ScreenshotOverlay9
+import com.hwj.ai.capture.saveToFile
 import com.hwj.ai.capture.saveToFile6
 import com.hwj.ai.capture.saveToFile7
 import com.hwj.ai.capture.saveToFile8
+import com.hwj.ai.capture.saveToFile9
 import com.hwj.ai.global.ThemeChatLite
 import moe.tlaster.precompose.ProvidePreComposeLocals
 import java.awt.Dimension
@@ -63,9 +66,9 @@ fun PlatformWindowStart(onCloseRequest: () -> Unit) {
                         }
 
                         if (showShot) {
-                            ScreenshotOverlay8(onCapture = { pic ->
+                            ScreenshotOverlay9(onCapture = { pic ->
                                 try {
-                                    saveToFile8(pic)
+                                    saveToFile9(pic)
                                 } catch (e: Exception) {
                                 }
                             }, onCancel = { showShot = false })
