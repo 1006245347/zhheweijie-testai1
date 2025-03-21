@@ -3,13 +3,23 @@ package com.hwj.ai.capture
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.awt.ComposeWindow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
@@ -22,11 +32,14 @@ import androidx.compose.ui.window.WindowPosition
 import androidx.compose.ui.window.WindowSize
 import androidx.compose.ui.window.rememberWindowState
 import com.hwj.ai.global.NotificationsManager
+import com.hwj.ai.global.getThisWeek
 import com.hwj.ai.global.printD
+import kotlinx.coroutines.launch
 import java.awt.GraphicsEnvironment
 import java.awt.Rectangle
 import java.awt.Robot
 import java.awt.Toolkit
+import java.awt.Window
 import java.awt.image.BufferedImage
 import java.io.File
 import javax.imageio.ImageIO
@@ -34,7 +47,7 @@ import javax.imageio.ImageIO
 //UI 拖拽得到的坐标 * scaleFactor ≠ 实际屏幕坐标
 //macOS 多屏/高DPI 下 Robot 截图区域
 //效果suc,windows/macOS 主屏幕
-class ScreenshotState10 {
+class ScreenshotState11 {
     var startOffset by mutableStateOf(Offset.Zero)
     var endOffset by mutableStateOf(Offset.Zero)
     val selectionRect: Rect
@@ -43,20 +56,32 @@ class ScreenshotState10 {
 }
 
 @Composable
-fun ScreenshotOverlay10(
+fun ScreenshotOverlay11(
+    mainWindow: ComposeWindow,
     onCapture: (BufferedImage) -> Unit,
     onCancel: () -> Unit
 ) {
-    val state = remember { ScreenshotState10() }
+
+    var showActBtn by remember { mutableStateOf(false) }
+    var capturedRect by remember { mutableStateOf<Rect?>(null) }
+    val state = remember { ScreenshotState11() }
     val screenSize = Toolkit.getDefaultToolkit().screenSize
     val windowState = rememberWindowState(
         position = WindowPosition(0.dp, 0.dp),
 //        size = WindowSize(screenSize.width.dp, screenSize.height.dp)
         size = DpSize(screenSize.width.dp, screenSize.height.dp)
     )
+    val subScope = rememberCoroutineScope()
+
+    LaunchedEffect(Unit) {
+        mainWindow.isVisible = false
+    }
 
     Window(
-        onCloseRequest = onCancel,
+        onCloseRequest = {
+            onCancel()
+            mainWindow.isVisible = true
+        },
         state = windowState,
         transparent = true,
         undecorated = true,
@@ -76,8 +101,10 @@ fun ScreenshotOverlay10(
                         state.endOffset = change.position
                     },
                     onDragEnd = {
-                        state.isSelecting = false
-                        captureSelectedArea(state.selectionRect, onCapture)
+                        state.isSelecting = true
+//                        captureSelectedArea(state.selectionRect, onCapture)
+                        capturedRect = state.selectionRect.normalize()
+                        showActBtn = true
                         onCancel()
                     }
                 )
@@ -85,14 +112,14 @@ fun ScreenshotOverlay10(
         ) {
             Canvas(modifier = Modifier.fillMaxSize()) {
                 // 背景遮罩
-                drawRect(Color.Black.copy(alpha = 0.5f))
+                drawRect(Color.Black.copy(alpha = 0.3f))
 
                 // 选区范围和尺寸
                 if (state.isSelecting) {
                     val rect = state.selectionRect.normalize()
                     // 半透明填充
                     drawRect(
-                        color = Color.White.copy(alpha = 0.3f),
+                        color = Color.White.copy(alpha = 0.1f),
                         topLeft = rect.topLeft,
                         size = rect.size
                     )
@@ -103,6 +130,46 @@ fun ScreenshotOverlay10(
                         size = rect.size,
                         style = Stroke(width = 2.dp.toPx())
                     )
+                }
+            }
+
+            if (showActBtn) {
+                Row(modifier = Modifier.align(Alignment.BottomCenter).padding(23.dp)) {
+                    Button(onClick = {
+                        showActBtn = false
+                        mainWindow.isVisible = true
+                        onCancel() //关闭
+
+                    }) {
+                        Text("取消")
+                    }
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Button(onClick = {
+                        capturedRect?.let { rect ->
+                            subScope.launch {
+                                captureSelectedArea(rect) { pic ->
+                                    val thumbnail =
+                                        BufferedImage(200, 200, BufferedImage.TYPE_INT_ARGB).apply {
+                                            createGraphics().drawImage(
+                                                pic.getScaledInstance(
+                                                    200,
+                                                    200,
+                                                    java.awt.Image.SCALE_SMOOTH
+                                                ),
+                                                0, 0, null
+                                            )
+                                        }
+                                    onCapture(thumbnail) //传缩略图
+                                }
+                            }
+
+                        }
+                        showActBtn = false
+                        mainWindow.isVisible = true
+                        onCancel()
+                    }) {
+                        Text("确定")
+                    }
                 }
             }
         }
@@ -172,7 +239,7 @@ private fun captureSelectedArea(rect: Rect, onSuccess: (BufferedImage) -> Unit) 
 }
 
 
-fun saveToFile10(image: BufferedImage): Boolean {
+fun saveToFile11(image: BufferedImage): Boolean {
 
 //     val desktopPath = System.getProperty("user.home") + File.separator + "Desktop"
 //     val file = File(desktopPath, "screenshot_${System.currentTimeMillis()}.png")
