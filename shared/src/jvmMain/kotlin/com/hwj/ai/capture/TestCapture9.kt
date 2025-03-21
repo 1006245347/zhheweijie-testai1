@@ -85,14 +85,14 @@ fun ScreenshotOverlay9(
         ) {
             Canvas(modifier = Modifier.fillMaxSize()) {
                 // 背景遮罩
-                drawRect(Color.Black.copy(alpha = 0.5f))
+                drawRect(Color.Black.copy(alpha = 0.3f))
 
                 // 选区范围和尺寸
                 if (state.isSelecting) {
                     val rect = state.selectionRect.normalize()
                     // 半透明填充
                     drawRect(
-                        color = Color.White.copy(alpha = 0.3f),
+                        color = Color.White.copy(alpha = 0.1f),
                         topLeft = rect.topLeft,
                         size = rect.size
                     )
@@ -125,16 +125,17 @@ private fun captureSelectedArea(rect: Rect, onSuccess: (BufferedImage) -> Unit) 
     }
 
 
-  //多屏不让用
-  if (screenDevices.size>1){
-      NotificationsManager().showNotification("不支持多屏截图！","不支持多屏截图")
-      return
-  }
+    //多屏不让用
+    if (screenDevices.size > 1) {
+        NotificationsManager().showNotification("不支持多屏截图！", "不支持多屏截图")
+        return
+    }
 
-//    targetDevice=screenDevices[0]
+    targetDevice = screenDevices[0]
 
     if (targetDevice == null) {
-        targetDevice = java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment().defaultScreenDevice
+        targetDevice =
+            java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment().defaultScreenDevice
     }
 
     val config = targetDevice!!.defaultConfiguration
@@ -146,12 +147,19 @@ private fun captureSelectedArea(rect: Rect, onSuccess: (BufferedImage) -> Unit) 
     printD("屏幕 bounds: $screenBounds, scaleX: $scaleX, scaleY: $scaleY")
 
     // 关键：Compose 逻辑坐标 → 物理像素坐标
-    val captureX = ((normalizedRect.left +screenBounds.x) * scaleX).toInt()
-    val captureY = ((normalizedRect.top +screenBounds.y ) * scaleY).toInt()
+//    val captureX = ((normalizedRect.left +screenBounds.x) * scaleX).toInt()
+//    val captureY = ((normalizedRect.top +screenBounds.y ) * scaleY).toInt()
+    val captureX = (normalizedRect.left * scaleX + screenBounds.x).toInt()
+    val captureY = (normalizedRect.top * scaleY + screenBounds.y).toInt()
     val captureW = (normalizedRect.width * scaleX).toInt()
     val captureH = (normalizedRect.height * scaleY).toInt()
+    // 重点：强制裁剪不能超过屏幕物理边界
+    val safeX = captureX.coerceIn(screenBounds.x, screenBounds.x + screenBounds.width)
+    val safeY = captureY.coerceIn(screenBounds.y, screenBounds.y + screenBounds.height)
+    val safeW = minOf(captureW, screenBounds.width - (safeX - screenBounds.x))
+    val safeH = minOf(captureH, screenBounds.height - (safeY - screenBounds.y))
 
-    printD("最终截图区域 (物理像素): x=$captureX, y=$captureY, w=$captureW, h=$captureH")
+    printD("最终截图区域 (物理像素): x=$safeX, y=$safeY, w=$safeW, h=$safeH")
 
     if (captureW <= 0 || captureH <= 0) return
 
@@ -162,7 +170,8 @@ private fun captureSelectedArea(rect: Rect, onSuccess: (BufferedImage) -> Unit) 
         Thread.sleep(100) // 等隐藏生效
 
         val robot = Robot(targetDevice)
-        val screenRect = Rectangle(captureX, captureY, captureW, captureH)
+//        val screenRect = Rectangle(captureX, captureY, captureW, captureH)
+        val screenRect = Rectangle(safeX, safeY, safeW, safeH)
         val image = robot.createScreenCapture(screenRect)
 
         onSuccess(image)
@@ -173,19 +182,19 @@ private fun captureSelectedArea(rect: Rect, onSuccess: (BufferedImage) -> Unit) 
 }
 
 
-fun saveToFile9(image: BufferedImage) :Boolean{
+fun saveToFile9(image: BufferedImage): Boolean {
 
 //     val desktopPath = System.getProperty("user.home") + File.separator + "Desktop"
 //     val file = File(desktopPath, "screenshot_${System.currentTimeMillis()}.png")
 
-    val cacheDir  = getPlatformCacheImgDir()
+    val cacheDir = getPlatformCacheImgDir()
     if (!cacheDir.exists()) cacheDir.mkdirs()
 
     val file = File(cacheDir, "screenshot_${System.currentTimeMillis()}.png")
 
     ImageIO.write(image, "PNG", file)
     println("截图已保存到：${file.absolutePath}")
-    return   ImageIO.write(image, "PNG", file)
+    return ImageIO.write(image, "PNG", file)
 }
 
 //截图已保存到缓存目录：/Users/你的用户名/Library/Caches/com.hwj.ai.capture/screenshot_1710918988888.png

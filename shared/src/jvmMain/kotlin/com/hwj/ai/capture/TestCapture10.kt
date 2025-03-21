@@ -52,7 +52,7 @@ fun ScreenshotOverlay10(
     val windowState = rememberWindowState(
         position = WindowPosition(0.dp, 0.dp),
 //        size = WindowSize(screenSize.width.dp, screenSize.height.dp)
-        size= DpSize(screenSize.width.dp,screenSize.height.dp)
+        size = DpSize(screenSize.width.dp, screenSize.height.dp)
     )
 
     Window(
@@ -133,7 +133,8 @@ private fun captureSelectedArea(rect: Rect, onSuccess: (BufferedImage) -> Unit) 
 //    targetDevice=screenDevices[0]
 
     if (targetDevice == null) {
-        targetDevice = java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment().defaultScreenDevice
+        targetDevice =
+            java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment().defaultScreenDevice
     }
 
     val config = targetDevice!!.defaultConfiguration
@@ -141,16 +142,17 @@ private fun captureSelectedArea(rect: Rect, onSuccess: (BufferedImage) -> Unit) 
     val transform = config.defaultTransform
     val scaleX = transform.scaleX
     val scaleY = transform.scaleY
-
     printD("屏幕 bounds: $screenBounds, scaleX: $scaleX, scaleY: $scaleY")
 
     // 关键：Compose 逻辑坐标 → 物理像素坐标
 //    val captureX = ((normalizedRect.left +screenBounds.x) * scaleX).toInt()
 //    val captureY = ((normalizedRect.top +screenBounds.y ) * scaleY).toInt()
-    val captureX = ((normalizedRect.left * scaleX) + screenBounds.x).toInt()
-    val captureY =((normalizedRect.top*scaleY)+screenBounds.y).toInt()
-    val captureW = (normalizedRect.width * scaleX).toInt()
-    val captureH = (normalizedRect.height * scaleY).toInt()
+//    val captureX = ((normalizedRect.left * scaleX) + screenBounds.x).toInt()
+//    val captureY =((normalizedRect.top*scaleY)+screenBounds.y).toInt()
+    val captureX = (normalizedRect.left / scaleX).toInt()
+    val captureY = (normalizedRect.top / scaleY).toInt()
+    val captureW = (normalizedRect.width / scaleX).toInt()
+    val captureH = (normalizedRect.height / scaleY).toInt()
 
     printD("最终截图区域 (物理像素): x=$captureX, y=$captureY, w=$captureW, h=$captureH")
 
@@ -174,19 +176,19 @@ private fun captureSelectedArea(rect: Rect, onSuccess: (BufferedImage) -> Unit) 
 }
 
 
-fun saveToFile10(image: BufferedImage) :Boolean{
+fun saveToFile10(image: BufferedImage): Boolean {
 
 //     val desktopPath = System.getProperty("user.home") + File.separator + "Desktop"
 //     val file = File(desktopPath, "screenshot_${System.currentTimeMillis()}.png")
 
-    val cacheDir  = getPlatformCacheImgDir()
+    val cacheDir = getPlatformCacheImgDir()
     if (!cacheDir.exists()) cacheDir.mkdirs()
 
     val file = File(cacheDir, "screenshot_${System.currentTimeMillis()}.png")
 
     ImageIO.write(image, "PNG", file)
     println("截图已保存到：${file.absolutePath}")
-    return   ImageIO.write(image, "PNG", file)
+    return ImageIO.write(image, "PNG", file)
 }
 
 //截图已保存到缓存目录：/Users/你的用户名/Library/Caches/com.hwj.ai.capture/screenshot_1710918988888.png

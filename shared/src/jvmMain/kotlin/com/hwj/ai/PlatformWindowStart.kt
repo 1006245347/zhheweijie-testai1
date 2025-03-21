@@ -36,6 +36,14 @@ import com.hwj.ai.global.ThemeChatLite
 import moe.tlaster.precompose.ProvidePreComposeLocals
 import java.awt.Dimension
 
+//编译运行命令 ./gradlew :desktop:run
+//打包命令 ./gradlew packageDistributionForCurrentOS
+//安装包路径 build/compose/binaries/main/
+//build/compose/binaries/main/exe/
+//build/compose/binaries/main/deb/
+//Ubuntu/Debian: MyApp-1.0.0.deb
+
+//control +  option +O       control + C 中断调试
 @Composable
 fun PlatformWindowStart(onCloseRequest: () -> Unit) {
     val windowState = rememberWindowState(
