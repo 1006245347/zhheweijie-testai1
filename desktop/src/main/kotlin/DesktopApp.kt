@@ -1,6 +1,7 @@
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import com.hwj.ai.PlatformWindowStart
+import com.hwj.ai.test.PlatformWindowStartTest
 import di.initKoin
 import io.github.aakira.napier.DebugAntilog
 import io.github.aakira.napier.Napier
@@ -46,7 +47,8 @@ fun main() {
 
 
     return application {
-        PlatformWindowStart { exitApplication() }
+//        PlatformWindowStart { exitApplication() }
+        PlatformWindowStartTest { exitApplication() }
     }
 }
 
