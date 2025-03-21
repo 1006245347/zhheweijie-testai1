@@ -34,7 +34,7 @@ import javax.imageio.ImageIO
 //UI 拖拽得到的坐标 * scaleFactor ≠ 实际屏幕坐标
 //macOS 多屏/高DPI 下 Robot 截图区域错位
 
-class ScreenshotState9 {
+class ScreenshotState10 {
     var startOffset by mutableStateOf(Offset.Zero)
     var endOffset by mutableStateOf(Offset.Zero)
     val selectionRect: Rect
@@ -43,11 +43,11 @@ class ScreenshotState9 {
 }
 
 @Composable
-fun ScreenshotOverlay9(
+fun ScreenshotOverlay10(
     onCapture: (BufferedImage) -> Unit,
     onCancel: () -> Unit
 ) {
-    val state = remember { ScreenshotState9() }
+    val state = remember { ScreenshotState10() }
     val screenSize = Toolkit.getDefaultToolkit().screenSize
     val windowState = rememberWindowState(
         position = WindowPosition(0.dp, 0.dp),
@@ -124,12 +124,11 @@ private fun captureSelectedArea(rect: Rect, onSuccess: (BufferedImage) -> Unit) 
         }
     }
 
-
-  //多屏不让用
-  if (screenDevices.size>1){
-      NotificationsManager().showNotification("不支持多屏截图！","不支持多屏截图")
-      return
-  }
+    //多屏不让用
+//    if (screenDevices.size>1){
+//        NotificationsManager().showNotification("不支持多屏截图！","不支持多屏截图")
+//        return
+//    }
 
 //    targetDevice=screenDevices[0]
 
@@ -146,8 +145,10 @@ private fun captureSelectedArea(rect: Rect, onSuccess: (BufferedImage) -> Unit) 
     printD("屏幕 bounds: $screenBounds, scaleX: $scaleX, scaleY: $scaleY")
 
     // 关键：Compose 逻辑坐标 → 物理像素坐标
-    val captureX = ((normalizedRect.left +screenBounds.x) * scaleX).toInt()
-    val captureY = ((normalizedRect.top +screenBounds.y ) * scaleY).toInt()
+//    val captureX = ((normalizedRect.left +screenBounds.x) * scaleX).toInt()
+//    val captureY = ((normalizedRect.top +screenBounds.y ) * scaleY).toInt()
+    val captureX = ((normalizedRect.left * scaleX) + screenBounds.x).toInt()
+    val captureY =((normalizedRect.top*scaleY)+screenBounds.y).toInt()
     val captureW = (normalizedRect.width * scaleX).toInt()
     val captureH = (normalizedRect.height * scaleY).toInt()
 
@@ -173,7 +174,7 @@ private fun captureSelectedArea(rect: Rect, onSuccess: (BufferedImage) -> Unit) 
 }
 
 
-fun saveToFile9(image: BufferedImage) :Boolean{
+fun saveToFile10(image: BufferedImage) :Boolean{
 
 //     val desktopPath = System.getProperty("user.home") + File.separator + "Desktop"
 //     val file = File(desktopPath, "screenshot_${System.currentTimeMillis()}.png")

@@ -2,6 +2,7 @@ package com.hwj.ai.test
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.window.WindowDraggableArea
 import androidx.compose.material3.Button
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -16,7 +17,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowPosition
 import androidx.compose.ui.window.rememberWindowState
+import com.hwj.ai.capture.ScreenshotOverlay10
 import com.hwj.ai.capture.ScreenshotOverlay9
+import com.hwj.ai.capture.saveToFile10
 import com.hwj.ai.capture.saveToFile9
 import com.hwj.ai.global.ThemeChatLite
 import moe.tlaster.precompose.ProvidePreComposeLocals
@@ -47,9 +50,9 @@ fun PlatformWindowStartTest(onCloseRequest: () -> Unit) {
                         }
 
                         if (showShot) {
-                            ScreenshotOverlay9(onCapture = { pic ->
+                            ScreenshotOverlay10(onCapture = { pic ->
                                 try {
-                                    saveToFile9(pic)
+                                    saveToFile10(pic)
                                 } catch (e: Exception) {
                                 }
                             }, onCancel = { showShot = false })
