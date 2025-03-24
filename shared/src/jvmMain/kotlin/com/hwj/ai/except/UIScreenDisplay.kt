@@ -13,14 +13,20 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.hwj.ai.capture.LocalMainWindow
+import com.hwj.ai.capture.ScreenshotOverlay11
+import com.hwj.ai.capture.saveToFile11
 import com.hwj.ai.global.PrimaryColor
+import com.hwj.ai.global.onlyDesktop
 import com.hwj.ai.global.printD
 import com.hwj.ai.global.workInSub
 import com.hwj.ai.models.MessageModel
+import com.hwj.ai.ui.viewmodel.ChatViewModel
 import com.hwj.ai.ui.viewmodel.ConversationViewModel
 import moe.tlaster.precompose.koin.koinViewModel
 
@@ -94,4 +100,20 @@ actual fun ToolTipCase(tip: String, content: @Composable () -> Unit) {
 
 actual fun isMainThread(): Boolean {
     return Thread.currentThread().name == "main"
+}
+
+@Composable
+actual fun ScreenShotPlatform(onSave: (String?) -> Unit) {
+    val mainWindow = LocalMainWindow.current
+    val chatViewModel = koinViewModel(ChatViewModel::class)
+
+    val isShotState = chatViewModel.isShotState.collectAsState().value
+    if (isShotState && onlyDesktop()) {
+        ScreenshotOverlay11(mainWindow = mainWindow, onCapture = { pic ->
+            val file=saveToFile11(pic)
+            onSave(file)
+        }, onCancel = {
+            chatViewModel.shotScreen(false)
+        })
+    }
 }

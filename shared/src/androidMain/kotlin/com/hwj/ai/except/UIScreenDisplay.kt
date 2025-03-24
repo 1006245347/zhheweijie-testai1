@@ -128,3 +128,6 @@ actual fun isMainThread(): Boolean {
     return Looper.getMainLooper().thread == Thread.currentThread()
         .also { printD("thread=${it.name}") }
 }
+
+@Composable
+actual fun ScreenShotPlatform(onSave: (String?) -> Unit){}

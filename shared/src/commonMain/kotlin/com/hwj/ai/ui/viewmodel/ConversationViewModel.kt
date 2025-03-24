@@ -106,6 +106,7 @@ class ConversationViewModel(
 
     //    var inputTxt by mutableStateOf("")
 //        private set
+    //放在vm是因为拍照回来，输入过的文字会被丢失
     var inputTxt by mutableStateOf(TextFieldValue(""))
 //    private set
 
@@ -123,8 +124,14 @@ class ConversationViewModel(
         _isFetching.value = false
     }
 
+
     fun onInputChange(newTxt: String, selection: TextRange = TextRange(newTxt.length)) {
         inputTxt = TextFieldValue(text = newTxt, selection = selection)
+    }
+
+    //ViewModel 中直接接收完整的 TextFieldValue,不然丢失composition：输入法组合状态（拼音区）
+    fun onInputChange(textFieldValue: TextFieldValue){
+        inputTxt=textFieldValue
     }
 
     suspend fun onConversation(conversation: ConversationModel) {

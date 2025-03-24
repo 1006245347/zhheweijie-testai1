@@ -21,6 +21,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.awt.ComposeWindow
@@ -74,6 +75,8 @@ class ScreenshotState11 {
     var isSelecting by mutableStateOf(false)
 }
 
+val LocalMainWindow = staticCompositionLocalOf<ComposeWindow> { error("No Window provided") }
+
 @Composable
 fun ScreenshotOverlay11(
     mainWindow: ComposeWindow,
@@ -116,14 +119,14 @@ fun ScreenshotOverlay11(
             .fillMaxSize()
             .focusRequester(focusReq)
             .focusable()
-            .pointerInput(Unit){ //识别鼠标右键取消
+            .pointerInput(Unit) { //识别鼠标右键取消
                 awaitPointerEventScope {
-                    while (true){
+                    while (true) {
                         val event = awaitPointerEvent()
-                        val pressed =  event.buttons.isSecondaryPressed
-                        if (event.type==PointerEventType.Press&&pressed){
+                        val pressed = event.buttons.isSecondaryPressed
+                        if (event.type == PointerEventType.Press && pressed) {
                             onCancel()
-                            mainWindow.isVisible=true
+                            mainWindow.isVisible = true
                         }
                     }
                 }
@@ -201,7 +204,7 @@ fun ScreenshotOverlay11(
                             onCancel() //关闭
 
                         }) {
-                            Text("取消")
+                            Text("取消", color = Color.White)
                         }
                         Spacer(modifier = Modifier.width(10.dp))
                         Button(onClick = {
@@ -238,7 +241,7 @@ fun ScreenshotOverlay11(
                                 onCancel()
                             }
                         }) {
-                            Text("确定")
+                            Text("确定", color = Color.White)
                         }
                     }
                 }
@@ -310,7 +313,7 @@ private suspend fun captureSelectedArea(rect: Rect, onSuccess: (BufferedImage) -
 }
 
 
-fun saveToFile11(image: BufferedImage): Boolean {
+fun saveToFile11(image: BufferedImage): String? {
 
 //     val desktopPath = System.getProperty("user.home") + File.separator + "Desktop"
 //     val file = File(desktopPath, "screenshot_${System.currentTimeMillis()}.png")
@@ -322,7 +325,10 @@ fun saveToFile11(image: BufferedImage): Boolean {
 
     ImageIO.write(image, "PNG", file)
     printD("截图已保存到：${file.absolutePath}")
-    return ImageIO.write(image, "PNG", file)
+    ImageIO.write(image, "PNG", file).also {
+        if (it) return file.absolutePath
+    }
+    return null
 }
 
 //截图已保存到缓存目录：/Users/你的用户名/Library/Caches/com.hwj.ai.capture/screenshot_1710918988888.png

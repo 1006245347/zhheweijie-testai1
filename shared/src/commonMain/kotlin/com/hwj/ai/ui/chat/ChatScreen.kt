@@ -30,6 +30,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import com.hwj.ai.createPermission
 import com.hwj.ai.data.local.PermissionPlatform
+import com.hwj.ai.except.ScreenShotPlatform
 import com.hwj.ai.global.CODE_IS_DARK
 import com.hwj.ai.global.ThemeChatLite
 import com.hwj.ai.global.ToastUtils
@@ -54,12 +55,17 @@ import moe.tlaster.precompose.navigation.Navigator
 fun ChatScreen(navigator: Navigator) {
 
     val chatViewModel = koinViewModel(ChatViewModel::class)
+    val isShotState = chatViewModel.isShotState.collectAsState().value
     val conversationViewModel = koinViewModel(ConversationViewModel::class)
     val configState by chatViewModel.configState.collectAsState()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val drawerOpen by chatViewModel.drawerShouldBeOpened.collectAsState()
     val curConversationId by conversationViewModel.currentConversationState.collectAsState()
 
+//    if (isShotState){
+//        ScreenShotPlatform()
+//        return
+//    }
     if (drawerOpen) {
         LaunchedEffect(Unit) {
             try {
@@ -93,11 +99,6 @@ fun ChatScreen(navigator: Navigator) {
         //主动获取数据
         chatViewModel.processConfig(ModelConfigIntent.LoadData)
     }
-
-//    SideEffect {
-    //更新数据?
-//    }
-
 
 
 //    printD("dark1>${darkTheme.value}")

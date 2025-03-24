@@ -55,6 +55,7 @@ import coil3.compose.AsyncImage
 import com.hwj.ai.checkSystem
 import com.hwj.ai.createPermission
 import com.hwj.ai.data.local.PermissionPlatform
+import com.hwj.ai.except.ScreenShotPlatform
 import com.hwj.ai.except.ToolTipCase
 import com.hwj.ai.global.BackInnerColor1
 import com.hwj.ai.global.NavigationScene
@@ -105,7 +106,8 @@ fun TextInput(
 @Composable
 fun InputTopIn(state: LazyListState, navigator: Navigator) {
     val subScope = rememberCoroutineScope()
-    val chatViewModel= koinViewModel(ChatViewModel::class)
+    val chatViewModel = koinViewModel(ChatViewModel::class)
+    val isShotState = chatViewModel.isShotState.collectAsState().value
     val conversationViewModel = koinViewModel(ConversationViewModel::class)
     val needPermissionCamera = remember { mutableStateOf(false) }
     val needPermissionGallery = remember { mutableStateOf(false) }
@@ -118,13 +120,6 @@ fun InputTopIn(state: LazyListState, navigator: Navigator) {
     } else {
 //        list.add(MenuActModel("翻译"))
         list.add(MenuActModel("截图"))
-    }
-
-    LaunchedEffect(cameraPath.value) {
-        cameraPath.value?.let {
-//            printD("add>$it")
-//            conversationViewModel.addCameraImage(PlatformFile(it))
-        }
     }
 
     if (needPermissionCamera.value) {
@@ -171,7 +166,8 @@ fun InputTopIn(state: LazyListState, navigator: Navigator) {
                         "翻译" -> {
 
                         }
-                        "截图"->{
+
+                        "截图" -> {
                             chatViewModel.shotScreen(true)
                         }
                     }
@@ -186,6 +182,17 @@ fun InputTopIn(state: LazyListState, navigator: Navigator) {
                 )
             }
         }
+    }
+
+    if (isShotState) {
+        ScreenShotPlatform(onSave = { filePath ->
+            filePath?.let {
+                subScope.launch {
+                    conversationViewModel.addCameraImage(PlatformFile(filePath))
+                }
+            }
+        })
+        return
     }
 }
 
@@ -203,7 +210,7 @@ fun TextInputIn(
     val maxInputSize = 300
     val chatViewModel = koinViewModel(ChatViewModel::class)
     val isDark = chatViewModel.darkState.collectAsState().value
-    val inputHint = if(onlyDesktop()) "给AI发送消息（Enter+Shift换行、Enter发送）" else "给AI发送消息"
+    val inputHint = if (onlyDesktop()) "给AI发送消息（Enter+Shift换行、Enter发送）" else "给AI发送消息"
     Box(
         // Use navigationBarsPadding() imePadding() and , to move the input panel above both the
         // navigation bar, and on-screen keyboard (IME)
@@ -225,7 +232,7 @@ fun TextInputIn(
                     TextField(value = conversationViewModel.inputTxt,
                         onValueChange = { newText ->
                             if (newText.text.length <= maxInputSize) {
-                                conversationViewModel.onInputChange(newText.text)
+                                conversationViewModel.onInputChange(newText)
                             }
                         },
                         label = null, singleLine = false,
@@ -253,8 +260,8 @@ fun TextInputIn(
                                     sendMessage(textClone)
                                 }
                             }, shift = {
-                              val textClone =conversationViewModel.inputTxt.text
-                                conversationViewModel.onInputChange(textClone+"\n")
+                                val textClone = conversationViewModel.inputTxt.text
+                                conversationViewModel.onInputChange(textClone + "\n")
                             }),
                         colors = TextFieldDefaults.colors(
                             focusedContainerColor = Color.Transparent, //去除边框
@@ -286,41 +293,41 @@ fun EnterEventButton(isFabExpanded: Boolean, sendBlock: () -> Unit) {
     val conversationViewModel = koinViewModel(ConversationViewModel::class)
 
 //    ToolTipCase(tip = "发送/停止", content = {
-        ExtendedFloatingActionButton(
-            text = {
-                Text(text = "Stop Generating", color = Color.White)
-            },
-            icon = {
-                if (isFabExpanded) { //中断按钮
-                    Icon(
-                        imageVector = Icons.Default.Stop,
-                        contentDescription = "Stop Generating",
-                        tint = Color.White,
-                        modifier = Modifier.size(23.dp)
-                    )
-                } else { //发送按钮
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.Send,
-                        contentDescription = "sendMessage",
-                        tint = Color.White,
-                        modifier = Modifier.size(23.dp)
-                    )
-                }
-            },
-            onClick = {
-                if (isFabExpanded) {
-                    conversationViewModel.stopReceivingResults()
-                } else {
+    ExtendedFloatingActionButton(
+        text = {
+            Text(text = "Stop Generating", color = Color.White)
+        },
+        icon = {
+            if (isFabExpanded) { //中断按钮
+                Icon(
+                    imageVector = Icons.Default.Stop,
+                    contentDescription = "Stop Generating",
+                    tint = Color.White,
+                    modifier = Modifier.size(23.dp)
+                )
+            } else { //发送按钮
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.Send,
+                    contentDescription = "sendMessage",
+                    tint = Color.White,
+                    modifier = Modifier.size(23.dp)
+                )
+            }
+        },
+        onClick = {
+            if (isFabExpanded) {
+                conversationViewModel.stopReceivingResults()
+            } else {
 //                    subScope.launch { sendBlock() }
-                    sendBlock()
-                }
-            },
-            shape = RoundedCornerShape(16.dp),
-            modifier = Modifier
-                .animateContentSize().padding(end = 6.dp),
-            expanded = isFabExpanded,
-            containerColor = PrimaryColor
-        )
+                sendBlock()
+            }
+        },
+        shape = RoundedCornerShape(16.dp),
+        modifier = Modifier
+            .animateContentSize().padding(end = 6.dp),
+        expanded = isFabExpanded,
+        containerColor = PrimaryColor
+    )
 
 //    })
 }

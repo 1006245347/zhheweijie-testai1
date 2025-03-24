@@ -14,3 +14,6 @@ expect fun BotMsgMenu(message: MessageModel)
 expect fun ToolTipCase(tip: String, content: @Composable () -> Unit)
 
 expect fun isMainThread():Boolean
+
+@Composable
+expect fun ScreenShotPlatform(onSave: (String?) -> Unit)
