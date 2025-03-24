@@ -74,7 +74,7 @@ class LLMChatRepository {//private val openAI: OpenAI,单例的话无法变更�
             messages = params.messagesTurbo
         )
         val map = mutableMapOf<String, String>()
-        map["d"] = ""
+//        map["d"] = ""
         try {
             val openAI = OpenAI(
                 setAIConfig(
@@ -94,6 +94,7 @@ class LLMChatRepository {//private val openAI: OpenAI,单例的话无法变更�
 
                 }
             }
+
             printE(e)
         }
         return null
@@ -123,10 +124,10 @@ class LLMChatRepository {//private val openAI: OpenAI,单例的话无法变更�
                     })
                 }
                 install(Logging) {
-                    level = LogLevel.NONE //禁止流式对话日志
+                    level = LogLevel.BODY //禁止流式对话日志
                     logger = object : Logger {
                         override fun log(message: String) {
-//                            printD(message)
+                            printD(message)
                         }
                     }
                 }

@@ -23,6 +23,7 @@ import com.hwj.ai.global.DATA_SYSTEM_NAME
 import com.hwj.ai.global.DATA_USER_NAME
 import com.hwj.ai.global.NotificationsManager
 import com.hwj.ai.global.OsStatus
+import com.hwj.ai.global.ToastUtils
 import com.hwj.ai.global.encodeImageToBase64
 import com.hwj.ai.global.getMills
 import com.hwj.ai.global.getNowTime
@@ -124,14 +125,13 @@ class ConversationViewModel(
         _isFetching.value = false
     }
 
-
     fun onInputChange(newTxt: String, selection: TextRange = TextRange(newTxt.length)) {
         inputTxt = TextFieldValue(text = newTxt, selection = selection)
     }
 
     //ViewModel 中直接接收完整的 TextFieldValue,不然丢失composition：输入法组合状态（拼音区）
-    fun onInputChange(textFieldValue: TextFieldValue){
-        inputTxt=textFieldValue
+    fun onInputChange(textFieldValue: TextFieldValue) {
+        inputTxt = textFieldValue
     }
 
     suspend fun onConversation(conversation: ConversationModel) {
@@ -282,6 +282,9 @@ class ConversationViewModel(
         var answerFromGPT = ""
 
         try {
+            if (flowControl == null) {
+                printD("flow-null-err>")
+            }
             flowControl?.onStart { setFabExpanded(true) }
                 ?.onCompletion {
                     setFabExpanded(false)
@@ -534,8 +537,15 @@ class ConversationViewModel(
         return _isFabExpandObs.value
     }
 
+    fun checkSelectedImg(): Boolean {
+        return _imageListObs.size != 2
+    }
+
     suspend fun selectImage() {
-        if (_imageListObs.size == 2) return //最多两张图
+        if (_imageListObs.size == 2) {
+            ToastUtils.show("最多处理两张图片")
+            return //最多两张图
+        }
         if (getPlatform().os == OsStatus.ANDROID
             || getPlatform().os == OsStatus.IOS
         ) {

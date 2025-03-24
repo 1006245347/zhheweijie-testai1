@@ -61,6 +61,7 @@ import com.hwj.ai.global.BackInnerColor1
 import com.hwj.ai.global.NavigationScene
 import com.hwj.ai.global.OsStatus
 import com.hwj.ai.global.PrimaryColor
+import com.hwj.ai.global.ToastUtils
 import com.hwj.ai.global.cDeepLine
 import com.hwj.ai.global.cGrey666666
 import com.hwj.ai.global.isLightTxt
@@ -168,7 +169,11 @@ fun InputTopIn(state: LazyListState, navigator: Navigator) {
                         }
 
                         "截图" -> {
+                            if (conversationViewModel.checkSelectedImg()){
                             chatViewModel.shotScreen(true)
+                            }else{
+                                ToastUtils.show("最多处理两张图片")
+                            }
                         }
                     }
                 }, colors = ButtonDefaults.buttonColors(containerColor = PrimaryColor)
@@ -196,7 +201,6 @@ fun InputTopIn(state: LazyListState, navigator: Navigator) {
     }
 }
 
-
 @Composable
 fun TextInputIn(
     sendMessage: (String) -> Unit, navigator: Navigator
@@ -204,7 +208,6 @@ fun TextInputIn(
     val scope = rememberCoroutineScope()
     val conversationViewModel = koinViewModel(ConversationViewModel::class)
     val isFabExpanded by conversationViewModel.isFabExpanded.collectAsState()
-//    var inputTxt by remember { mutableStateOf(TextFieldValue("")) }
     var hasFocus by remember { mutableStateOf(false) } //判断焦点
     val focusManager = LocalFocusManager.current
     val maxInputSize = 300
