@@ -31,6 +31,7 @@ fun PlatformWindowStartTest(onCloseRequest: () -> Unit) {
     )
 
     var showShot by remember { mutableStateOf(false) }
+
     return Window(
         onCloseRequest, title = "hwj-ai-chat", state = windowState
     ) {

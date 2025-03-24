@@ -36,8 +36,13 @@ class ChatViewModel(private val globalRepo: GlobalRepository) : ViewModel() {
     private val _darkObs = MutableStateFlow(false)
     val darkState = _darkObs.asStateFlow()
 
-    private val _isCollapsedObs= MutableStateFlow(false)
-    val isCollapsedState =_isCollapsedObs.asStateFlow()
+    //首页是否折叠抽屉
+    private val _isCollapsedObs = MutableStateFlow(false)
+    val isCollapsedState = _isCollapsedObs.asStateFlow()
+
+    //是否触发截图
+    private val _isShotObs = MutableStateFlow(false)
+    val isShotState = _isShotObs.asStateFlow()
 
     fun processConfig(intent: ModelConfigIntent) {
         when (intent) {
@@ -80,8 +85,12 @@ class ChatViewModel(private val globalRepo: GlobalRepository) : ViewModel() {
         }
     }
 
-    fun collapsedPage(){
-        _isCollapsedObs.value=!_isCollapsedObs.value
+    fun collapsedPage() {
+        _isCollapsedObs.value = !_isCollapsedObs.value
+    }
+
+    fun shotScreen(flag:Boolean) {
+        _isShotObs.value = flag
     }
 }
 

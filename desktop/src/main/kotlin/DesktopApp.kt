@@ -47,8 +47,8 @@ fun main() {
 
 
     return application {
-//        PlatformWindowStart { exitApplication() }
-        PlatformWindowStartTest { exitApplication() }
+        PlatformWindowStart { exitApplication() }
+//        PlatformWindowStartTest { exitApplication() } //测试
     }
 }
 

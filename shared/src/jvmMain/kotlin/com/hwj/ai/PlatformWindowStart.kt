@@ -11,6 +11,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -23,17 +24,22 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowPosition
 import androidx.compose.ui.window.rememberWindowState
 import androidx.compose.ui.window.singleWindowApplication
+import com.hwj.ai.capture.ScreenshotOverlay11
 import com.hwj.ai.capture.ScreenshotOverlay6
 import com.hwj.ai.capture.ScreenshotOverlay7
 import com.hwj.ai.capture.ScreenshotOverlay8
 import com.hwj.ai.capture.ScreenshotOverlay9
 import com.hwj.ai.capture.saveToFile
+import com.hwj.ai.capture.saveToFile11
 import com.hwj.ai.capture.saveToFile6
 import com.hwj.ai.capture.saveToFile7
 import com.hwj.ai.capture.saveToFile8
 import com.hwj.ai.capture.saveToFile9
 import com.hwj.ai.global.ThemeChatLite
+import com.hwj.ai.global.onlyDesktop
+import com.hwj.ai.ui.viewmodel.ChatViewModel
 import moe.tlaster.precompose.ProvidePreComposeLocals
+import moe.tlaster.precompose.koin.koinViewModel
 import java.awt.Dimension
 
 //编译运行命令 ./gradlew :desktop:run
@@ -52,6 +58,8 @@ fun PlatformWindowStart(onCloseRequest: () -> Unit) {
         height = 500.dp,
     )
 
+//    val chatViewModel = koinViewModel(ChatViewModel::class)
+//    val isShotState = chatViewModel.isShotState.collectAsState().value
     return Window(
         onCloseRequest, title = "hwj-ai-chat", state = windowState
     ) {
@@ -61,7 +69,15 @@ fun PlatformWindowStart(onCloseRequest: () -> Unit) {
             ThemeChatLite {
                 Surface(Modifier.fillMaxSize()) {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        PlatformAppStart()
+//                        if (isShotState && onlyDesktop()) {
+//                            ScreenshotOverlay11(mainWindow = window, onCapture = { pic ->
+//                                saveToFile11(pic)
+//                            }, onCancel = {
+//                                chatViewModel.shotScreen(false)
+//                            })
+//                        } else {
+//                        }
+                            PlatformAppStart()
                     }
                 }
             }

@@ -105,6 +105,7 @@ fun TextInput(
 @Composable
 fun InputTopIn(state: LazyListState, navigator: Navigator) {
     val subScope = rememberCoroutineScope()
+    val chatViewModel= koinViewModel(ChatViewModel::class)
     val conversationViewModel = koinViewModel(ConversationViewModel::class)
     val needPermissionCamera = remember { mutableStateOf(false) }
     val needPermissionGallery = remember { mutableStateOf(false) }
@@ -115,7 +116,8 @@ fun InputTopIn(state: LazyListState, navigator: Navigator) {
     if (checkSystem() == OsStatus.ANDROID || checkSystem() == OsStatus.IOS) {
         list.add(MenuActModel("拍摄"))
     } else {
-        list.add(MenuActModel("翻译"))
+//        list.add(MenuActModel("翻译"))
+        list.add(MenuActModel("截图"))
     }
 
     LaunchedEffect(cameraPath.value) {
@@ -155,7 +157,7 @@ fun InputTopIn(state: LazyListState, navigator: Navigator) {
     LazyRow(state = state, modifier = Modifier.animateContentSize()) {
         items(list.size) { index ->
             Button(
-                modifier = Modifier.padding(start = 10.dp, bottom = 4.dp).size(75.dp, 34.dp),
+                modifier = Modifier.padding(start = 10.dp, bottom = 4.dp).size(75.dp, 35.dp),
                 onClick = {
                     when (list[index].title) {
                         "相册" -> {
@@ -168,6 +170,9 @@ fun InputTopIn(state: LazyListState, navigator: Navigator) {
 
                         "翻译" -> {
 
+                        }
+                        "截图"->{
+                            chatViewModel.shotScreen(true)
                         }
                     }
                 }, colors = ButtonDefaults.buttonColors(containerColor = PrimaryColor)

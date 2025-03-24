@@ -98,6 +98,8 @@ fun ChatScreen(navigator: Navigator) {
     //更新数据?
 //    }
 
+
+
 //    printD("dark1>${darkTheme.value}")
     ThemeChatLite(isDark = darkTheme.value) {
         Surface(color = MaterialTheme.colorScheme.background) {
