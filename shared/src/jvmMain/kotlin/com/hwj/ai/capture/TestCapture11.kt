@@ -1,11 +1,13 @@
 package com.hwj.ai.capture
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
@@ -13,6 +15,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -20,18 +23,27 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.awt.ComposeWindow
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.coerceAtMost
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowPosition
 import androidx.compose.ui.window.WindowSize
 import androidx.compose.ui.window.rememberWindowState
 import com.hwj.ai.global.NotificationsManager
+import com.hwj.ai.global.dpToPx
 import com.hwj.ai.global.getThisWeek
 import com.hwj.ai.global.printD
 import kotlinx.coroutines.launch
@@ -40,6 +52,7 @@ import java.awt.Rectangle
 import java.awt.Robot
 import java.awt.Toolkit
 import java.awt.Window
+import java.awt.event.KeyEvent
 import java.awt.image.BufferedImage
 import java.io.File
 import javax.imageio.ImageIO
@@ -68,10 +81,10 @@ fun ScreenshotOverlay11(
     val screenSize = Toolkit.getDefaultToolkit().screenSize
     val windowState = rememberWindowState(
         position = WindowPosition(0.dp, 0.dp),
-//        size = WindowSize(screenSize.width.dp, screenSize.height.dp)
         size = DpSize(screenSize.width.dp, screenSize.height.dp)
     )
     val subScope = rememberCoroutineScope()
+    val focusReq = remember { FocusRequester() }
 
     LaunchedEffect(Unit) {
         mainWindow.isVisible = false
@@ -86,10 +99,27 @@ fun ScreenshotOverlay11(
         transparent = true,
         undecorated = true,
         alwaysOnTop = true,
+        focusable = true,
         resizable = false
     ) {
+        LaunchedEffect(Unit) {
+            window.requestFocus() //触发快捷键
+            focusReq.requestFocus()
+        }
         Box(modifier = Modifier
             .fillMaxSize()
+            .focusRequester(focusReq)
+            .focusable()
+            .onPreviewKeyEvent { keyEvent ->
+//                printD("keyEvent>${keyEvent.key} ${Key.Escape}")
+                if (keyEvent.key == Key.Escape) { //快捷键取消
+                    onCancel()
+                    mainWindow.isVisible = true
+                    true
+                } else {
+                    false
+                }
+            }
             .pointerInput(Unit) {
                 detectDragGestures(
                     onDragStart = { offset ->
@@ -101,11 +131,8 @@ fun ScreenshotOverlay11(
                         state.endOffset = change.position
                     },
                     onDragEnd = {
-                        state.isSelecting = true
-//                        captureSelectedArea(state.selectionRect, onCapture)
                         capturedRect = state.selectionRect.normalize()
                         showActBtn = true
-                        onCancel()
                     }
                 )
             }
@@ -119,7 +146,7 @@ fun ScreenshotOverlay11(
                     val rect = state.selectionRect.normalize()
                     // 半透明填充
                     drawRect(
-                        color = Color.White.copy(alpha = 0.1f),
+                        color = Color.White.copy(alpha = 0.2f),
                         topLeft = rect.topLeft,
                         size = rect.size
                     )
@@ -133,42 +160,62 @@ fun ScreenshotOverlay11(
                 }
             }
 
-            if (showActBtn) {
-                Row(modifier = Modifier.align(Alignment.BottomCenter).padding(23.dp)) {
-                    Button(onClick = {
-                        showActBtn = false
-                        mainWindow.isVisible = true
-                        onCancel() //关闭
+            //在截图框下放按钮
+            if (showActBtn && capturedRect != null) {
+                val isFullCapture =
+                    capturedRect!!.width > screenSize.width * 0.8f && capturedRect!!.height > screenSize.height * 0.8f
+                val myModifier: Modifier
+                if (isFullCapture) {
+                    myModifier = Modifier.align(Alignment.TopEnd).padding(23.dp)
+                } else {
+                    val offx = with(LocalDensity.current) { capturedRect!!.right.toDp() - 186.dp }
+                    val offy = with(LocalDensity.current) { capturedRect!!.bottom.toDp() + 0.dp }
 
-                    }) {
-                        Text("取消")
-                    }
-                    Spacer(modifier = Modifier.width(10.dp))
-                    Button(onClick = {
-                        capturedRect?.let { rect ->
-                            subScope.launch {
-                                captureSelectedArea(rect) { pic ->
-                                    val thumbnail =
-                                        BufferedImage(200, 200, BufferedImage.TYPE_INT_ARGB).apply {
-                                            createGraphics().drawImage(
-                                                pic.getScaledInstance(
-                                                    200,
-                                                    200,
-                                                    java.awt.Image.SCALE_SMOOTH
-                                                ),
-                                                0, 0, null
-                                            )
-                                        }
-                                    onCapture(thumbnail) //传缩略图
+                    myModifier = Modifier.offset(x=offx, y=offy)
+                }
+                Box(modifier = myModifier) {
+                    Row(modifier = Modifier.align(Alignment.BottomCenter).padding(23.dp)) {
+                        Button(onClick = {
+                            showActBtn = false
+                            mainWindow.isVisible = true
+                            state.isSelecting = false //有必要吗
+                            capturedRect = null //点击取消没有退出
+                            onCancel() //关闭
+
+                        }) {
+                            Text("取消")
+                        }
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Button(onClick = {
+                            capturedRect?.let { rect ->
+                                subScope.launch {
+                                    captureSelectedArea(rect) { pic ->
+//                                        val thumbnail =
+//                                            BufferedImage(
+//                                                200,
+//                                                200,
+//                                                BufferedImage.TYPE_INT_ARGB
+//                                            ).apply {
+//                                                createGraphics().drawImage(
+//                                                    pic.getScaledInstance(
+//                                                        200,
+//                                                        200,
+//                                                        java.awt.Image.SCALE_SMOOTH
+//                                                    ),
+//                                                    0, 0, null
+//                                                )
+//                                            }
+//                                        onCapture(thumbnail) //传缩略图
+                                        onCapture(pic)
+                                    }
                                 }
                             }
-
+                            showActBtn = false
+                            mainWindow.isVisible = true
+                            onCancel()
+                        }) {
+                            Text("确定")
                         }
-                        showActBtn = false
-                        mainWindow.isVisible = true
-                        onCancel()
-                    }) {
-                        Text("确定")
                     }
                 }
             }
@@ -179,7 +226,7 @@ fun ScreenshotOverlay11(
 private fun captureSelectedArea(rect: Rect, onSuccess: (BufferedImage) -> Unit) {
     val normalizedRect = rect.normalize()
 
-    val screenDevices = java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment().screenDevices
+    val screenDevices = GraphicsEnvironment.getLocalGraphicsEnvironment().screenDevices
     var targetDevice: java.awt.GraphicsDevice? = null
 
 //    // 找到选区落在哪块屏幕上
