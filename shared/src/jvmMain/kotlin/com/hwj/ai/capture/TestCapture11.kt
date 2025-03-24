@@ -3,6 +3,7 @@ package com.hwj.ai.capture
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -33,6 +34,9 @@ import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
+import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.ui.input.pointer.isSecondaryPressed
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.DpSize
@@ -46,7 +50,9 @@ import com.hwj.ai.global.NotificationsManager
 import com.hwj.ai.global.dpToPx
 import com.hwj.ai.global.getThisWeek
 import com.hwj.ai.global.printD
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.awt.GraphicsEnvironment
 import java.awt.Rectangle
 import java.awt.Robot
@@ -110,6 +116,18 @@ fun ScreenshotOverlay11(
             .fillMaxSize()
             .focusRequester(focusReq)
             .focusable()
+            .pointerInput(Unit){ //识别鼠标右键取消
+                awaitPointerEventScope {
+                    while (true){
+                        val event = awaitPointerEvent()
+                        val pressed =  event.buttons.isSecondaryPressed
+                        if (event.type==PointerEventType.Press&&pressed){
+                            onCancel()
+                            mainWindow.isVisible=true
+                        }
+                    }
+                }
+            }
             .onPreviewKeyEvent { keyEvent ->
 //                printD("keyEvent>${keyEvent.key} ${Key.Escape}")
                 if (keyEvent.key == Key.Escape) { //快捷键取消
@@ -171,7 +189,7 @@ fun ScreenshotOverlay11(
                     val offx = with(LocalDensity.current) { capturedRect!!.right.toDp() - 186.dp }
                     val offy = with(LocalDensity.current) { capturedRect!!.bottom.toDp() + 0.dp }
 
-                    myModifier = Modifier.offset(x=offx, y=offy)
+                    myModifier = Modifier.offset(x = offx, y = offy)
                 }
                 Box(modifier = myModifier) {
                     Row(modifier = Modifier.align(Alignment.BottomCenter).padding(23.dp)) {
@@ -187,10 +205,10 @@ fun ScreenshotOverlay11(
                         }
                         Spacer(modifier = Modifier.width(10.dp))
                         Button(onClick = {
-                            capturedRect?.let { rect ->
+                            if (null != capturedRect) {
                                 subScope.launch {
-                                    captureSelectedArea(rect) { pic ->
-//                                        val thumbnail =
+                                    captureSelectedArea(capturedRect!!) { pic ->
+                                        //                                        val thumbnail =
 //                                            BufferedImage(
 //                                                200,
 //                                                200,
@@ -208,11 +226,17 @@ fun ScreenshotOverlay11(
 //                                        onCapture(thumbnail) //传缩略图
                                         onCapture(pic)
                                     }
+                                    withContext(Dispatchers.Main) {
+                                        showActBtn = false
+                                        mainWindow.isVisible = true
+                                        onCancel()
+                                    }
                                 }
+                            } else {
+                                showActBtn = false
+                                mainWindow.isVisible = true
+                                onCancel()
                             }
-                            showActBtn = false
-                            mainWindow.isVisible = true
-                            onCancel()
                         }) {
                             Text("确定")
                         }
@@ -223,7 +247,7 @@ fun ScreenshotOverlay11(
     }
 }
 
-private fun captureSelectedArea(rect: Rect, onSuccess: (BufferedImage) -> Unit) {
+private suspend fun captureSelectedArea(rect: Rect, onSuccess: (BufferedImage) -> Unit) {
     val normalizedRect = rect.normalize()
 
     val screenDevices = GraphicsEnvironment.getLocalGraphicsEnvironment().screenDevices
@@ -297,7 +321,7 @@ fun saveToFile11(image: BufferedImage): Boolean {
     val file = File(cacheDir, "screenshot_${System.currentTimeMillis()}.png")
 
     ImageIO.write(image, "PNG", file)
-    println("截图已保存到：${file.absolutePath}")
+    printD("截图已保存到：${file.absolutePath}")
     return ImageIO.write(image, "PNG", file)
 }
 
