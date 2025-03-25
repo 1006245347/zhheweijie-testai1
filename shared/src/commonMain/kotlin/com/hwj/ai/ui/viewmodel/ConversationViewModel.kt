@@ -300,7 +300,7 @@ class ConversationViewModel(
                     try {
                         chunk.choices.first().delta?.content?.let {
                             answerFromGPT += it
-                            printD(it)
+//                            printD(it)
                             updateLocalAnswer(answerFromGPT.trim())
 //                        setFabExpanded(true)
                         }

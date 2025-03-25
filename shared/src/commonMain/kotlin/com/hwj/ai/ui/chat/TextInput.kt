@@ -136,6 +136,7 @@ fun InputTopIn(state: LazyListState, navigator: Navigator) {
                         conversationViewModel.addCameraImage(PlatformFile(it))
                     }
                 }
+                needPermissionCamera.value=false
             }
         }, deniedAction = {
             needPermissionCamera.value = false
@@ -152,7 +153,7 @@ fun InputTopIn(state: LazyListState, navigator: Navigator) {
         })
     }
 
-    LazyRow(state = state, modifier = Modifier.animateContentSize()) {
+    LazyRow(state = state, modifier = Modifier.animateContentSize().background(Color.Transparent)) {
         items(list.size) { index ->
             Button(
                 modifier = Modifier.padding(start = 10.dp, bottom = 4.dp).size(75.dp, 35.dp),
@@ -376,9 +377,9 @@ fun ImageSelectIn() {
             item {
                 ToolTipCase(tip = "不再引用图片", content = {
                     IconButton(onClick = {
-//                        conversationViewModel.deleteImage(0, true)
-//                        conversationViewModel.setImageUseStatus(true)
-                        printList(messageList.values.toList()) //整个会话永远是1
+                        conversationViewModel.deleteImage(0, true)
+                        conversationViewModel.setImageUseStatus(true)
+//                        printList(messageList.values.toList()) //整个会话永远是1
                     }, modifier = Modifier.padding(start = 5.dp)) {
                         Icon(
                             imageVector = Icons.Default.Close,

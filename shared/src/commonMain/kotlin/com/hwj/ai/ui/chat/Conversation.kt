@@ -17,6 +17,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.material3.TooltipBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -30,6 +31,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.hwj.ai.except.ToolTipCase
+import com.hwj.ai.global.PrimaryColor
 import com.hwj.ai.global.conversationTestTag
 import com.hwj.ai.global.printD
 import com.hwj.ai.models.MessageModel
@@ -73,9 +75,11 @@ fun MessageList(
         if (messagesMap[conversationId] == null) listOf() else messagesMap[conversationId]!!
     val isListBottom by remember {
         derivedStateOf {
-            val lastVisibleItemIndex =
-                listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
-            lastVisibleItemIndex < messages.lastIndex
+            // 检查是否滚动到最后一项
+            val visibleItemIndex = listState.firstVisibleItemIndex
+            val visibleItemScrollOffset = listState.firstVisibleItemScrollOffset
+            // 如果 reverseLayout = true，则 firstVisibleItemIndex 为 0 表示滚动到了最后一项
+            visibleItemIndex != 0 || visibleItemScrollOffset > 0
         }
     }
     Box(modifier = modifier) {
@@ -85,7 +89,7 @@ fun MessageList(
             modifier = Modifier
                 .testTag(conversationTestTag)
                 .fillMaxSize(),
-            reverseLayout = true,
+            reverseLayout = true, //反序的！！
             state = listState,
         ) {
             items(messages.size) { index ->
@@ -106,49 +110,21 @@ fun MessageList(
             }
         }
 
-        printD("isBottom>$isListBottom")
-        if (isListBottom && messages.size > 3) {
+        if (messages.size > 1 && isListBottom) {
             ToolTipCase(tip = "置底", content = {
                 IconButton(onClick = {
                     subScope.launch {
-                        listState.animateScrollToItem(messages.size - 1)
+                        listState.animateScrollToItem(0)
                     }
                 }, modifier = Modifier.align(Alignment.BottomCenter)) {
                     Icon(
                         imageVector = Icons.Default.ArrowDropDownCircle,
                         contentDescription = "置底",
-                        tint = Color.Blue,
+                        tint = PrimaryColor,
                         modifier = Modifier.size(30.dp)
                     )
                 }
             })
         }
-
-//        //中断按钮
-//        ExtendedFloatingActionButton(
-//            text = {
-//                Text(text = "Stop Generating", color = Color.White)
-//            },
-//            icon = {
-//                Icon(
-//                    imageVector = Icons.Default.Stop,
-//                    contentDescription = "Stop Generating",
-//                    tint = Color.White,
-//                    modifier = Modifier
-//                        .size(25.dp)
-//                )
-//            },
-//            onClick = {
-//                conversationViewModel.stopReceivingResults()
-//            },
-//            shape = RoundedCornerShape(16.dp),
-//            modifier = Modifier
-//                .align(Alignment.BottomEnd)
-//                .padding(bottom = 8.dp)
-//                .size(50.dp)
-//                .animateContentSize(),
-//            expanded = isFabExpanded,
-//            containerColor = MaterialTheme.colorScheme.primary
-//        )
     }
 }
