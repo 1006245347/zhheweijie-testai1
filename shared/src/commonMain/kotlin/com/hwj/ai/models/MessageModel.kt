@@ -2,6 +2,7 @@ package com.hwj.ai.models
 
 import com.hwj.ai.global.getMills
 import com.hwj.ai.global.getNowTime
+import com.hwj.ai.global.printList
 import io.github.vinceglb.filekit.PlatformFile
 import kotlinx.datetime.LocalDateTime
 
@@ -47,5 +48,11 @@ data class MessageModel(
             this.id, this.conversationId,
             this.question, this.answer,this.imagePath, this.createdAt
         )
+    }
+
+    override fun toString(): String {
+//        return super.toString()
+        return "MessageModel>"+"id=$id,+conversationId=$conversationId,question=$question"+
+        ",answer=$answer,imgPath=${imagePath}"
     }
 }

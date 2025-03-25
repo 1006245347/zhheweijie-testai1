@@ -40,6 +40,7 @@ import androidx.compose.ui.Alignment.Companion.CenterStart
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
@@ -326,10 +327,10 @@ private fun RecycleChatItem(
     }
     Row(
         modifier = Modifier
-            .height(56.dp)
+            .height(50.dp)
             .fillMaxWidth()
-            .padding(horizontal = 30.dp)
-            .clip(CircleShape)
+            .padding(horizontal = 18.dp)
+            .clip(RoundedCornerShape(30))
             .then(background)
             .clickable(onClick = onChatClicked),
         verticalAlignment = CenterVertically
@@ -353,7 +354,7 @@ private fun RecycleChatItem(
             text,
             style = MaterialTheme.typography.bodyMedium,
             color = if (selected) {
-                MaterialTheme.colorScheme.primary
+                if (isDark) isDarkTxt() else isLightTxt()
             } else {
                 MaterialTheme.colorScheme.onSurface
             },
@@ -363,7 +364,7 @@ private fun RecycleChatItem(
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )
-        Spacer(Modifier.weight(0.9f, true))
+//        Spacer(Modifier.weight(0.9f, true).backgroundy(Color.Yellow))
         Icon(
             imageVector = Icons.Outlined.Delete,
             contentDescription = "Delete",
@@ -373,8 +374,8 @@ private fun RecycleChatItem(
                 MaterialTheme.colorScheme.onSurface
             },
             modifier = Modifier.padding(
-                end = 12.dp
-            ).clickable { onDeleteClicked() }
+                end = 5.dp
+            ).size(35.dp).clickable { onDeleteClicked() }
         )
     }
 }

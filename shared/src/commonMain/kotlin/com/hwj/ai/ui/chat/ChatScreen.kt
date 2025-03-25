@@ -55,17 +55,12 @@ import moe.tlaster.precompose.navigation.Navigator
 fun ChatScreen(navigator: Navigator) {
 
     val chatViewModel = koinViewModel(ChatViewModel::class)
-    val isShotState = chatViewModel.isShotState.collectAsState().value
     val conversationViewModel = koinViewModel(ConversationViewModel::class)
     val configState by chatViewModel.configState.collectAsState()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val drawerOpen by chatViewModel.drawerShouldBeOpened.collectAsState()
     val curConversationId by conversationViewModel.currentConversationState.collectAsState()
 
-//    if (isShotState){
-//        ScreenShotPlatform()
-//        return
-//    }
     if (drawerOpen) {
         LaunchedEffect(Unit) {
             try {

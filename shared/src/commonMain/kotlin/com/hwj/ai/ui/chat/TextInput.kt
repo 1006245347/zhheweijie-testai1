@@ -67,6 +67,7 @@ import com.hwj.ai.global.cGrey666666
 import com.hwj.ai.global.isLightTxt
 import com.hwj.ai.global.onlyDesktop
 import com.hwj.ai.global.printD
+import com.hwj.ai.global.printList
 import com.hwj.ai.models.MenuActModel
 import com.hwj.ai.ui.global.KeyEventEnter
 import com.hwj.ai.ui.viewmodel.ChatViewModel
@@ -144,6 +145,7 @@ fun InputTopIn(state: LazyListState, navigator: Navigator) {
         createPermission(PermissionPlatform.GALLERY, grantedAction = {
             subScope.launch {
                 conversationViewModel.selectImage()
+                needPermissionGallery.value=false //用户打开后却文件管理器点击取消，没法重置
             }
         }, deniedAction = {
             needPermissionGallery.value = false
@@ -340,6 +342,7 @@ fun ImageSelectIn() {
     val conversationViewModel = koinViewModel(ConversationViewModel::class)
     val imagePathList by conversationViewModel.imageListState.collectAsState() //选中的图片
     val isStopUseImageState by conversationViewModel.isStopUseImageState.collectAsState()
+    val messageList by conversationViewModel.messagesState.collectAsState()
     //必须是最后一轮对话，且是图片解析，解析图片完清除所有？
     LazyRow(
         state = rememberLazyListState(), modifier = Modifier.padding(start = 10.dp, top = 4.dp)
@@ -372,8 +375,9 @@ fun ImageSelectIn() {
             item {
                 ToolTipCase(tip = "不再引用图片", content = {
                     IconButton(onClick = {
-                        conversationViewModel.deleteImage(0, true)
-                        conversationViewModel.setImageUseStatus(true)
+//                        conversationViewModel.deleteImage(0, true)
+//                        conversationViewModel.setImageUseStatus(true)
+                        printList(messageList.values.toList()) //整个会话永远是1
                     }, modifier = Modifier.padding(start = 5.dp)) {
                         Icon(
                             imageVector = Icons.Default.Close,

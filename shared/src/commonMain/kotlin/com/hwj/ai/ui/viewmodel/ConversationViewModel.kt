@@ -6,7 +6,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.lifecycle.ViewModelStore
 import com.aallam.openai.api.chat.ChatMessage
 import com.aallam.openai.api.chat.ChatRole
 import com.aallam.openai.api.chat.chatMessage
@@ -32,7 +31,6 @@ import com.hwj.ai.global.printD
 import com.hwj.ai.global.printE
 import com.hwj.ai.global.printList
 import com.hwj.ai.global.thinking
-import com.hwj.ai.global.workInSub
 import com.hwj.ai.models.ConversationModel
 import com.hwj.ai.models.MessageModel
 import com.hwj.ai.models.TextCompletionsParam
@@ -45,8 +43,6 @@ import io.github.vinceglb.filekit.dialogs.openFilePicker
 import io.github.vinceglb.filekit.size
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
-import kotlinx.coroutines.async
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -55,7 +51,6 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import moe.tlaster.precompose.viewmodel.ViewModel
 import moe.tlaster.precompose.viewmodel.viewModelScope
 
@@ -190,12 +185,11 @@ class ConversationViewModel(
     fun updateTextMsg(newMessageModel: MessageModel) {
         //openAi sdk
         curJob = viewModelScope.launch(Dispatchers.Default) {
-            val flowControl = openRepo.receiveAIMessage( //调用大模型接口
-                TextCompletionsParam(
-                    promptText = getPrompt(_currentConversation.value),
-                    messagesTurbo = getMessagesParamsTurbo(_currentConversation.value)
-                )
-            )
+            val params = TextCompletionsParam(
+                promptText = getPrompt(_currentConversation.value),
+                messagesTurbo = getMessagesParamsTurbo(_currentConversation.value)
+            )//调用大模型接口
+            val flowControl = openRepo.receiveAIMessage(params)
 
             var answerFromGPT = ""
             try {
@@ -238,7 +232,7 @@ class ConversationViewModel(
         val newMessageModel = MessageModel(
             question = if (input.isNullOrEmpty()) "" else input,
             answer = thinking, conversationId = _currentConversation.value,
-            imagePath = imagePaths
+            imagePath = imagePaths.map { it } //复制一份
         )
 
         val currentListMessage: MutableList<MessageModel> =
@@ -268,16 +262,21 @@ class ConversationViewModel(
         }
     }
 
+    suspend fun sendFileMsg(){
+//        openRepo.AnalyzeImage()
+    }
+
     private suspend fun updateImageMsg(newMessageModel: MessageModel) {
 //        printD("updateImageMsg1>")
 //        curJob = viewModelScope.launch() {   //加线程切换，无法执行？
 //        printD("updateImageMsg2>")
-        val flowControl = openRepo.AnalyzeImage(
-            TextCompletionsParam(
-                promptText = getPrompt(_currentConversation.value),
-                messagesTurbo = getMessagesParamsTurbo(_currentConversation.value)
-            )
+        if (onlyDesktop())
+            setImageUseStatus(false) //重置
+        val params = TextCompletionsParam( //这里要抽出来顺序执行，openRepo内部又异步，当数据大导致参数属性竟然被扣了。。
+            promptText = getPrompt(_currentConversation.value),
+            messagesTurbo = getMessagesParamsTurbo(_currentConversation.value)
         )
+        val flowControl = openRepo.AnalyzeImage(params)
 
         var answerFromGPT = ""
 
@@ -340,6 +339,7 @@ class ConversationViewModel(
         val conversationId: String = getNowTime().time.toString()
 
         _currentConversation.value = conversationId
+        _imageListObs.clear()
     }
 
     private fun getMessagesByConversation(conversationId: String): MutableList<MessageModel> {
@@ -380,10 +380,11 @@ class ConversationViewModel(
                 content = "Markdown style if exists code"
             }
         )
+        val testPic = "https://qcloudimg.tencent-cloud.cn/raw/42c198dbc0b57ae490e57f89aa01ec23.png"
 
         for (index in messagesMap[conversationId]!!.reversed().indices) { //拆解两条，按时间排序
             val message = messagesMap[conversationId]!!.reversed()[index]
-            val partsReq = mutableListOf<String>()
+            val partsReq = mutableListOf<String>() //所有的图片
 
 //            printList(message.imagePath,des="moreList")
             if (!_isStopUseImageObs.value) { //一直引用图
@@ -395,7 +396,8 @@ class ConversationViewModel(
                                     encodeImageToBase64(FileKit.compressImage(pic, quality = 70))
                                 partsReq.add(newPic)
                             } else {
-                                partsReq.add(encodeImageToBase64(pic))
+//                                partsReq.add(encodeImageToBase64(pic))
+                                partsReq.add(testPic) //测试
                             }
                         }
 
@@ -404,7 +406,6 @@ class ConversationViewModel(
                     printE(e)
                     toast(e.message.toString(), "toast")
                 }
-
             } else {
                 if (index == messagesMap[conversationId]!!.size - 1) { //必须是当轮问答图片才传
                     try {
@@ -420,7 +421,8 @@ class ConversationViewModel(
                                         )
                                     partsReq.add(newPic)
                                 } else {
-                                    partsReq.add(encodeImageToBase64(pic))
+//                                    partsReq.add(encodeImageToBase64(pic))
+                                    partsReq.add(testPic)
                                 }
                             }
                         }
@@ -462,6 +464,7 @@ class ConversationViewModel(
             }
         }
         return response.toList()
+//            .also { printList(it) }
     }
 
     suspend fun deleteConversation(conversationId: String) {
@@ -576,18 +579,6 @@ class ConversationViewModel(
 
     suspend fun checkUsefulStatus() {
 
-    }
-
-    private suspend fun coverBase64Data(imagePaths: List<PlatformFile>?): MutableList<String> {
-        val list = mutableListOf<String>()
-        imagePaths?.let {
-            it.forEach { p ->
-                list.add(encodeImageToBase64(p))
-                //测试图片
-//                list.add("https://qcloudimg.tencent-cloud.cn/raw/42c198dbc0b57ae490e57f89aa01ec23.png")
-            }
-        }
-        return list
     }
 
     fun toast(title: String, des: String) {

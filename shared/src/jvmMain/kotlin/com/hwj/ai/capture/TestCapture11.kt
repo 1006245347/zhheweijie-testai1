@@ -153,6 +153,7 @@ fun ScreenshotOverlay11(
                     },
                     onDragEnd = {
                         capturedRect = state.selectionRect.normalize()
+                        //如果只是点了两下，宽高都很少，不足以被认定为截图！
                         showActBtn = true
                     }
                 )

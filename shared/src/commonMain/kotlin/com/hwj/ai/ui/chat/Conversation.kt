@@ -31,6 +31,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.hwj.ai.except.ToolTipCase
 import com.hwj.ai.global.conversationTestTag
+import com.hwj.ai.global.printD
 import com.hwj.ai.models.MessageModel
 import com.hwj.ai.ui.viewmodel.ConversationViewModel
 import kotlinx.coroutines.launch
@@ -105,6 +106,7 @@ fun MessageList(
             }
         }
 
+        printD("isBottom>$isListBottom")
         if (isListBottom && messages.size > 3) {
             ToolTipCase(tip = "置底", content = {
                 IconButton(onClick = {

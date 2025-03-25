@@ -105,6 +105,10 @@ class LLMChatRepository {//private val openAI: OpenAI,单例的话无法变更�
 
     }
 
+//    suspend fun AnalyzeFile(){
+//        OpenAI().file()
+//    }
+
     private fun setAIConfig(
         token: String = LLM_API_KEY,
         hostUrl: String = baseHostUrl,

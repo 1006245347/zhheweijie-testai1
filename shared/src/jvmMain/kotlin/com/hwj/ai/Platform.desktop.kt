@@ -1,11 +1,21 @@
 package com.hwj.ai
 
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateIntAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
@@ -24,6 +34,7 @@ import com.hwj.ai.global.BackCodeTxtColor
 import com.hwj.ai.global.DarkColorScheme
 import com.hwj.ai.global.LightColorScheme
 import com.hwj.ai.global.OsStatus
+import com.hwj.ai.global.thinking
 import com.hwj.ai.models.MessageModel
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.HttpTimeout
@@ -31,6 +42,8 @@ import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.serialization.kotlinx.json.json
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 
 class DesktopPlatform : Platform {
@@ -98,6 +111,34 @@ actual fun BotMessageCard(message: MessageModel) {
 private fun TestBotMsgCard1(message: MessageModel) {
 //    val chatViewModel = koinViewModel(ChatViewModel::class)
 //    val isDark = chatViewModel.darkState.collectAsState().value
+//    var pointCount by remember { mutableStateOf(1) }
+//    val subScope = rememberCoroutineScope()
+//
+//    val animatedPointCount by animateIntAsState(
+//        targetValue = if (message.answer == thinking) pointCount else 1,
+//        animationSpec = infiniteRepeatable(
+//            animation = tween(durationMillis = 1000),
+//            repeatMode = RepeatMode.Restart
+//        )
+//    )
+//
+//    LaunchedEffect(key1 = message.answer) {
+//        if (message.answer == thinking) {
+//            while (thinking == message.answer) {
+//                subScope.launch {
+//                    delay(1000) // 每隔1秒更新一次点数
+//                    pointCount = when (pointCount) {
+//                        1 -> 2
+//                        2 -> 3
+//                        else -> 1
+//                    }
+//                }
+//            }
+//        } else {
+//            pointCount = 1 // 确保在非思考状态下点数为1
+//        }
+//    }
+
     val richTextStyle = RichTextStyle(
         codeBlockStyle = CodeBlockStyle(
             textStyle = TextStyle(
@@ -166,7 +207,12 @@ private fun TestBotMsgCard1(message: MessageModel) {
             ).background(MaterialTheme.colorScheme.onPrimary),
             style = richTextStyle,
         ) {
-            Markdown(message.answer.trimIndent())
+//            if (thinking == message.answer) {
+//                val dots=".".repeat(animatedPointCount)
+//                Markdown("思考中$dots")
+//            } else {
+//            }
+                Markdown(message.answer.trimIndent())
         }
     }
 
