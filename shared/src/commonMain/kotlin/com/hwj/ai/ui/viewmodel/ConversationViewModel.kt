@@ -396,8 +396,8 @@ class ConversationViewModel(
                                     encodeImageToBase64(FileKit.compressImage(pic, quality = 70))
                                 partsReq.add(newPic)
                             } else {
-//                                partsReq.add(encodeImageToBase64(pic))
-                                partsReq.add(testPic) //测试
+                                partsReq.add(encodeImageToBase64(pic))
+//                                partsReq.add(testPic) //测试
                             }
                         }
 
@@ -421,8 +421,8 @@ class ConversationViewModel(
                                         )
                                     partsReq.add(newPic)
                                 } else {
-//                                    partsReq.add(encodeImageToBase64(pic))
-                                    partsReq.add(testPic)
+                                    partsReq.add(encodeImageToBase64(pic))
+//                                    partsReq.add(testPic)
                                 }
                             }
                         }

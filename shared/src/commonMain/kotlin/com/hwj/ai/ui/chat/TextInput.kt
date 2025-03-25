@@ -124,7 +124,6 @@ fun InputTopIn(state: LazyListState, navigator: Navigator) {
         list.add(MenuActModel("截图"))
     }
 
-    printD("camera>${needPermissionCamera.value}")
     if (needPermissionCamera.value) { //权限设置
         createPermission(PermissionPlatform.CAMERA, grantedAction = {
             subScope.launch {
