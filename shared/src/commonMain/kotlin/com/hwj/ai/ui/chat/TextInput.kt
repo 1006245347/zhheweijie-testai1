@@ -124,7 +124,8 @@ fun InputTopIn(state: LazyListState, navigator: Navigator) {
         list.add(MenuActModel("截图"))
     }
 
-    if (needPermissionCamera.value) {
+    printD("camera>${needPermissionCamera.value}")
+    if (needPermissionCamera.value) { //权限设置
         createPermission(PermissionPlatform.CAMERA, grantedAction = {
             subScope.launch {
                 if (imageList.size == 2) {
@@ -160,6 +161,7 @@ fun InputTopIn(state: LazyListState, navigator: Navigator) {
                     when (list[index].title) {
                         "相册" -> {
                             needPermissionGallery.value = true
+                            printD("set>${needPermissionGallery.value}")
                         }
 
                         "拍摄" -> {
@@ -253,7 +255,7 @@ fun TextInputIn(
                             color = if (isDark) BackInnerColor1 else isLightTxt()
                         ),
 //                        shape = RoundedCornerShape(25.dp),
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp)
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 5.dp)
                             .background(Color.Transparent)
                             .verticalScroll(rememberScrollState())
                             .imePadding()//适配键盘高度

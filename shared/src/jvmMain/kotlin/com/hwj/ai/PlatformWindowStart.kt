@@ -36,7 +36,7 @@ fun PlatformWindowStart(onCloseRequest: () -> Unit) {
         onCloseRequest, title = "hwj-ai-chat", state = windowState
     ) {
         val window = this.window
-        window.minimumSize = Dimension(600, 450)
+        window.minimumSize = Dimension(650, 450)
         ProvidePreComposeLocals {
             CompositionLocalProvider(LocalMainWindow provides window){
             ThemeChatLite {

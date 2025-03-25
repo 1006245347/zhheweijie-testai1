@@ -266,7 +266,7 @@ private fun ChatItem(
     }
     Row(
         modifier = Modifier
-            .height(56.dp)
+            .height(40.dp)
             .fillMaxWidth()
             .padding(horizontal = 12.dp)
             .clip(CircleShape)
