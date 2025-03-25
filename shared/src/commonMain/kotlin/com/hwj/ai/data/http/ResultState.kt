@@ -1,5 +1,8 @@
 package com.hwj.ai.data.http
 
+import com.aallam.openai.api.chat.ChatCompletionChunk
+import kotlinx.coroutines.flow.Flow
+
 sealed class ResultState<out T> {
     data class Success<out T : Any?>(val data: T) : ResultState<T>()
     data class Failure(val exception: Exception) : ResultState<Nothing>()

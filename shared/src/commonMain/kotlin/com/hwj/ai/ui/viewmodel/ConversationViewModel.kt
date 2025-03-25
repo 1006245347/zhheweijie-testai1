@@ -6,10 +6,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
+import com.aallam.openai.api.chat.ChatCompletionChunk
 import com.aallam.openai.api.chat.ChatMessage
 import com.aallam.openai.api.chat.ChatRole
 import com.aallam.openai.api.chat.chatMessage
 import com.hwj.ai.checkSystem
+import com.hwj.ai.data.http.handleAIException
+import com.hwj.ai.data.http.toast
 import com.hwj.ai.data.repository.ConversationRepository
 import com.hwj.ai.data.repository.LLMChatRepository
 import com.hwj.ai.data.repository.LLMRepository
@@ -43,10 +46,12 @@ import io.github.vinceglb.filekit.dialogs.openFilePicker
 import io.github.vinceglb.filekit.size
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onStart
@@ -182,40 +187,55 @@ class ConversationViewModel(
         updateTextMsg(newMessageModel)
     }
 
-    fun updateTextMsg(newMessageModel: MessageModel) {
+    private fun updateTextMsg(newMessageModel: MessageModel) {
         //openAi sdk
         curJob = viewModelScope.launch(Dispatchers.Default) {
             val params = TextCompletionsParam(
                 promptText = getPrompt(_currentConversation.value),
                 messagesTurbo = getMessagesParamsTurbo(_currentConversation.value)
             )//调用大模型接口
-            val flowControl = openRepo.receiveAIMessage(params)
+
+            var flowControl: Flow<ChatCompletionChunk>? = null
+            try {
+                flowControl = openRepo.receiveAIMessage(params)
+            } catch (e: Exception) {
+                printD("my err?")
+                e.printStackTrace()
+            }
 
             var answerFromGPT = ""
             try {
-                flowControl?.onStart { setFabExpanded(true) }
-                    ?.onCompletion {
+                flowControl?.onStart {
+                    setFabExpanded(true)
+                }?.onCompletion {
+                    setFabExpanded(false)
+                }?.catch { e: Throwable ->
+                    handleAIException(toastManager, e) { //异常处理
                         setFabExpanded(false)
-                    }?.collect { chunk -> //被强制类型
-                        if (_stopReceivingObs.value) {
-                            setFabExpanded(false)
-                            curJob?.cancel()
-                            curJob = null
-                            return@collect
-                        }
-                        try {
-                            chunk.choices.first().delta?.content?.let {
-                                answerFromGPT += it
-//                                printD(it) //打印
-                                updateLocalAnswer(answerFromGPT.trim())
-//                            setFabExpanded(true) //有数据才显示终止
-                            }
-                        } catch (e: Exception) {
-//                    printE(e)
+                        if (answerFromGPT == "") {
+                            updateLocalAnswer("异常导致消息中断")
                         }
                     }
+                }?.collect { chunk -> //被强制类型
+                    if (_stopReceivingObs.value) {
+                        setFabExpanded(false)
+                        curJob?.cancel()
+                        curJob = null
+                        return@collect
+                    }
+                    try {
+                        chunk.choices.first().delta?.content?.let {
+                            answerFromGPT += it
+//                                printD(it) //打印答案
+                            updateLocalAnswer(answerFromGPT.trim())
+//                            setFabExpanded(true) //有数据才显示终止
+                        }
+                    } catch (e: Exception) {
+                        printE(e, "121")
+                    }
+                }
             } catch (e: Exception) {
-//            printE(e) //gpt-4o 返回的数据格式好多异常
+                printE(e, "131") //gpt-4o 返回的数据格式好多异常
             }
             // Save to FireStore
             messageRepo.createMessage(newMessageModel.copy(answer = answerFromGPT))
@@ -262,7 +282,7 @@ class ConversationViewModel(
         }
     }
 
-    suspend fun sendFileMsg(){
+    suspend fun sendFileMsg() {
 //        openRepo.AnalyzeImage()
     }
 
@@ -276,20 +296,23 @@ class ConversationViewModel(
             promptText = getPrompt(_currentConversation.value),
             messagesTurbo = getMessagesParamsTurbo(_currentConversation.value)
         )
-        val flowControl = openRepo.AnalyzeImage(params)
-
         var answerFromGPT = ""
-
+        val flowControl = openRepo.analyzeImage(params)
         try {
-            if (flowControl == null) {
-                printD("flow-null-err>")
-            }
-            flowControl?.onStart { setFabExpanded(true) }
-                ?.onCompletion {
+            flowControl.onStart { setFabExpanded(true) }
+                .onCompletion {
                     setFabExpanded(false)
                     if (_isStopUseImageObs.value) //如果每次都传图参，那就不删
                         deleteImage(0, true)
-                }?.collect { chunk ->
+                }.catch { e ->
+                    handleAIException(toastManager, e) {
+                        setFabExpanded(false)
+                        if (answerFromGPT == "") {
+                            updateLocalAnswer("异常导致消息中断")
+                        }
+                    }
+                }
+                .collect { chunk ->
                     if (_stopReceivingObs.value) {
                         setFabExpanded(false)
                         curJob?.cancel()
@@ -404,7 +427,6 @@ class ConversationViewModel(
                     }
                 } catch (e: Exception) {
                     printE(e)
-                    toast(e.message.toString(), "toast")
                 }
             } else {
                 if (index == messagesMap[conversationId]!!.size - 1) { //必须是当轮问答图片才传
@@ -427,7 +449,7 @@ class ConversationViewModel(
                             }
                         }
                     } catch (e: Exception) {
-                        toast(e.message.toString(), "toast")
+                        printE(e)
                     }
                 }
             }
@@ -581,6 +603,19 @@ class ConversationViewModel(
 
     }
 
+
+    fun setImageUseStatus(flag: Boolean) {
+        _isStopUseImageObs.value = flag
+    }
+
+    fun copyToClipboard(text: String) {
+        try {
+            clipboardHelper.copyToClipboard(text)
+        } catch (e: Exception) {
+            toast(toastManager, "err", e.message.toString())
+        }
+    }
+
     fun toast(title: String, des: String) {
         viewModelScope.launch(Dispatchers.Main) {
             if (checkSystem() == OsStatus.ANDROID) {
@@ -592,19 +627,6 @@ class ConversationViewModel(
             } else {
                 toastManager.showNotification(title, des)
             }
-        }
-    }
-
-
-    fun setImageUseStatus(flag: Boolean) {
-        _isStopUseImageObs.value = flag
-    }
-
-    fun copyToClipboard(text: String) {
-        try {
-            clipboardHelper.copyToClipboard(text)
-        } catch (e: Exception) {
-            toast("err", e.message.toString())
         }
     }
 

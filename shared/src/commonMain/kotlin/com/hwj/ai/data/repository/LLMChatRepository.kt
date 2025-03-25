@@ -32,25 +32,16 @@ class LLMChatRepository {//private val openAI: OpenAI,单例的话无法变更�
 
 
     //流式回复
-    suspend fun receiveAIMessage(params: TextCompletionsParam): Flow<ChatCompletionChunk>? {
+    fun receiveAIMessage(params: TextCompletionsParam): Flow<ChatCompletionChunk> {
         val openAI = OpenAI(setAIConfig())
         val requestArgs = ChatCompletionRequest(
             model = ModelId(GPTModel.gpt35Turbo.model),
             messages = (params.messagesTurbo)
         )
 
-        try {
-            return openAI.chatCompletions(requestArgs)
-        } catch (e: OpenAIHttpException) {
-            e.printStackTrace()
-        } catch (e: OpenAIAPIException) {
-            e.printStackTrace()
-        } catch (e: Exception) {
-            printE(e)
-        }
-
-        return null
+        return openAI.chatCompletions(requestArgs)
     }
+
 
     //一次回复所有结果数据
     suspend fun receiveCompletion(params: TextCompletionsParam): String? {
@@ -68,36 +59,20 @@ class LLMChatRepository {//private val openAI: OpenAI,单例的话无法变更�
     }
 
     //图生文要专用模型才行
-    suspend fun AnalyzeImage(params: TextCompletionsParam): Flow<ChatCompletionChunk>? {
+    suspend fun analyzeImage(params: TextCompletionsParam): Flow<ChatCompletionChunk> {
         val requestArgs = ChatCompletionRequest(
             model = ModelId(GPTModel.hunyuan.model),
             messages = params.messagesTurbo
         )
         val map = mutableMapOf<String, String>()
-//        map["d"] = ""
-        try {
-            val openAI = OpenAI(
-                setAIConfig(
-                    token = "sk-NDI07Dpew9y1J7W0Fpoj1ywjo50p7H0cwKePxl4EEjJiLIlI",
-                    hostUrl = "https://api.hunyuan.cloud.tencent.com/v1/",
-                    headers = map
-                )
+        val openAI = OpenAI(
+            setAIConfig(
+                token = "sk-NDI07Dpew9y1J7W0Fpoj1ywjo50p7H0cwKePxl4EEjJiLIlI",
+                hostUrl = "https://api.hunyuan.cloud.tencent.com/v1/",
+                headers = map
             )
-            return openAI.chatCompletions(requestArgs, requestOptions = RequestOptions())
-        } catch (e: OpenAIAPIException) {
-            e.printStackTrace()
-        } catch (e: OpenAIHttpException) {
-            e.printStackTrace()
-        } catch (e: Exception) {
-            e.message?.let {
-                if (it.contains("HostException")) {
-
-                }
-            }
-
-            printE(e)
-        }
-        return null
+        )
+        return openAI.chatCompletions(requestArgs, requestOptions = RequestOptions())
     }
 
     suspend fun GenerateImage(params: TextCompletionsParam) {
