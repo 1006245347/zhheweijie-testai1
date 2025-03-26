@@ -1,7 +1,5 @@
-import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
-import com.hwj.ai.PlatformWindowStart
-import com.hwj.ai.test.PlatformWindowStartTest
+import com.hwj.ai.test.WindowsSelectionTest
 import di.initKoin
 import io.github.aakira.napier.DebugAntilog
 import io.github.aakira.napier.Napier
@@ -27,28 +25,10 @@ fun main() {
         listOf()
     )
 
-//    return application {
-//        Window(
-//            onCloseRequest = { exitApplication() },
-//            title = "hwj-ai",
-//            state = rememberWindowState(
-//                position = WindowPosition.Aligned(Alignment.Center),
-//                width = 1200.dp,
-//                height = 700.dp,
-//            ),
-//        ) {
-//            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-////                TestPage() //入口界面
-////                PlatformWindowStart()
-//            }
-//        }
-//    }
-
-
-
     return application {
-        PlatformWindowStart { exitApplication() }
-//        PlatformWindowStartTest { exitApplication() } //测试
+//        PlatformWindowStart { exitApplication() }
+//        PlatformWindowStartTest { exitApplication() } //测试截图
+        WindowsSelectionTest { exitApplication() } //测试划词
     }
 }
 
