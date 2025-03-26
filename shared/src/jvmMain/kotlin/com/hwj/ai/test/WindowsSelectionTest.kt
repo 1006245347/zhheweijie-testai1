@@ -69,7 +69,7 @@ fun WindowsSelectionTest(onCloseRequest: () -> Unit) {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         Button(onClick = {
                             if (checkSystem() == OsStatus.WINDOWS) {
-                                isStart.value = true
+                                isStart.value = !isStart.value
                             }
                         }) {
                             Text("windows划词>${selectedText.value}")

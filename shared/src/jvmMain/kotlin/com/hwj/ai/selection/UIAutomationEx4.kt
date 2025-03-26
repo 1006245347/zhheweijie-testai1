@@ -88,7 +88,7 @@ fun captureSelectedTextUnderCursor(): String? {
 
 //    val hwnd = User32.INSTANCE.WindowFromPoint(point)//要自己扩展接口，内部没有暴露
     val hwnd = MyUser32.INSTANCE.WindowFromPoint(point)
-    printD("window>$hwnd")
+    printD("window handle>$hwnd")
 
     // 创建 UIAutomation 实例
     val pAutomation = PointerByReference()
@@ -100,7 +100,10 @@ fun captureSelectedTextUnderCursor(): String? {
         pAutomation
     )
 //    check(COMUtils.SUCCEEDED(hr.toInt())) { "UIAutomation 创建失败" }
-    if (COMUtils.SUCCEEDED(hr.toInt())) return null
+    if (COMUtils.SUCCEEDED(hr.toInt()))  {
+printD("UIAutomation install failed")
+        return null
+    }
 
     val automation = IUIAutomation(pAutomation.value)
 
@@ -128,13 +131,13 @@ fun captureSelectedTextUnderCursor(): String? {
             val textRange = selectionArray.GetElement(0)
             val textRef = PointerByReference()
             textRange.GetText(-1, textRef)
-            printD("选中文本：${textRef.value.getWideString(0)}")
+            printD("selected text：${textRef.value.getWideString(0)}")
             return textRef.value.getWideString(0)
         } else {
-            printD("未检测到选中文本")
+            printD("find not thing")
         }
     } else {
-        printD("当前元素不支持 TextPattern")
+        printD("do not support TextPattern")
     }
 
     return null
