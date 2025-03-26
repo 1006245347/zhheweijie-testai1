@@ -17,3 +17,8 @@ expect fun isMainThread():Boolean
 
 @Composable
 expect fun ScreenShotPlatform(onSave: (String?) -> Unit)
+
+expect  class TextSelectionMonitor{
+    fun startMonitoring(onTextSelected:(appName:String,text:String)->Unit)
+    fun stopMonitoring()
+}

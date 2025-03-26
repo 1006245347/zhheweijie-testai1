@@ -142,9 +142,15 @@ actual fun ToolTipCase(tip: String, content: @Composable () -> Unit) {
     content()
 }
 
-actual fun isMainThread():Boolean{
+actual fun isMainThread(): Boolean {
     return NSThread.isMainThread
 }
 
 @Composable
- actual fun ScreenShotPlatform(onSave: (String?) -> Unit){}
+actual fun ScreenShotPlatform(onSave: (String?) -> Unit) {
+}
+
+actual class TextSelectionMonitor {
+   actual fun startMonitoring(onTextSelected:(appName:String,text:String)->Unit){}
+    actual fun stopMonitoring(){}
+}

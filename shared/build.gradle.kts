@@ -253,8 +253,11 @@ kotlin {
                 exclude(group = "net.java.dev.jna", module = "jna")
             }
 
+            //
+
             // JNA for Windows
             implementation(libs.jna)
+            implementation(libs.jna.platform)
             //加上可以用预览注解
             implementation(compose.desktop.common)
 

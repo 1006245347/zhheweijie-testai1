@@ -77,6 +77,7 @@ paging-compose = { module = "app.cash.paging:paging-compose-common", version.ref
 kotlin-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinxDatetime" }
 toast4j = { module = "de.mobanisto:toast4j", version.ref = "toast4j" }
 jna = { module = "net.java.dev.jna:jna", version.ref = "jna" }
+jna-platform ={module="net.java.dev.jna:jna-platform",version.ref="jna"}
 desugar_jdk_libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugar_jdk_libs" }
 androidx-lifecycle-viewmodel-compose = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "androidx-lifecycle" }
 #androidx-navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "androidx-navigation" }

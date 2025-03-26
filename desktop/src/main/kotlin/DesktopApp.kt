@@ -10,7 +10,7 @@ import org.koin.core.Koin
 lateinit var koin: Koin
 
 //编译运行命令 ./gradlew :desktop:run
-//打包命令 ./gradlew packageDistributionForCurrentOS
+//打包命令 打包时开翻墙要下编译库 ./gradlew packageDistributionForCurrentOS
 //安装包路径 build/compose/binaries/main/
 //build/compose/binaries/main/exe/
 //build/compose/binaries/main/deb/

@@ -21,6 +21,8 @@ import androidx.compose.ui.unit.sp
 import com.hwj.ai.capture.LocalMainWindow
 import com.hwj.ai.capture.ScreenshotOverlay11
 import com.hwj.ai.capture.saveToFile11
+import com.hwj.ai.checkSystem
+import com.hwj.ai.global.OsStatus
 import com.hwj.ai.global.PrimaryColor
 import com.hwj.ai.global.onlyDesktop
 import com.hwj.ai.global.printD
@@ -110,10 +112,25 @@ actual fun ScreenShotPlatform(onSave: (String?) -> Unit) {
     val isShotState = chatViewModel.isShotState.collectAsState().value
     if (isShotState && onlyDesktop()) {
         ScreenshotOverlay11(mainWindow = mainWindow, onCapture = { pic ->
-            val file=saveToFile11(pic)
+            val file = saveToFile11(pic)
             onSave(file)
         }, onCancel = {
             chatViewModel.shotScreen(false)
         })
     }
 }
+
+//AI 划词工具
+actual class TextSelectionMonitor {
+    actual fun startMonitoring(onTextSelected: (appName: String, text: String) -> Unit) {
+        if (checkSystem() == OsStatus.WINDOWS) {
+
+        } else if (checkSystem() == OsStatus.MACOS) {
+
+        }
+
+    }
+
+    actual fun stopMonitoring() {}
+}
+
