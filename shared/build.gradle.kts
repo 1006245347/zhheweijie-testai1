@@ -253,7 +253,7 @@ kotlin {
                 exclude(group = "net.java.dev.jna", module = "jna")
             }
 
-            //
+            implementation(libs.com4j)
 
             // JNA for Windows
             implementation(libs.jna)
