@@ -10,8 +10,10 @@ import com.sun.jna.platform.win32.Ole32
 import com.sun.jna.platform.win32.User32
 import com.sun.jna.platform.win32.WTypes
 import com.sun.jna.platform.win32.WinDef
+import com.sun.jna.platform.win32.WinDef.POINT
 import com.sun.jna.platform.win32.WinNT
 import com.sun.jna.ptr.PointerByReference
+import com.sun.jna.win32.StdCallLibrary
 
 
 /**
@@ -39,7 +41,8 @@ fun UIAutomationEx4() {
         IID_IUIAutomation,
         pAutomation
     )
-    check(COMUtils.SUCCEEDED(hr.toInt())) { "UIAutomation 创建失败" }
+    // ! ?反了
+    check(!COMUtils.SUCCEEDED(hr.toInt())) { "UIAutomation 创建失败" }
 
     val automation = IUIAutomation(pAutomation.value)
 
@@ -84,11 +87,16 @@ fun captureSelectedTextUnderCursor(): String? {
 
     // 获取鼠标所在点
     val point = WinDef.POINT()
-    User32.INSTANCE.GetCursorPos(point)
+    MyUser32.INSTANCE.GetCursorPos(point)
 
 //    val hwnd = User32.INSTANCE.WindowFromPoint(point)//要自己扩展接口，内部没有暴露
     val hwnd = MyUser32.INSTANCE.WindowFromPoint(point)
-    printD("window handle>$hwnd")
+    if (hwnd == null || Pointer.nativeValue(hwnd.pointer) == 0L) {
+
+        printD("window handle>$hwnd")
+        return null
+    }
+
 
     // 创建 UIAutomation 实例
     val pAutomation = PointerByReference()
@@ -100,8 +108,8 @@ fun captureSelectedTextUnderCursor(): String? {
         pAutomation
     )
 //    check(COMUtils.SUCCEEDED(hr.toInt())) { "UIAutomation 创建失败" }
-    if (COMUtils.SUCCEEDED(hr.toInt()))  {
-printD("UIAutomation install failed")
+    if (!COMUtils.SUCCEEDED(hr.toInt())) {
+        printD("UIAutomation install failed")
         return null
     }
 
@@ -109,11 +117,16 @@ printD("UIAutomation install failed")
 
     // 通过鼠标坐标获取 AutomationElement
     val elementRef = PointerByReference()
-    val pt = WinDef.POINT.ByValue().apply {
-        x = point.x
-        y = point.y
+//    val pt = WinDef.POINT.ByValue().apply {
+//        x = point.x
+//        y = point.y
+//    }
+//    automation.ElementFromPoint(pt, elementRef)
+    automation.ElementFromPoint(point, elementRef)
+    if (elementRef.value== Pointer.NULL){
+        printD("ElementFromPoint get failed")
+        return null
     }
-    automation.ElementFromPoint(pt, elementRef)
     val element = IUIAutomationElement(elementRef.value)
 
     // 尝试获取 TextPattern
@@ -154,7 +167,7 @@ object UIA_PatternIds {
 
 // COM 接口封装（关键！）
 class IUIAutomation(pointer: Pointer) : Unknown(pointer) {
-    fun ElementFromPoint(pt: WinDef.POINT.ByValue, element: PointerByReference): WinNT.HRESULT =
+    fun ElementFromPoint(pt: WinDef.POINT, element: PointerByReference): WinNT.HRESULT =
         _invokeNativeObject(
             3,
             arrayOf(this.pointer, pt, element),
@@ -198,10 +211,21 @@ class IUIAutomationTextRange(pointer: Pointer) : Unknown(pointer) {
         ) as WinNT.HRESULT
 }
 
-interface MyUser32 : User32 {
-    fun WindowFromPoint(pointer: WinDef.POINT): WinDef.HWND
+//interface MyUser32 : User32 {
+//    fun WindowFromPoint(pointer: WinDef.POINT): WinDef.HWND
+//
+//    companion object {
+//        val INSTANCE: MyUser32 = Native.load("user32", MyUser32::class.java)
+//    }
+//}
+
+
+interface MyUser32 : StdCallLibrary {
 
     companion object {
         val INSTANCE: MyUser32 = Native.load("user32", MyUser32::class.java)
     }
+
+    fun GetCursorPos(point: POINT): Boolean
+    fun WindowFromPoint(point: POINT): WinDef.HWND
 }
