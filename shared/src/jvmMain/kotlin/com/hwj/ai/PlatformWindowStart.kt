@@ -52,9 +52,9 @@ fun PlatformWindowStart(onCloseRequest: () -> Unit) {
                             modifier = Modifier.fillMaxSize(),
                             contentAlignment = Alignment.Center
                         ) {
-                            subScope.launch(Dispatchers.IO) {
-                                GlobalMouseHook.start()
-                            }
+//                            subScope.launch(Dispatchers.IO) {
+//                                GlobalMouseHook.start()
+//                            }
                             PlatformAppStart()
                         }
                     }

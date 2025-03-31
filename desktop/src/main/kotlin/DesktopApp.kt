@@ -18,7 +18,7 @@ lateinit var koin: Koin
 
 fun main() {
     //日志
-    Napier.base(DebugAntilog())
+    Napier.base(DebugAntilog())//defaultTag = "yuy"
     //依赖注入，不需要new对象，全模版生成
     koin = initKoin()
     koin.loadModules(

@@ -11,15 +11,15 @@ import com.sun.jna.platform.win32.WinNT
 import com.sun.jna.platform.win32.WinUser
 import com.sun.jna.ptr.IntByReference
 
-fun WindowsSelection(onTextSelected:(String,String)->Unit){
+fun WindowsSelection(onTextSelected: (String, String) -> Unit) {
 
 }
 
-fun MacSelection(onTextSelected:(String,String)->Unit){
+fun MacSelection(onTextSelected: (String, String) -> Unit) {
 
 }
 
-object GlobalMouseHook{
+object GlobalMouseHook {
     private var hHook: WinUser.HHOOK? = null
     private val user32 = User32.INSTANCE
     private val kernel32 = Kernel32.INSTANCE
@@ -28,18 +28,25 @@ object GlobalMouseHook{
 
 
     private val mouseProc = WinUser.LowLevelMouseProc { nCode, wParam, lParam ->
-        if(nCode>=0){
+        if (nCode >= 0) {
             val wParamInt = wParam.toInt()
+            //扩展鼠标事件检测
             if (wParamInt == WM_LBUTTONUP) {
-                printD("鼠标左键抬起，尝试获取前台窗口信息 ${lParam.pt.y}")
-            fetchForegroundAppInfo()
+//                printD("鼠标左键抬起，尝试获取前台窗口信息 ${lParam.pt.y}")
+                printD("mouse left up,find window info>${lParam.pt.y}")
+                fetchForegroundAppInfo()
             }
         }
-        user32.CallNextHookEx(hHook, nCode, wParam, LPARAM(Pointer.nativeValue(lParam.pointer))) // Found: WinUser.MSLLHOOKSTRUCT! Required: WinDef.LPARAM!
+        user32.CallNextHookEx(
+            hHook,
+            nCode,
+            wParam,
+            LPARAM(Pointer.nativeValue(lParam.pointer))
+        ) // Found: WinUser.MSLLHOOKSTRUCT! Required: WinDef.LPARAM!
     }
 
     fun start() {
-        hHook = user32.SetWindowsHookEx(
+        hHook = user32.SetWindowsHookEx( //设置全局鼠标钩子
             WinUser.WH_MOUSE_LL,
             mouseProc,
             kernel32.GetModuleHandle(null),
