@@ -31,7 +31,7 @@ import java.nio.charset.StandardCharsets
 
 /**
  * @author by jason-何伟杰，2025/3/28
- * des: JNA + UIAutomation
+ * des: JNA + 剪切板
  */
 object GlobalMouseHook8 {
 
@@ -115,8 +115,9 @@ object GlobalMouseHook8 {
                 try {
                     println("k>${focusedElement.controlType} ")
 
+
 //                    val window = automation.getDesktopWindow("c1.txt - 记事本")
-//                    if (window != null) {
+//                    if (wi0ndow != null) {
 //                        println("w》${window.name} ${window.isModal}")
 //                        val editBox: EditBox = window.getEditBox(Search.getBuilder(0).build())
 //
@@ -212,6 +213,8 @@ object GlobalMouseHook8 {
             }
             println("c>$copiedText")
 //            clipboard.setContents(emptyBoard, null)
+
+
         }
     }
 
@@ -248,9 +251,9 @@ object GlobalMouseHook8 {
         Kernel32.INSTANCE.CloseHandle(hProcess)
 
         appBuilder.clear()
-//        appBuilder.append("Hack title: $title").append(". Hack process ID: $pid").append("\n")
-//            .append("Hack application path: ${String(exePath).trim()}")
-//        block1(appBuilder.toString())
+        appBuilder.append("Hack title: $title").append(". Hack process ID: $pid").append("\n")
+            .append("Hack application path: ${String(exePath).trim()}")
+        block1(appBuilder.toString())
         covertSet()
         println("Hack title: $title")
         println("Hack process ID: $pid")

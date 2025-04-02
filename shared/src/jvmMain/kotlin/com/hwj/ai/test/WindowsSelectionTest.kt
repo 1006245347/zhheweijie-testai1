@@ -26,6 +26,7 @@ import com.hwj.ai.global.ThemeChatLite
 import com.hwj.ai.global.printD
 import com.hwj.ai.selection.GlobalMouseHook8
 import com.hwj.ai.selection.GlobalMouseHook8.robot
+import com.hwj.ai.selection.GlobalMouseHook9
 import com.hwj.ai.selection.clearClip
 import com.hwj.ai.selection.isValidSelection
 import kotlinx.coroutines.Dispatchers
@@ -53,7 +54,7 @@ fun WindowsSelectionTest(onCloseRequest: () -> Unit) {
     LaunchedEffect(isStart.value) {
         if (isStart.value) {
             subScope.launch(Dispatchers.IO) {
-                GlobalMouseHook8.start(
+                GlobalMouseHook9.start(
                     appBlock = { str ->
                         appText.value = str
                     }, contentBlock = { content ->
@@ -68,24 +69,22 @@ fun WindowsSelectionTest(onCloseRequest: () -> Unit) {
 ////                clearClip()
 //                clearWindowClip()
 //            }
-//            return@LaunchedEffect
+            return@LaunchedEffect
             subScope.launch(Dispatchers.IO) {
-                robot = Robot()
-                printD("running>>${isStart.value} ${GlobalMouseHook8.state.isDragging}")
+//                robot = Robot()
+//                printD("running>>${isStart.value} ${GlobalMouseHook8.state.isDragging}")
                 while (isStart.value) {
                     //记录当前鼠标位置
 
                     delay(100) //要同步才对
-                    if (GlobalMouseHook8.state.isDragging
+                    if (
+                        GlobalMouseHook8.state.isDragging
                         //加上isContent判断吧
 //                     &&  selectedText.value != GlobalMouseHook8.state.lastClipboardText
                         ) {
 
                         robot?.let {
                             val clipboard = Toolkit.getDefaultToolkit().systemClipboard
-//            val emptyBoard = StringSelection("")
-//            clipboard.setContents(emptyBoard, null)
-
                             it.keyPress(KeyEvent.VK_CONTROL)
                             it.keyPress(KeyEvent.VK_C)
                             it.keyRelease(KeyEvent.VK_C)
@@ -111,7 +110,7 @@ fun WindowsSelectionTest(onCloseRequest: () -> Unit) {
                 }
             }
         } else {
-            GlobalMouseHook8.stop()
+            GlobalMouseHook9.stop()
         }
     }
 

@@ -186,7 +186,6 @@ object GlobalMouseHook7 {
                     println("ll>${legacy.currentValue}")
                 }
 
-
                 val valuePattern = focusedElement.getProvidedPattern(Value::class.java)
                 if (valuePattern != null) {
                     val value = valuePattern.value()
@@ -198,7 +197,6 @@ object GlobalMouseHook7 {
                 } else {
                     println("Hack failed! not support textPattern")
                 }
-
 
 //                val ref1: PointerByReference = focusedElement.getPattern(PatternID.Text.value)
 //                println("Hack1>>>>${ref1}")
