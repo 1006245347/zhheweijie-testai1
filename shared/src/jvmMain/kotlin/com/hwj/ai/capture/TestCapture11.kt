@@ -3,7 +3,6 @@ package com.hwj.ai.capture
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -16,7 +15,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -33,23 +31,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.key
-import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.onPreviewKeyEvent
-import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.isSecondaryPressed
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.DpSize
-import androidx.compose.ui.unit.coerceAtMost
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowPosition
-import androidx.compose.ui.window.WindowSize
 import androidx.compose.ui.window.rememberWindowState
-import com.hwj.ai.global.NotificationsManager
-import com.hwj.ai.global.dpToPx
-import com.hwj.ai.global.getThisWeek
 import com.hwj.ai.global.printD
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -58,8 +49,6 @@ import java.awt.GraphicsEnvironment
 import java.awt.Rectangle
 import java.awt.Robot
 import java.awt.Toolkit
-import java.awt.Window
-import java.awt.event.KeyEvent
 import java.awt.image.BufferedImage
 import java.io.File
 import javax.imageio.ImageIO
@@ -168,7 +157,7 @@ fun ScreenshotOverlay11(
                     val rect = state.selectionRect.normalize()
                     // 半透明填充
                     drawRect(
-                        color = Color.White.copy(alpha = 0.2f),
+                        color = Color.White.copy(alpha = 0.05f),
                         topLeft = rect.topLeft,
                         size = rect.size
                     )
@@ -190,13 +179,13 @@ fun ScreenshotOverlay11(
                 if (isFullCapture) {
                     myModifier = Modifier.align(Alignment.TopEnd).padding(23.dp)
                 } else {
-                    val offx = with(LocalDensity.current) { capturedRect!!.right.toDp() - 186.dp }
+                    val offx = with(LocalDensity.current) { capturedRect!!.right.toDp() - 180.dp }
                     val offy = with(LocalDensity.current) { capturedRect!!.bottom.toDp() + 0.dp }
 
                     myModifier = Modifier.offset(x = offx, y = offy)
                 }
                 Box(modifier = myModifier) {
-                    Row(modifier = Modifier.align(Alignment.BottomCenter).padding(23.dp)) {
+                    Row(modifier = Modifier.align(Alignment.BottomCenter).padding(13.dp)) {
                         Button(onClick = {
                             showActBtn = false
                             mainWindow.isVisible = true

@@ -1,5 +1,6 @@
 import androidx.compose.ui.window.application
-import com.hwj.ai.test.WindowsSelectionTest
+import com.hwj.ai.PlatformWindowStart
+import com.hwj.ai.test.WindowsCaptureTest
 import di.initKoin
 import io.github.aakira.napier.DebugAntilog
 import io.github.aakira.napier.Napier
@@ -26,9 +27,10 @@ fun main() {
     )
 
     return application {
-//        PlatformWindowStart { exitApplication() }
-//        PlatformWindowStartTest { exitApplication() } //测试截图
-        WindowsSelectionTest { exitApplication() } //测试划词
+        PlatformWindowStart { exitApplication() }
+//        WindowsCaptureTest { exitApplication() } //测试截图
+//        WindowsSelectionTest { exitApplication() } //测试划词
+//        WindowsOcrTest{ exitApplication()} //测试ocr划词
     }
 }
 

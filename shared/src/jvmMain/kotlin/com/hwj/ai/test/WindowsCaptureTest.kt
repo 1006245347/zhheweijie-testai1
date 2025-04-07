@@ -19,11 +19,12 @@ import androidx.compose.ui.window.rememberWindowState
 import com.hwj.ai.capture.ScreenshotOverlay11
 import com.hwj.ai.capture.saveToFile11
 import com.hwj.ai.global.ThemeChatLite
+import com.hwj.ai.global.printD
 import moe.tlaster.precompose.ProvidePreComposeLocals
 import java.awt.Dimension
 
 @Composable
-fun PlatformWindowStartTest(onCloseRequest: () -> Unit) {
+fun WindowsCaptureTest(onCloseRequest: () -> Unit) {
     val windowState = rememberWindowState(
         position = WindowPosition.Aligned(Alignment.Center),
         width = 700.dp,
@@ -47,6 +48,7 @@ fun PlatformWindowStartTest(onCloseRequest: () -> Unit) {
                             Text("截图")
                         }
 
+                        printD("isShot=$showShot")
                         if (showShot) {
                             ScreenshotOverlay11(mainWindow = window, onCapture = { pic ->
                                 try {

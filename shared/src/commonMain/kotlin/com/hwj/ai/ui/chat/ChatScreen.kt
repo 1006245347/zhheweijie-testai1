@@ -7,9 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.HorizontalDivider
@@ -28,15 +26,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
-import com.hwj.ai.createPermission
-import com.hwj.ai.data.local.PermissionPlatform
-import com.hwj.ai.except.ScreenShotPlatform
 import com.hwj.ai.global.CODE_IS_DARK
 import com.hwj.ai.global.ThemeChatLite
-import com.hwj.ai.global.ToastUtils
 import com.hwj.ai.global.cDeepLine
 import com.hwj.ai.global.getCacheBoolean
-import com.hwj.ai.global.printD
 import com.hwj.ai.global.saveBoolean
 import com.hwj.ai.ui.global.AppBar
 import com.hwj.ai.ui.global.AppScaffold

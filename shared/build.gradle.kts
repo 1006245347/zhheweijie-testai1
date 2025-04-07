@@ -257,7 +257,15 @@ kotlin {
             // JNA for Windows
             implementation(libs.jna)
             implementation(libs.jna.platform)
+            //微软自动化测试库
             implementation("com.github.mmarquee:ui-automation:0.7.0")
+
+            //ocr识别，不好用，准确度，裁剪不规则文本行，下载语言包，配置环境变量
+//            implementation("org.bytedeco:tesseract-platform:5.5.0-1.5.11")
+//            implementation("org.bytedeco:leptonica:1.83.0-1.5.9")
+//            implementation("org.bytedeco:javacpp:1.5.9")
+//            implementation("org.openpnp:opencv:4.7.0-0")
+
 
             //加上可以用预览注解
             implementation(compose.desktop.common)

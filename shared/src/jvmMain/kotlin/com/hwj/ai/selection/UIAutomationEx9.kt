@@ -1,14 +1,11 @@
 package com.hwj.ai.selection
 
-import androidx.compose.material.Text
-import com.hwj.ai.global.printList
 import com.sun.jna.Memory
 import com.sun.jna.Native
 import com.sun.jna.Pointer
 import com.sun.jna.platform.win32.Kernel32
 import com.sun.jna.platform.win32.Psapi
 import com.sun.jna.platform.win32.User32
-import com.sun.jna.platform.win32.Variant
 import com.sun.jna.platform.win32.WinDef
 import com.sun.jna.platform.win32.WinDef.LPARAM
 import com.sun.jna.platform.win32.WinNT
@@ -16,19 +13,15 @@ import com.sun.jna.platform.win32.WinUser
 import com.sun.jna.platform.win32.WinUser.HHOOK
 import com.sun.jna.ptr.IntByReference
 import com.sun.jna.ptr.PointerByReference
-import io.ktor.util.reflect.instanceOf
 import io.ktor.utils.io.core.toByteArray
 import mmarquee.automation.Element
 import mmarquee.automation.PatternID
-import mmarquee.automation.PropertyID
 import mmarquee.automation.UIAutomation
+import mmarquee.automation.controls.Application
 import mmarquee.automation.controls.Document
+import mmarquee.automation.controls.ElementBuilder
 import mmarquee.automation.controls.Search
 import mmarquee.automation.controls.Window
-import mmarquee.automation.pattern.Text
-import mmarquee.uiautomation.IUIAutomationElement
-import mmarquee.uiautomation.IUIAutomationTextPattern
-import mmarquee.uiautomation.TreeScope
 import java.nio.charset.StandardCharsets
 import java.util.regex.Pattern
 
@@ -124,22 +117,27 @@ object GlobalMouseHook9 {
                 println("pr1>${pr1.pointer.getWideString(0)}")
                 val list = automation.desktopWindows
                 list.forEach { ii ->
-//                    println("name>${ii.name} ,${ii.className}")
+                    println("name>${ii.name} ,${ii.className}")
                 }
-                val window :Window? = automation.getDesktopWindow(Pattern.compile(".*Kotlin.*"))
-                println("w=$window")
 
-                val document: Document? = window?.getDocument(Search.getBuilder(0).build())
-//                println("document>${document?.name}")
+//                val window :Window? = automation.getDesktopWindow(Pattern.compile(".*Kotlin.*"),1)
+//                println("w=$window")
 
+//                val document: Document? = window?.getDocument(Search.getBuilder(0).build())
+//                println("document>${document}")
 
-
+                val chrome = Application(
+                    ElementBuilder().automation(automation)
+                        .applicationPath("\"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe\"")
+                )
+                chrome.launchOrAttach()
+//                val cw1 =chrome.getWindowByClassName("file")
+//                val cw1 = chrome.getWindow(Search.getBuilder(0).build())
+//                println("cw=${cw1.name} ${cw1.getDocument(0)}")
             }
         } catch (e: Exception) {
             e.printStackTrace()
         }
-
-
     }
 
     //这种命令只可获取到 notepad++的文本，gettext
@@ -200,9 +198,6 @@ object GlobalMouseHook9 {
                             println("textLength>" + textLength)
 //                                user32.AttachThreadInput()
                             if (textLength > 0) {
-//                                    val textBuffer = CharArray(textLength + 1)
-//                                    val pointer =
-//                                        Native.malloc((textLength + 1) * Native.WCHAR_SIZE.toLong())
                                 textLength += 1
                                 val buffer = Memory(textLength * 2L)
 
@@ -232,12 +227,9 @@ object GlobalMouseHook9 {
                             }
                         }
                     }
-
-
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
-
             }
         } catch (e: Exception) {
             e.printStackTrace()

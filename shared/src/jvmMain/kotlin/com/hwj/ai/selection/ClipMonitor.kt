@@ -6,6 +6,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import com.hwj.ai.global.printList
 import com.hwj.ai.selection.GlobalMouseHook8.robot
 import com.sun.jna.platform.win32.User32
 import com.sun.jna.platform.win32.WinDef
@@ -16,17 +17,54 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.awt.Robot
 import java.awt.Toolkit
-import java.awt.datatransfer.Clipboard
 import java.awt.datatransfer.DataFlavor
 import java.awt.datatransfer.StringSelection
 import java.awt.datatransfer.Transferable
 import java.awt.datatransfer.UnsupportedFlavorException
 import java.awt.event.KeyEvent
+import java.io.File
 import kotlin.math.pow
 import kotlin.math.sqrt
 
+
+object ClipMonitor {
+    val clipManager: ClipboardManager = ClipboardManager()
+    private var lastCopiedFile: List<File>? = null
+    private var lastCopiedText: String? = null
+
+//    init {
+//        //定时任务，每一秒检测一下
+//        fixedRateTimer("ClipboardWatcher", true, 0L, 5000) {
+//            checkClipboardContent()
+//        }
+//    }
+
+    private fun checkClipboardContent() {
+        val curType = getClipType()
+        when (curType) {
+            DataFlavor.javaFileListFlavor -> {
+                val files = clipManager.fetchClipFile()
+                if (!files.isNullOrEmpty()) {
+                    printList(files)
+                }
+
+                val text = clipManager.backupClipTxt()
+                println("check>$text")
+            }
+        }
+    }
+
+    fun getClipType(): DataFlavor {
+        val contents = clipManager.clipboard.getContents(null) ?: return DataFlavor.stringFlavor
+        return when {
+            contents.isDataFlavorSupported(DataFlavor.javaFileListFlavor) -> DataFlavor.javaFileListFlavor
+            else -> DataFlavor.stringFlavor
+        }
+    }
+}
+
 @Composable
-fun ClipMonitor(isActive: Boolean, state: SelectionState) {
+fun ClipMonitor1(isActive: Boolean, state: SelectionState) {
     var selectedTxt by remember { mutableStateOf("") }
 //    val state = remember { SelectionState() }
     LaunchedEffect(Unit) {
@@ -53,7 +91,6 @@ fun ClipMonitor(isActive: Boolean, state: SelectionState) {
 
                         while (System.currentTimeMillis() - startTime < 500) {
                             Thread.sleep(50)
-                            println("thread>${Thread.currentThread().name}")
                             copiedText = clipboard.getData(DataFlavor.stringFlavor) as String?
                             if (!copiedText.isNullOrEmpty() && isValidSelection(copiedText)) {
                                 break
@@ -67,11 +104,13 @@ fun ClipMonitor(isActive: Boolean, state: SelectionState) {
 }
 
 //会把最新的内容置null
-fun clearClip(){
+fun clearClip() {
     val os = System.getProperty("os.name").lowercase()
     when {
         "win" in os -> Runtime.getRuntime().exec(arrayOf("cmd", "/c", "echo off | clip"))
-        "nix" in os || "nux" in os -> Runtime.getRuntime().exec(arrayOf("sh", "-c", "xclip -selection clipboard -delete"))
+        "nix" in os || "nux" in os -> Runtime.getRuntime()
+            .exec(arrayOf("sh", "-c", "xclip -selection clipboard -delete"))
+
         else -> throw UnsupportedOperationException("Unsupported OS")
     }.waitFor()
 }
@@ -83,13 +122,29 @@ fun setClipboardContent(content: String) {
     board.setContents(text, null)
 }
 
-fun readClipboard(): String? {
-    return try {
-        Toolkit.getDefaultToolkit().systemClipboard
-            .getData(DataFlavor.stringFlavor) as? String
-    } catch (e: Exception) {
-        null
+
+fun restoreClipFile(files: List<File>) {
+    val transferable = object : Transferable {
+        override fun getTransferDataFlavors(): Array<DataFlavor> {
+//            return new DataFlavor[]{DataFlavor.javaFileListFlavor};
+            return arrayOf(DataFlavor.javaFileListFlavor)
+        }
+
+        override fun isDataFlavorSupported(p0: DataFlavor?): Boolean {
+            return p0 == DataFlavor.javaFileListFlavor
+        }
+
+        override fun getTransferData(p0: DataFlavor?): Any {
+            if (isDataFlavorSupported(p0)) {
+                return files
+            }
+            throw UnsupportedFlavorException(p0)
+        }
     }
+    val clipboard = Toolkit.getDefaultToolkit().systemClipboard
+    // 先清空剪贴板现有内容
+//    clipboard.setContents(Transferable { _, _ -> null }, null)
+    clipboard.setContents(transferable, null)
 }
 
 suspend fun detectedDragging(state: SelectionState) {

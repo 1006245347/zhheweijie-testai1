@@ -55,15 +55,13 @@ object GlobalMouseHook8 {
             if (wParamInt == WM_LBUTTONUP) {
 //                printD("鼠标左键抬起，尝试获取前台窗口信息 ${lParam.pt.y}")
                 println("Start--------------mouse left up,find window info>${lParam.pt.y}")
-                fetchForegroundAppInfo()
-                handleMouseAct()
-//                textToClipboard()
+//                fetchForegroundAppInfo()
+//                handleMouseAct()
 
                 val d = distanceBetween(state.mousePressedPos, lParam.pt)
-                println("distance>$d")
+//                println("distance>$d")
                 if (d>10){
-                    state.isDragging=true
-
+                    state.isDragging=true//抬起来
                 }
             }else if (wParamInt== WM_LBUTTONDOWN){
                 state.mousePressedPos=lParam.pt
@@ -108,7 +106,7 @@ object GlobalMouseHook8 {
             if (focusedElement != null) {
                 val name = focusedElement.name
                 if (name.isNotEmpty()) {
-                    println("Hack file name>$name") //这个文件名?偶然把整个内容也打出来
+//                    println("Hack file name>$name") //这个文件名?偶然把整个内容也打出来
                 }
 
                 println("v>${focusedElement.className} ${focusedElement.isContentElement}")
