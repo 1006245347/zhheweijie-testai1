@@ -257,6 +257,7 @@ kotlin {
             // JNA for Windows
             implementation(libs.jna)
             implementation(libs.jna.platform)
+
             //微软自动化测试库
             implementation("com.github.mmarquee:ui-automation:0.7.0")
 

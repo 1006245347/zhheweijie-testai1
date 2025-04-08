@@ -14,12 +14,8 @@ import androidx.compose.ui.window.WindowPosition
 import androidx.compose.ui.window.rememberWindowState
 import com.hwj.ai.capture.LocalMainWindow
 import com.hwj.ai.global.ThemeChatLite
-import com.hwj.ai.selection.GlobalMouseHook
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import moe.tlaster.precompose.ProvidePreComposeLocals
 import java.awt.Dimension
-import java.awt.TrayIcon
 
 //编译运行命令 ./gradlew :desktop:run
 //打包命令 ./gradlew packageDistributionForCurrentOS

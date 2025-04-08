@@ -88,7 +88,6 @@ fun ChatScreen(navigator: Navigator) {
         chatViewModel.processConfig(ModelConfigIntent.LoadData)
     }
 
-
 //    printD("dark1>${darkTheme.value}")
     ThemeChatLite(isDark = darkTheme.value) {
         Surface(color = MaterialTheme.colorScheme.background) {
