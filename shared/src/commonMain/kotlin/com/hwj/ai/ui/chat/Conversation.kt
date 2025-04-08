@@ -70,6 +70,7 @@ fun MessageList(
     val conversationId by conversationViewModel.currentConversationState.collectAsState()
     val messagesMap by conversationViewModel.messagesState.collectAsState()
     val isFabExpanded by conversationViewModel.isFabExpanded.collectAsState()
+    val isAutoScroll by conversationViewModel.isAutoScroll.collectAsState()
 
     val messages: List<MessageModel> =
         if (messagesMap[conversationId] == null) listOf() else messagesMap[conversationId]!!
@@ -82,6 +83,9 @@ fun MessageList(
             visibleItemIndex != 0 || visibleItemScrollOffset > 0
         }
     }
+
+
+
     Box(modifier = modifier) {
         LazyColumn(
             contentPadding =
@@ -107,6 +111,12 @@ fun MessageList(
                         )
                     }
                 }
+            }
+        }
+
+        if (isAutoScroll) {
+            subScope.launch {
+                listState.animateScrollToItem(0)
             }
         }
 

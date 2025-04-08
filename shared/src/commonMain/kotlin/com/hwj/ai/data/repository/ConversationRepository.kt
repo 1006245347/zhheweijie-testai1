@@ -1,6 +1,9 @@
 package com.hwj.ai.data.repository
 
 import com.hwj.ai.data.http.JsonApi
+import com.hwj.ai.data.local.getConversationList
+import com.hwj.ai.data.local.saveConversation
+import com.hwj.ai.data.local.saveConversationList
 import com.hwj.ai.global.DATA_CONVERSATION_TAG
 import com.hwj.ai.global.DATA_USER_ID
 import com.hwj.ai.global.getCacheLong
@@ -16,12 +19,11 @@ import com.hwj.ai.models.ConversationModel
 class ConversationRepository() {
 
     suspend fun fetchConversations(): MutableList<ConversationModel> {
-
         val list = getConversationList()
         return if (list.isNullOrEmpty()) {
             mutableListOf()
         } else {
-            list
+            list.reversed().toMutableList()
         }
     }
 
@@ -52,41 +54,5 @@ class ConversationRepository() {
         return null
     }
 
-    private suspend fun getConversationList(): MutableList<ConversationModel>? {
-        val result = getCacheString(buildTag())
-        if (!result.isNullOrEmpty()) {
-            val list = JsonApi.decodeFromString<MutableList<ConversationModel>>(result)
-            return list
-        } else {
-            return null
-        }
-    }
 
-    private suspend fun saveConversation(conversation: ConversationModel) {
-        val cacheList = getConversationList()
-        if (cacheList.isNullOrEmpty()) {
-            val newList = mutableListOf<ConversationModel>()
-            newList.add(conversation)
-            saveString(buildTag(), JsonApi.encodeToString(newList))
-        } else {
-            cacheList.add(conversation)
-            if (cacheList.size > 20) { //本地存储大小限制下
-                cacheList.removeAt(0)
-            }
-            saveString(buildTag(), JsonApi.encodeToString(cacheList))
-        }
-    }
-
-    private suspend fun saveConversationList(list: MutableList<ConversationModel>?) {
-        if (list.isNullOrEmpty()) {
-            removeKey(buildTag())
-        } else {
-            saveString(buildTag(), JsonApi.encodeToString(list))
-        }
-    }
-
-
-    private suspend fun buildTag(): String {
-        return DATA_CONVERSATION_TAG + getCacheLong(DATA_USER_ID)
-    }
 }

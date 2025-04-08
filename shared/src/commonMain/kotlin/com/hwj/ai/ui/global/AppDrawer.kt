@@ -211,7 +211,7 @@ private fun ColumnScope.HistoryConversations(
     LazyColumn(
         Modifier
             .fillMaxWidth()
-            .weight(1f, false),
+            .weight(1f, false), //要倒序集合
     ) {
         items(conversationState.size) { index ->
             RecycleChatItem(
@@ -287,7 +287,7 @@ private fun ChatItem(
             icon,
             tint = iconTint,
             modifier = Modifier
-                .padding(start = 16.dp, top = 16.dp, bottom = 16.dp)
+                .padding(start = 16.dp, top = 10.dp, bottom = 10.dp)
                 .size(25.dp),
             contentDescription = null,
         )
@@ -335,12 +335,21 @@ private fun RecycleChatItem(
             .clickable(onClick = onChatClicked),
         verticalAlignment = CenterVertically
     ) {
+//        val iconTint = if (selected) {
+////            MaterialTheme.colorScheme.primary
+//            if (isDark) isDarkBg() else isLightBg()
+//        } else {
+//            if (isDark) isDarkPanel() else isLightPanel()
+////            MaterialTheme.colorScheme.onSurfaceVariant
+//        }
         val iconTint = if (selected) {
-//            MaterialTheme.colorScheme.primary
-            if (isDark) isDarkBg() else isLightBg()
+            if (isDark){
+                isDarkPanel()
+            }else{
+                isLightPanel()
+            }
         } else {
-            if (isDark) isDarkPanel() else isLightPanel()
-//            MaterialTheme.colorScheme.onSurfaceVariant
+            MaterialTheme.colorScheme.onSurfaceVariant
         }
         Icon(
             icon,

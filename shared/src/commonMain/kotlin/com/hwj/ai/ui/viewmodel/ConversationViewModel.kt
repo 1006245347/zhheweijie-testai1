@@ -1,5 +1,6 @@
 package com.hwj.ai.ui.viewmodel
 
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -80,6 +81,7 @@ class ConversationViewModel(
     private val _messages: MutableStateFlow<HashMap<String, MutableList<MessageModel>>> =
         MutableStateFlow(HashMap())
     private val _isFetching: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    private val _isAutoScroll: MutableStateFlow<Boolean> = MutableStateFlow(false)
     private val _isFabExpandObs = MutableStateFlow(false)
 
     val currentConversationState: StateFlow<String> = _currentConversation.asStateFlow()
@@ -87,6 +89,8 @@ class ConversationViewModel(
     val messagesState: StateFlow<HashMap<String, MutableList<MessageModel>>> =
         _messages.asStateFlow()
     val isFetching: StateFlow<Boolean> = _isFetching.asStateFlow()
+    val isAutoScroll: StateFlow<Boolean> = _isAutoScroll.asStateFlow()
+
     val isFabExpanded: StateFlow<Boolean> get() = _isFabExpandObs
 
     //停止接收回答
@@ -107,11 +111,8 @@ class ConversationViewModel(
 
     var curJob: kotlinx.coroutines.Job? = null
 
-    //    var inputTxt by mutableStateOf("")
-//        private set
     //放在vm是因为拍照回来，输入过的文字会被丢失
     var inputTxt by mutableStateOf(TextFieldValue(""))
-//    private set
 
 
     suspend fun initialize() {
@@ -203,7 +204,6 @@ class ConversationViewModel(
             try {
                 flowControl = openRepo.receiveAIMessage(params)
             } catch (e: Exception) {
-                printD("my err?")
                 e.printStackTrace()
             }
 
@@ -367,7 +367,7 @@ class ConversationViewModel(
         }
     }
 
-    fun newConversation() {
+    fun newConversation() { //构建新的会话ID
         val conversationId: String = getNowTime().time.toString()
 
         _currentConversation.value = conversationId
@@ -409,8 +409,8 @@ class ConversationViewModel(
             chatMessage {
                 role = ChatRole.System
                 name = DATA_SYSTEM_NAME
-                content = "如果有代码，用Markdown样式回复，用中文回答"
-//                content = "Markdown style if exists code"
+//                content = "如果有代码，用Markdown样式回复，用中文回答"
+                content = "Markdown style if exists code"
             }
         )
         val testPic = "https://qcloudimg.tencent-cloud.cn/raw/42c198dbc0b57ae490e57f89aa01ec23.png"
@@ -522,12 +522,15 @@ class ConversationViewModel(
             _messages.value[_currentConversation.value] != null
         ) return
 
-        //调用接口获取大模型数据
         val flow: Flow<List<MessageModel>> = messageRepo.fetchMessages(_currentConversation.value)
 
         flow.collectLatest {
             setMessages(it.toMutableList())
         }
+        _isAutoScroll.value = true
+        printD("fetchMessages>${_isAutoScroll.value}")
+        delay(1000)
+        _isAutoScroll.value = false
     }
 
     private fun updateLocalAnswer(answer: String) {

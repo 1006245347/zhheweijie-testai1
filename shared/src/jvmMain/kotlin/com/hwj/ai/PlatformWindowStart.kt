@@ -30,11 +30,10 @@ import java.awt.Dimension
 fun PlatformWindowStart(onCloseRequest: () -> Unit) {
     val windowState = rememberWindowState(
         position = WindowPosition.Aligned(Alignment.Center),
-        width = 700.dp,
-        height = 500.dp,
+        width = 750.dp,
+        height = 560.dp,
     )
 
-    val subScope = rememberCoroutineScope()
     return Window(
         onCloseRequest, title = "hwj-ai-chat", state = windowState
     ) {
@@ -48,9 +47,6 @@ fun PlatformWindowStart(onCloseRequest: () -> Unit) {
                             modifier = Modifier.fillMaxSize(),
                             contentAlignment = Alignment.Center
                         ) {
-//                            subScope.launch(Dispatchers.IO) {
-//                                GlobalMouseHook.start()
-//                            }
                             PlatformAppStart()
                         }
                     }
