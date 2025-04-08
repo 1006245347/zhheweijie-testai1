@@ -34,6 +34,7 @@ import com.hwj.ai.global.printD
 import com.hwj.ai.global.printE
 import com.hwj.ai.global.printList
 import com.hwj.ai.global.thinking
+import com.hwj.ai.global.workInSub
 import com.hwj.ai.models.ConversationModel
 import com.hwj.ai.models.MessageModel
 import com.hwj.ai.models.TextCompletionsParam
@@ -43,6 +44,7 @@ import io.github.vinceglb.filekit.compressImage
 import io.github.vinceglb.filekit.dialogs.FileKitMode
 import io.github.vinceglb.filekit.dialogs.FileKitType
 import io.github.vinceglb.filekit.dialogs.openFilePicker
+import io.github.vinceglb.filekit.path
 import io.github.vinceglb.filekit.size
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
@@ -145,7 +147,9 @@ class ConversationViewModel(
     fun sendTxtMessage(input: String) {
         _stopReceivingObs.value = false
         if (getMessagesByConversation(_currentConversation.value).isEmpty()) {
-            createConversationRemote(input)
+            workInSub {
+                createConversationRemote(input)
+            }
         }
 
         val newMessageModel: MessageModel = MessageModel(
@@ -210,10 +214,13 @@ class ConversationViewModel(
                 }?.onCompletion {
                     setFabExpanded(false)
                 }?.catch { e: Throwable ->
+                    e.printStackTrace() //内部错误，请稍后重试 这句话是接口的
                     handleAIException(toastManager, e) { //异常处理
                         setFabExpanded(false)
                         if (answerFromGPT == "") {
-                            updateLocalAnswer("异常导致消息中断")
+
+                            updateLocalAnswer("异常导致回复中断")
+                            answerFromGPT = "异常导致回复中断" //不加消息数量会缺失
                         }
                     }
                 }?.collect { chunk -> //被强制类型
@@ -252,7 +259,7 @@ class ConversationViewModel(
         val newMessageModel = MessageModel(
             question = if (input.isNullOrEmpty()) "" else input,
             answer = thinking, conversationId = _currentConversation.value,
-            imagePath = imagePaths.map { it } //复制一份
+            imagePath = imagePaths.map { it.path } //复制一份
         )
 
         val currentListMessage: MutableList<MessageModel> =
@@ -290,8 +297,8 @@ class ConversationViewModel(
 //        printD("updateImageMsg1>")
 //        curJob = viewModelScope.launch() {   //加线程切换，无法执行？
 //        printD("updateImageMsg2>")
-        if (onlyDesktop())
-            setImageUseStatus(false) //重置
+//        if (onlyDesktop()) //测试手机也行
+        setImageUseStatus(false) //重置
         val params = TextCompletionsParam( //这里要抽出来顺序执行，openRepo内部又异步，当数据大导致参数属性竟然被扣了。。
             promptText = getPrompt(_currentConversation.value),
             messagesTurbo = getMessagesParamsTurbo(_currentConversation.value)
@@ -306,6 +313,7 @@ class ConversationViewModel(
                         deleteImage(0, true)
                 }.catch { e ->
                     handleAIException(toastManager, e) {
+                        printE("imgErr>${e.message}")
                         setFabExpanded(false)
                         if (answerFromGPT == "") {
                             updateLocalAnswer("异常导致消息中断")
@@ -337,7 +345,7 @@ class ConversationViewModel(
         messageRepo.createMessage(newMessageModel.copy(answer = answerFromGPT))
     }
 
-    private fun createConversationRemote(title: String) {
+    private suspend fun createConversationRemote(title: String) {
         val newConversation: ConversationModel = ConversationModel(
             id = _currentConversation.value,
             title = title,
@@ -354,7 +362,8 @@ class ConversationViewModel(
         if (onlyDesktop()) {
             setImageUseStatus(false)
         } else {
-            setImageUseStatus(true)
+//            setImageUseStatus(true)
+            setImageUseStatus(false) //测试
         }
     }
 
@@ -400,7 +409,8 @@ class ConversationViewModel(
             chatMessage {
                 role = ChatRole.System
                 name = DATA_SYSTEM_NAME
-                content = "Markdown style if exists code"
+                content = "如果有代码，用Markdown样式回复，用中文回答"
+//                content = "Markdown style if exists code"
             }
         )
         val testPic = "https://qcloudimg.tencent-cloud.cn/raw/42c198dbc0b57ae490e57f89aa01ec23.png"
@@ -413,7 +423,8 @@ class ConversationViewModel(
             if (!_isStopUseImageObs.value) { //一直引用图
                 try {
                     message.imagePath?.let { pics ->
-                        pics.forEach { pic ->
+                        pics.forEach { picS ->
+                            val pic = PlatformFile(picS)
                             if (pic.size() > 1000 * 1000 * 5) { //压缩再base64
                                 val newPic =
                                     encodeImageToBase64(FileKit.compressImage(pic, quality = 70))
@@ -432,7 +443,8 @@ class ConversationViewModel(
                 if (index == messagesMap[conversationId]!!.size - 1) { //必须是当轮问答图片才传
                     try {
                         message.imagePath?.let { pics ->
-                            pics.forEach { pic ->
+                            pics.forEach { picS ->
+                                val pic = PlatformFile(picS)
                                 if (pic.size() > 1000 * 1000 * 5) { //压缩再base64
                                     val newPic =
                                         encodeImageToBase64(
@@ -462,17 +474,19 @@ class ConversationViewModel(
                     } else {
 //                        如果是图片 , 后续多轮对话不再传图片, 怎么区分新旧, 这里是新问题发起，全是旧的
                         if (index == messagesMap[conversationId]!!.size - 1) { //最后一个又有图片，那么就转base64,不然都是历史图片
-                            content {
+                            content { //偶尔包装的数据打印出来有缺失字母，是打印问题还是包装问题。。。
                                 text("$DATA_IMAGE_TITLE，" + message.question)
                                 partsReq.forEach { part ->
                                     image(part)//base64或url
                                 }
+
                             }
+
                         } else {
                             content = message.question
                         }
                     }
-                }
+                }//.also { printD("cc> ${it.messageContent}") }
             )
 
             if (message.answer != thinking) { //AI回答中
@@ -486,7 +500,7 @@ class ConversationViewModel(
             }
         }
         return response.toList()
-//            .also { printList(it) }
+            .also { printList(it, des = "getMessagesParamsTurbo") }
     }
 
     suspend fun deleteConversation(conversationId: String) {
@@ -579,7 +593,7 @@ class ConversationViewModel(
             val files = FileKit.openFilePicker(mode = model, type = FileKitType.Image)
             files?.let {
                 _imageListObs.addAll(it)
-                printList(_imageListObs.toList())
+//                printList(_imageListObs.toList())
             }
         } else {
             val file = FileKit.openFilePicker(mode = FileKitMode.Single, type = FileKitType.Image)

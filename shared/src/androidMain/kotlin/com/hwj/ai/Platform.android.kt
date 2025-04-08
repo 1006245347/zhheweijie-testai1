@@ -94,8 +94,8 @@ actual fun createHttpClient(timeout: Long?): HttpClient {
             })
         }
         install(Logging) {
-            level = LogLevel.NONE
-//            level=LogLevel.HEADERS
+//            level = LogLevel.NONE
+            level=LogLevel.BODY
 //            level= LogLevel.INFO
 //            level = LogLevel.NONE //接口日志屏蔽
             logger = object : io.ktor.client.plugins.logging.Logger {

@@ -26,10 +26,10 @@ val fakeMessages: List<MessageModel> = listOf(
     MessageModel(
         question = "Who is kakaka?",
         answer = "I'm Kai (lambiengcode), currently working as the Technical Leader at Askany and Waodate. Computador Also, I'm a freelancer. If you have a need for a mobile application or website",
-        createdAt = getNowTime()
+        createdAt = 1
     ),
     MessageModel(
         question = "Who is bibibi?",
         answer = "I'm Kai (lambiengcode), currently working as the Technical Leader at Askany and Waodate. Computador Also, I'm a freelancer. If you have a need for a mobile application or website ",
-        createdAt = getNowTime()
+        createdAt =1// getNowTime()
     ))

@@ -61,6 +61,7 @@ import com.hwj.ai.ui.viewmodel.ChatViewModel
 import com.hwj.ai.ui.viewmodel.ConversationViewModel
 import com.mohamedrejeb.richeditor.model.rememberRichTextState
 import com.mohamedrejeb.richeditor.ui.material3.RichText
+import io.github.vinceglb.filekit.PlatformFile
 import io.github.vinceglb.filekit.name
 import io.github.vinceglb.filekit.path
 import kotlinx.coroutines.Dispatchers
@@ -128,7 +129,8 @@ fun HumanMessageCard(message: MessageModel) {
     Column {
         message.imagePath?.let { imgList ->
             LazyRow {
-                items(imgList) { img ->
+                items(imgList) { imgS ->
+                    val img= PlatformFile(imgS)
                     Box(modifier = Modifier.padding(5.dp).size(60.dp, 50.dp)) {
                         AsyncImage(
                             img.path, contentDescription = img.name,

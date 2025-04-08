@@ -6,14 +6,17 @@ import com.aallam.openai.api.core.RequestOptions
 import com.aallam.openai.api.exception.OpenAIAPIException
 import com.aallam.openai.api.exception.OpenAIHttpException
 import com.aallam.openai.api.model.ModelId
+import com.aallam.openai.api.thread.Thread
 import com.aallam.openai.client.LoggingConfig
 import com.aallam.openai.client.OpenAI
 import com.aallam.openai.client.OpenAIConfig
 import com.aallam.openai.client.OpenAIHost
+import com.hwj.ai.except.isMainThread
 import com.hwj.ai.global.LLM_API_KEY
 import com.hwj.ai.global.baseHostUrl
 import com.hwj.ai.global.printD
 import com.hwj.ai.global.printE
+import com.hwj.ai.global.printList
 import com.hwj.ai.models.GPTModel
 import com.hwj.ai.models.TextCompletionsParam
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -22,6 +25,7 @@ import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.serialization.json.Json
 
 /**
@@ -61,18 +65,31 @@ class LLMChatRepository {//private val openAI: OpenAI,单例的话无法变更�
     //图生文要专用模型才行
     suspend fun analyzeImage(params: TextCompletionsParam): Flow<ChatCompletionChunk> {
         val requestArgs = ChatCompletionRequest(
-            model = ModelId(GPTModel.hunyuan.model),
+//            model = ModelId(GPTModel.visionhunyuan.model),
+//            model= ModelId(GPTModel.visionDeepv2.model),
+            model= ModelId(GPTModel.visionQwen.model),
             messages = params.messagesTurbo
         )
+//        printD("thread-${isMainThread()})}")
+//        printList(params.messagesTurbo, "imgReq>")
+
         val map = mutableMapOf<String, String>()
         val openAI = OpenAI(
             setAIConfig(
-                token = "sk-NDI07Dpew9y1J7W0Fpoj1ywjo50p7H0cwKePxl4EEjJiLIlI",
-                hostUrl = "https://api.hunyuan.cloud.tencent.com/v1/",
+//                token = "sk-NDI07Dpew9y1J7W0Fpoj1ywjo50p7H0cwKePxl4EEjJiLIlI",
+//                hostUrl = "https://api.hunyuan.cloud.tencent.com/v1/",
+                token="sk-qylhzhkqljizdtsbqcssefvqbknxbxxydpwppumwfeijince",
+                hostUrl = "https://api.siliconflow.cn/v1/",
                 headers = map
             )
         )
-        return openAI.chatCompletions(requestArgs, requestOptions = RequestOptions())
+        try {
+            return openAI.chatCompletions(requestArgs, requestOptions = RequestOptions())
+        }catch (e:Exception){
+            e.printStackTrace()
+        }
+//        return openAI.chatCompletions(requestArgs, requestOptions = RequestOptions())
+        return flowOf()
     }
 
     suspend fun GenerateImage(params: TextCompletionsParam) {

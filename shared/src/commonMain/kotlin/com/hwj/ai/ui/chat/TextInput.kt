@@ -162,7 +162,7 @@ fun InputTopIn(state: LazyListState, navigator: Navigator) {
                     when (list[index].title) {
                         "相册" -> {
                             needPermissionGallery.value = true
-                            printD("set>${needPermissionGallery.value}")
+//                            printD("set>${needPermissionGallery.value}")
                         }
 
                         "拍摄" -> {

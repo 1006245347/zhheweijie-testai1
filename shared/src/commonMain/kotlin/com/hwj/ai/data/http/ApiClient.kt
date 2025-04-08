@@ -73,6 +73,7 @@ inline fun <T, R> Result<T>.map(transform: (value: T) -> R): Result<R> =
 
 fun ViewModel.handleAIException(toastManager: NotificationsManager, throwable: Throwable,block:()->Unit) {
     block()
+
     toast(toastManager, throwable.message + "", "toast")
 }
 

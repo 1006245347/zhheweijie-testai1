@@ -19,7 +19,10 @@ const val thinking="思考中..."
 const val DATA_USER_NAME="User"
 const val DATA_SYSTEM_NAME="BOT"
 const val DATA_APP_TOKEN="DATA_APP_TOKEN"
-const val DATA_IMAGE_TITLE="图像识别"
+const val DATA_IMAGE_TITLE="识别图片信息"
+const val DATA_MESSAGE_TAG="DATA_MESSAGE_TAG"
+const val DATA_CONVERSATION_TAG="DATA_CONVERSATION_TAG"
+const val DATA_USER_ID="DATA_USER_ID"
 
 //标识
 const val CODE_IS_DARK="CODE_IS_DARK" //是否黑暗模式

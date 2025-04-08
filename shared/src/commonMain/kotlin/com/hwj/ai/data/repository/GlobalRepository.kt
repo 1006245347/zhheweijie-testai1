@@ -79,3 +79,20 @@ class GlobalRepository(private val client: HttpClient) {
         return list
     }
 }
+
+//目前已支持的 VLM 模型： 硅基流动
+//
+//Qwen 系列：
+//Qwen/Qwen2.5-VL-32B-Instruct
+//Qwen/Qwen2.5-VL-72B-Instruct
+//Qwen/QVQ-72B-Preview
+//Qwen/Qwen2-VL-72B-Instruct
+//Pro/Qwen/Qwen2-VL-7B-Instruct
+//Pro/Qwen/Qwen2.5-VL-7B-Instruct
+//DeepseekVL2 系列：
+//deepseek-ai/deepseek-vl2
+
+//混元视觉
+//token = "sk-NDI07Dpew9y1J7W0Fpoj1ywjo50p7H0cwKePxl4EEjJiLIlI",
+//                hostUrl = "https://api.hunyuan.cloud.tencent.com/v1/",
+//hunyuan-vision

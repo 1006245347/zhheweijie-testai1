@@ -1,5 +1,12 @@
 package com.hwj.ai.data.repository
 
+import com.hwj.ai.data.http.JsonApi
+import com.hwj.ai.global.DATA_CONVERSATION_TAG
+import com.hwj.ai.global.DATA_USER_ID
+import com.hwj.ai.global.getCacheLong
+import com.hwj.ai.global.getCacheString
+import com.hwj.ai.global.removeKey
+import com.hwj.ai.global.saveString
 import com.hwj.ai.models.ConversationModel
 
 /**
@@ -8,21 +15,78 @@ import com.hwj.ai.models.ConversationModel
  */
 class ConversationRepository() {
 
-    fun fetchConversations(): MutableList<ConversationModel> {
-//        return fakeConversations.toMutableList()
-    return mutableListOf()
+    suspend fun fetchConversations(): MutableList<ConversationModel> {
+
+        val list = getConversationList()
+        return if (list.isNullOrEmpty()) {
+            mutableListOf()
+        } else {
+            list
+        }
     }
 
-    fun newConversation(conversationModel: ConversationModel): ConversationModel {
+    suspend fun newConversation(conversationModel: ConversationModel): ConversationModel {
         //add
+        saveConversation(conversationModel)
         return conversationModel
     }
 
-    fun deleteConversation(conversationId: String) {}
+    suspend fun deleteConversation(conversationId: String) {
+        val list = getConversationList()
+        if (!list.isNullOrEmpty()) {
+            val iterator = list.iterator()
+            while (iterator.hasNext()) {
+                val tmp = iterator.next()
+                if (tmp.id == conversationId) {
+                    iterator.remove()
+                    break
+                }
+            }
+        }
+        saveConversationList(list)
+    }
 
     fun getFirstConversation(): ConversationModel? {
 
 //        return fakeConversations[0]
         return null
+    }
+
+    private suspend fun getConversationList(): MutableList<ConversationModel>? {
+        val result = getCacheString(buildTag())
+        if (!result.isNullOrEmpty()) {
+            val list = JsonApi.decodeFromString<MutableList<ConversationModel>>(result)
+            return list
+        } else {
+            return null
+        }
+    }
+
+    private suspend fun saveConversation(conversation: ConversationModel) {
+        val cacheList = getConversationList()
+        if (cacheList.isNullOrEmpty()) {
+            val newList = mutableListOf<ConversationModel>()
+            newList.add(conversation)
+            saveString(buildTag(), JsonApi.encodeToString(newList))
+        } else {
+            cacheList.add(conversation)
+            if (cacheList.size > 20) { //本地存储大小限制下
+                cacheList.removeAt(0)
+            }
+            saveString(buildTag(), JsonApi.encodeToString(cacheList))
+        }
+    }
+
+    private suspend fun saveConversationList(list: MutableList<ConversationModel>?) {
+        if (list.isNullOrEmpty()) {
+            removeKey(buildTag())
+        } else {
+            saveString(buildTag(), JsonApi.encodeToString(list))
+        }
+    }
+
+
+    private suspend fun buildTag(): String {
+        return DATA_CONVERSATION_TAG + getCacheLong(DATA_USER_ID)
     }
 }

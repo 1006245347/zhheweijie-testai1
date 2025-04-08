@@ -5,19 +5,21 @@ import com.hwj.ai.global.getNowTime
 import com.hwj.ai.global.printList
 import io.github.vinceglb.filekit.PlatformFile
 import kotlinx.datetime.LocalDateTime
+import kotlinx.serialization.Serializable
 
 /**
  * @author by jason-何伟杰，2025/3/12
  * des:一轮对话，可被拆解两条对应消息
  */
+@Serializable
 data class MessageModel(
     var id: String = getMills().toString(),
     var conversationId: String = "",
     var question: String = "",
     var answer: String = "",
-    var imagePath:List<PlatformFile>?=null, //图片消息参数
+    var imagePath:List<String>?=null, //图片消息参数
 //    var createdAt: LocalDateTime = getNowTime(),
-    var createdAt: Any? = null
+    var createdAt: Long? = null
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

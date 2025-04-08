@@ -121,7 +121,7 @@ fun MessageList(
                         imageVector = Icons.Default.ArrowDropDownCircle,
                         contentDescription = "置底",
                         tint = PrimaryColor,
-                        modifier = Modifier.size(30.dp)
+                        modifier = Modifier.size(30.dp).align(Alignment.BottomCenter)
                     )
                 }
             })

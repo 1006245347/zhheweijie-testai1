@@ -17,30 +17,28 @@ package com.hwj.ai.global
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ParentDataModifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.capitalize
 import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
-import com.hwj.ai.data.local.SettingsFactory
 import com.hwj.ai.except.DataSettings
 import com.russhwolf.settings.coroutines.FlowSettings
 import com.russhwolf.settings.coroutines.toBlockingSettings
 import com.russhwolf.settings.serialization.decodeValueOrNull
 import com.russhwolf.settings.serialization.encodeValue
 import io.github.aakira.napier.Napier
-import io.github.vinceglb.filekit.FileKit
 import io.github.vinceglb.filekit.PlatformFile
-import io.github.vinceglb.filekit.compressImage
 import io.github.vinceglb.filekit.readBytes
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.Instant
@@ -548,7 +546,7 @@ fun printList(list: List<Any>?, des: String? = null, tag: String = logTAG) {
     }
 }
 
-fun createImageName():String{
+fun createImageName(): String {
     return "ai_${getMills()}.jpg"
 }
 
@@ -574,8 +572,17 @@ fun ViewModel.delayWork(
 
 @OptIn(ExperimentalEncodingApi::class)
 suspend fun encodeImageToBase64(platformFile: PlatformFile): String {
-    return "data:image/jpeg;base64," + Base64.encode(platformFile.readBytes())
-//        .also { printD(it) }
+    //readBytes内部有线程切换！
+//    return "data:image/jpeg;base64," + Base64.encode(platformFile.readBytes())
+    var code = ""
+    runBlocking {
+        val task = async {
+            Base64.encode(platformFile.readBytes()) //貌似没啥用
+        }
+        code = task.await()
+    }
+
+    return "data:image/jpeg;base64,${code}"//.also { printD("pic> $it") }
 }
 
 @OptIn(ExperimentalEncodingApi::class)
@@ -648,8 +655,22 @@ suspend fun saveDouble(key: String, value: Double) {
     settingsCache.putDouble(key, value)
 }
 
+suspend fun saveAsyncLong(key: String,value: Long){
+    globalScope.launch {
+        settingsCache.putLong(key,value)
+    }
+}
+
+suspend fun saveLong(key: String,value:Long){
+    settingsCache.putLong(key,value)
+}
+
 suspend fun getCacheInt(key: String): Int {
     return settingsCache.getInt(key, 0)
+}
+
+suspend fun getCacheLong(key:String):Long{
+    return settingsCache.getLong(key,0L)
 }
 
 suspend fun getCacheString(key: String): String? {
@@ -670,6 +691,10 @@ suspend fun getCacheDouble(key: String): Double {
 
 suspend fun hasCacheKey(key: String): Boolean {
     return settingsCache.hasKey(key)
+}
+
+suspend fun removeKey(key:String){
+    settingsCache.remove(key)
 }
 
 suspend fun clearCache() {
