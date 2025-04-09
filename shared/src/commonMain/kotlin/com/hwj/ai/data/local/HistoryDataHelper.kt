@@ -50,6 +50,9 @@ private suspend fun buildConversationTag(): String {
     return DATA_CONVERSATION_TAG + getCacheLong(DATA_USER_ID)
 }
 
+suspend fun deleteMsgByConversationID(conversationId: String){
+    removeKey(buildMsgTag(conversationId))
+}
 
  suspend fun getMsgList(conversationId: String): MutableList<MessageModel>? {
     //缓存要跟userID绑定，不然切账号就乱了

@@ -1,5 +1,6 @@
 package com.hwj.ai.selection
 
+import androidx.compose.material3.Text
 import com.sun.jna.Memory
 import com.sun.jna.Native
 import com.sun.jna.Pointer
@@ -22,6 +23,7 @@ import mmarquee.automation.controls.Document
 import mmarquee.automation.controls.ElementBuilder
 import mmarquee.automation.controls.Search
 import mmarquee.automation.controls.Window
+import mmarquee.automation.pattern.Text
 import java.nio.charset.StandardCharsets
 import java.util.regex.Pattern
 
@@ -50,8 +52,8 @@ object GlobalMouseHook9 {
 //                printD("鼠标左键抬起，尝试获取前台窗口信息 ${lParam.pt.y}")
                 println("Start--------------mouse left up,find window info>${lParam.pt.y}")
                 fetchForegroundAppInfo()
-//                handleMouseAct()
-                handleWordAct()
+                handleMouseAct()
+//                handleWordAct()
             }
         }
 
@@ -166,10 +168,43 @@ object GlobalMouseHook9 {
 //                        println("eb>${editBox.frameworkId} ")
                         val p1 = PointerByReference()
                         val i1 = focusedElement.element.getCurrentFrameworkId(p1)
+                        var flagType = 0
                         when (p1.value.getWideString(0)) {
-                            "Win32" -> println("传统Win32控件，优先LegacyIAccessible") //notepad
-                            "WPF" -> println(".NET控件，尝试TextPattern")
-                            "XAML" -> println("UWP控件，需特殊处理")
+                            "Win32" -> {
+                                flagType = 0
+                                println("传统Win32控件，优先LegacyIAccessible") //notepad
+                            }
+
+                            "WPF" -> {
+                                flagType = 1
+                                println(".NET控件，尝试TextPattern")
+                            }
+
+                            "XAML" -> {
+                                flagType = 2
+                                println("UWP控件，需特殊处理")
+                            }
+                        }
+
+                        if (flagType != 0) {
+
+                            val textPattern = focusedElement.getProvidedPattern(Text::class.java)
+                            if (textPattern != null) {
+                                try {
+                                    val selection = textPattern.selection
+                                    if (null != selection && selection.isNotEmpty()) {
+                                        showContent(selection)
+                                        return
+                                    }
+                                } catch (e: Exception) {
+                                    e.printStackTrace()
+                                }
+                            }
+
+                            //找父元素
+
+                            TreeWalker().v(automation)
+                            return
                         }
 
 

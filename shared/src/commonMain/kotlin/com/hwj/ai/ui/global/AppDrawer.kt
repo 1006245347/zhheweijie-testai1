@@ -1,6 +1,5 @@
 package com.hwj.ai.ui.global
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
@@ -38,7 +37,6 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Shapes
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -53,7 +51,6 @@ import androidx.compose.ui.Alignment.Companion.CenterStart
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -72,10 +69,8 @@ import coil3.request.crossfade
 import com.hwj.ai.global.NavigationScene
 import com.hwj.ai.global.PrimaryColor
 import com.hwj.ai.global.getMills
-import com.hwj.ai.global.isDarkBg
 import com.hwj.ai.global.isDarkPanel
 import com.hwj.ai.global.isDarkTxt
-import com.hwj.ai.global.isLightBg
 import com.hwj.ai.global.isLightPanel
 import com.hwj.ai.global.isLightTxt
 import com.hwj.ai.global.urlToImageAppIcon
@@ -137,6 +132,17 @@ fun AppDrawerIn(
     ) {
         Spacer(Modifier.windowInsetsTopHeight(WindowInsets.statusBars))//影响键盘？
         DrawerHeader(clickAction = onIconClicked)
+
+        DividerItem(modifier = Modifier.padding(horizontal = 28.dp))
+        DrawerItemHeader("Settings")
+        ChatItem("Settings", Icons.Filled.Settings, false) { onChatClicked("Settings") }
+        ProfileItem(
+            " author zhheweijie",
+            urlToImageAuthor,
+        ) {
+//            UrlLauncher().openUrl(context = context, urlToGithub)
+            navigator?.navigate(NavigationScene.SettingLLM.path)
+        }
         DrawerItemHeader("Chats")
         ChatItem("New Chat", Icons.Outlined.AddComment, false) {
             onNewChatClicked()
@@ -149,16 +155,6 @@ fun AppDrawerIn(
             currentConversationState,
             conversationState
         )
-        DividerItem(modifier = Modifier.padding(horizontal = 28.dp))
-        DrawerItemHeader("Settings")
-        ChatItem("Settings", Icons.Filled.Settings, false) { onChatClicked("Settings") }
-        ProfileItem(
-            " author zhheweijie",
-            urlToImageAuthor,
-        ) {
-//            UrlLauncher().openUrl(context = context, urlToGithub)
-            navigator?.navigate(NavigationScene.SettingLLM.path)
-        }
     }
 }
 
@@ -169,7 +165,6 @@ private fun DrawerHeader(
     val paddingSizeModifier = Modifier
         .padding(start = 16.dp, top = 16.dp, bottom = 16.dp)
         .size(34.dp)
-
     Row(verticalAlignment = CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
         Row(
             modifier = Modifier
@@ -301,7 +296,7 @@ private fun ColumnScope.HistoryConversations(
 private fun DrawerItemHeader(text: String) {
     Box(
         modifier = Modifier
-            .heightIn(min = 52.dp)
+            .heightIn(min = 42.dp)
             .padding(horizontal = 28.dp),
         contentAlignment = CenterStart
     ) {
@@ -463,7 +458,7 @@ private fun RecycleChatItem(
 private fun ProfileItem(text: String, urlToImage: String?, onProfileClicked: () -> Unit) {
     Row(
         modifier = Modifier
-            .height(56.dp)
+            .height(46.dp)
             .fillMaxWidth()
             .padding(horizontal = 12.dp)
             .clip(CircleShape)
@@ -471,7 +466,7 @@ private fun ProfileItem(text: String, urlToImage: String?, onProfileClicked: () 
         verticalAlignment = CenterVertically
     ) {
         val paddingSizeModifier = Modifier
-            .padding(start = 16.dp, top = 16.dp, bottom = 16.dp)
+            .padding(start = 16.dp, top = 5.dp, bottom = 5.dp)
             .size(24.dp)
         if (urlToImage != null) {
             Image(

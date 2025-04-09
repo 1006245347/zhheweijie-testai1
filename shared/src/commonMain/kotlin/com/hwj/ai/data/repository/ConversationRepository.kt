@@ -1,5 +1,6 @@
 package com.hwj.ai.data.repository
 
+import com.hwj.ai.data.local.deleteMsgByConversationID
 import com.hwj.ai.data.local.getConversationList
 import com.hwj.ai.data.local.saveConversation
 import com.hwj.ai.data.local.saveConversationList
@@ -33,12 +34,15 @@ class ConversationRepository() {
             while (iterator.hasNext()) {
                 val tmp = iterator.next()
                 if (tmp.id == conversationId) {
+                    //要同时删除这个id下的所有消息记录
+                    deleteMsgByConversationID(conversationId)
                     iterator.remove()
                     break
                 }
             }
         }
         saveConversationList(list)
+        //通知外部刷新
     }
 
     fun getFirstConversation(): ConversationModel? {
