@@ -120,7 +120,7 @@ actual fun BotMsgMenu(message: MessageModel) {
 }
 
 @Composable
-actual fun ToolTipCase(tip: String, content: @Composable () -> Unit) {
+actual fun ToolTipCase(modifier: Modifier?,tip: String, content: @Composable () -> Unit) {
     content()
 }
 

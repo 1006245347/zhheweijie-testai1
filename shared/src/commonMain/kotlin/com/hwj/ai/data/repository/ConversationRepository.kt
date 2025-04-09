@@ -1,15 +1,8 @@
 package com.hwj.ai.data.repository
 
-import com.hwj.ai.data.http.JsonApi
 import com.hwj.ai.data.local.getConversationList
 import com.hwj.ai.data.local.saveConversation
 import com.hwj.ai.data.local.saveConversationList
-import com.hwj.ai.global.DATA_CONVERSATION_TAG
-import com.hwj.ai.global.DATA_USER_ID
-import com.hwj.ai.global.getCacheLong
-import com.hwj.ai.global.getCacheString
-import com.hwj.ai.global.removeKey
-import com.hwj.ai.global.saveString
 import com.hwj.ai.models.ConversationModel
 
 /**

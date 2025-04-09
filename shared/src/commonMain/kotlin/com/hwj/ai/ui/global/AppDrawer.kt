@@ -1,5 +1,8 @@
 package com.hwj.ai.ui.global
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -14,11 +17,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsTopHeight
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -32,10 +38,17 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Shapes
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterStart
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
@@ -43,8 +56,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
@@ -54,6 +71,7 @@ import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.hwj.ai.global.NavigationScene
 import com.hwj.ai.global.PrimaryColor
+import com.hwj.ai.global.getMills
 import com.hwj.ai.global.isDarkBg
 import com.hwj.ai.global.isDarkPanel
 import com.hwj.ai.global.isDarkTxt
@@ -65,6 +83,7 @@ import com.hwj.ai.global.urlToImageAuthor
 import com.hwj.ai.models.ConversationModel
 import com.hwj.ai.ui.viewmodel.ChatViewModel
 import com.hwj.ai.ui.viewmodel.ConversationViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import moe.tlaster.precompose.koin.koinViewModel
 import moe.tlaster.precompose.navigation.Navigator
@@ -118,7 +137,6 @@ fun AppDrawerIn(
     ) {
         Spacer(Modifier.windowInsetsTopHeight(WindowInsets.statusBars))//影响键盘？
         DrawerHeader(clickAction = onIconClicked)
-//        DividerItem()
         DrawerItemHeader("Chats")
         ChatItem("New Chat", Icons.Outlined.AddComment, false) {
             onNewChatClicked()
@@ -207,31 +225,76 @@ private fun ColumnScope.HistoryConversations(
     conversationState: List<ConversationModel>
 ) {
     val scope = rememberCoroutineScope()
+    val chatViewModel = koinViewModel(ChatViewModel::class)
+    val isDark = chatViewModel.darkState.collectAsState()
+    val listState = rememberLazyListState()
+    var listSize by remember { mutableStateOf(IntSize.Zero) }
+    var isScrolling by remember { mutableStateOf(false) }
+    var lastScrollTime by remember { mutableStateOf(0L) }
 
-    LazyColumn(
-        Modifier
-            .fillMaxWidth()
-            .weight(1f, false), //要倒序集合
-    ) {
-        items(conversationState.size) { index ->
-            RecycleChatItem(
-                text = conversationState[index].title,
-                Icons.AutoMirrored.Filled.Message,
-                selected = conversationState[index].id == currentConversationState,
-                onChatClicked = {
-                    onChatClicked(conversationState[index].id)
-                    scope.launch {
-                        onConversation(conversationState[index])
-                    }
-                },
-                onDeleteClicked = {
-                    scope.launch {
-                        deleteConversation(conversationState[index].id)
-                    }
-                }
-            )
+    LaunchedEffect(listState.isScrollInProgress) {
+        if (listState.isScrollInProgress) {
+            isScrolling = true
+            lastScrollTime = getMills()
+        } else {
+            delay(500)
+            if (getMills() - lastScrollTime >= 500) {
+                isScrolling = false
+            }
         }
     }
+    Box(Modifier.fillMaxWidth().weight(1f, false)) {
+        LazyColumn(
+            modifier = Modifier.fillMaxWidth().padding(end = 10.dp)
+                .onGloballyPositioned { listSize = it.size }, state = listState
+        ) {//数据要倒序集合
+            items(conversationState.size) { index ->
+                RecycleChatItem(
+                    text = conversationState[index].title,
+                    Icons.AutoMirrored.Filled.Message,
+                    selected = conversationState[index].id == currentConversationState,
+                    onChatClicked = {
+                        onChatClicked(conversationState[index].id)
+                        scope.launch {
+                            onConversation(conversationState[index])
+                        }
+                    },
+                    onDeleteClicked = {
+                        scope.launch {
+                            //删除正在接收的？
+                            deleteConversation(conversationState[index].id)
+                        }
+                    }
+                )
+            }
+        }
+
+        androidx.compose.animation.AnimatedVisibility(visible = isScrolling, enter = fadeIn(), exit = fadeOut()) {
+            //滚动条
+            if (listState.layoutInfo.totalItemsCount > 0) {
+                val proportion =
+                    1f / listState.layoutInfo.totalItemsCount
+                val scrollOffset =
+                    (listState.firstVisibleItemIndex + listState.firstVisibleItemScrollOffset / 1000f) * proportion
+
+                val scrollbarHeight = (listSize.height * 0.3f).coerceAtLeast(30f) //滚动条高度固定位列表30%
+                val scrollbarOffsetY = (listSize.height - scrollbarHeight) * scrollOffset
+                Box(modifier = Modifier.fillMaxSize().padding(end = 2.dp)) {
+                    Box(Modifier.width(4.dp)
+                        .height(with(LocalDensity.current) { scrollbarHeight.toDp() })
+                        .offset { IntOffset(x = 0, y = scrollbarOffsetY.toInt()) }
+                        .background(
+//                            Color.Cyan.copy(alpha = 0.7f),
+                            if(isDark.value) isDarkTxt() else isLightTxt(),
+                            shape = MaterialTheme.shapes.small
+                        )
+                        .align(Alignment.TopEnd)
+                    )
+                }
+            }
+        }
+    }
+
 }
 
 @Composable
@@ -257,8 +320,8 @@ private fun ChatItem(
     selected: Boolean,
     onChatClicked: () -> Unit
 ) {
-    val chatViewModel= koinViewModel(ChatViewModel::class)
-    val  isDark=chatViewModel.darkState.collectAsState()
+    val chatViewModel = koinViewModel(ChatViewModel::class)
+    val isDark = chatViewModel.darkState.collectAsState()
     val background = if (selected) {
         Modifier.background(MaterialTheme.colorScheme.primaryContainer)
     } else {
@@ -275,9 +338,9 @@ private fun ChatItem(
         verticalAlignment = CenterVertically
     ) {
         val iconTint = if (selected) {
-            if (isDark.value){
+            if (isDark.value) {
                 isDarkPanel()
-            }else{
+            } else {
                 isLightPanel()
             }
         } else {
@@ -295,11 +358,11 @@ private fun ChatItem(
             text = text,
             style = MaterialTheme.typography.bodyMedium,
             color = if (selected) {
-               if (isDark.value){
-                   isDarkTxt()
-               }else{
-                   isLightTxt()
-               }
+                if (isDark.value) {
+                    isDarkTxt()
+                } else {
+                    isLightTxt()
+                }
             } else {
                 MaterialTheme.colorScheme.onSurface //其实Android15也是没有效果
             },
@@ -319,7 +382,9 @@ private fun RecycleChatItem(
     onDeleteClicked: () -> Unit
 ) {
     val chatViewModel = koinViewModel(ChatViewModel::class)
+    val conversationViewModel = koinViewModel(ConversationViewModel::class)
     val isDark = chatViewModel.darkState.collectAsState().value
+    val isReceive = conversationViewModel.isFabExpanded.collectAsState().value
     val background = if (selected) {
         Modifier.background(MaterialTheme.colorScheme.primaryContainer)
     } else {
@@ -343,9 +408,9 @@ private fun RecycleChatItem(
 ////            MaterialTheme.colorScheme.onSurfaceVariant
 //        }
         val iconTint = if (selected) {
-            if (isDark){
+            if (isDark) {
                 isDarkPanel()
-            }else{
+            } else {
                 isLightPanel()
             }
         } else {
@@ -374,18 +439,23 @@ private fun RecycleChatItem(
             overflow = TextOverflow.Ellipsis,
         )
 //        Spacer(Modifier.weight(0.9f, true).backgroundy(Color.Yellow))
-        Icon(
-            imageVector = Icons.Outlined.Delete,
-            contentDescription = "Delete",
-            tint = if (selected) {
-                MaterialTheme.colorScheme.primary
-            } else {
-                MaterialTheme.colorScheme.onSurface
-            },
-            modifier = Modifier.padding(
-                end = 5.dp
-            ).size(35.dp).clickable { onDeleteClicked() }
-        )
+
+        if (selected && isReceive) {
+            //防止删除正在生成的会话
+        } else {
+            Icon(
+                imageVector = Icons.Outlined.Delete,
+                contentDescription = "Delete",
+                tint = if (selected) {
+                    MaterialTheme.colorScheme.primary
+                } else {
+                    MaterialTheme.colorScheme.onSurface
+                },
+                modifier = Modifier.padding(
+                    end = 5.dp
+                ).size(35.dp).clickable { onDeleteClicked() }
+            )
+        }
     }
 }
 

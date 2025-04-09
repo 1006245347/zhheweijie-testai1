@@ -85,7 +85,7 @@ actual fun BotMsgMenu(message: MessageModel) {
 }
 
 @Composable
-actual fun ToolTipCase(tip: String, content: @Composable () -> Unit) {
+actual fun ToolTipCase(modifier: Modifier?,tip: String, content: @Composable () -> Unit) {
     TooltipArea(
         tooltip = { //鼠标移动浮动指向提示
             Surface(modifier = Modifier.padding(2.dp)) {
@@ -93,7 +93,8 @@ actual fun ToolTipCase(tip: String, content: @Composable () -> Unit) {
             }
         },
         delayMillis = 100,
-        tooltipPlacement = TooltipPlacement.CursorPoint(offset = DpOffset(5.dp, 5.dp))
+        tooltipPlacement = TooltipPlacement.CursorPoint(offset = DpOffset(5.dp, 5.dp)),
+        modifier = modifier ?: Modifier
     ) {
         content()
     }

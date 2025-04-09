@@ -1,6 +1,7 @@
 package com.hwj.ai.except
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import com.hwj.ai.models.MessageModel
 
 
@@ -11,7 +12,7 @@ expect fun OpenCameraScreen(isOpen: Boolean, onBack: (Boolean,ByteArray?) -> Uni
 expect fun BotMsgMenu(message: MessageModel)
 
 @Composable
-expect fun ToolTipCase(tip: String, content: @Composable () -> Unit)
+expect fun ToolTipCase(modifier: Modifier?=null,tip: String, content: @Composable () -> Unit)
 
 expect fun isMainThread():Boolean
 
