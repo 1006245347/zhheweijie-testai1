@@ -5,6 +5,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.selection.SelectionContainer
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -24,6 +28,9 @@ import com.hwj.ai.checkSystem
 import com.hwj.ai.global.OsStatus
 import com.hwj.ai.global.ThemeChatLite
 import com.hwj.ai.selection.GlobalMouseHook9
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import moe.tlaster.precompose.ProvidePreComposeLocals
 import java.awt.Dimension
 
@@ -47,11 +54,23 @@ fun WindowsSelectionUIATest(onCloseRequest: () -> Unit) {
 
     LaunchedEffect(isStart.value) {
         if (isStart.value) {
-            GlobalMouseHook9.start(appBlock = { str ->
-                appText.value = str
-            }, contentBlock = { content ->
-                selectedText.value = content
-            })
+            subScope.launch(Dispatchers.IO) {
+                GlobalMouseHook9.start(appBlock = { str ->
+                    appText.value = str
+                }, contentBlock = { content ->
+                    selectedText.value = content
+                })
+            }
+
+            //不能根上面的一起不然会卡
+            subScope.launch(Dispatchers.IO) {
+                while (isStart.value){
+                    delay(50)
+                if (GlobalMouseHook9.isDragging)
+                    GlobalMouseHook9.handleMouseAct()
+                    GlobalMouseHook9.isDragging=false
+                }
+            }
         } else {
             GlobalMouseHook9.stop()
         }
@@ -66,7 +85,7 @@ fun WindowsSelectionUIATest(onCloseRequest: () -> Unit) {
             ThemeChatLite {
                 Surface(Modifier.fillMaxSize()) {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopStart) {
-                        Column {
+                        Column(Modifier.verticalScroll(rememberScrollState())) {
                             Button(onClick = {
                                 if (checkSystem() == OsStatus.WINDOWS) {
                                     isStart.value = !isStart.value
@@ -74,17 +93,22 @@ fun WindowsSelectionUIATest(onCloseRequest: () -> Unit) {
                             }) {
                                 Text("windows划词 ${isStart.value}>")
                             }
-                            Text(
-                                text = "app> ${appText.value}",
-                                fontFamily = FontFamily.Default,
-                                maxLines = 5
-                            )
+                            SelectionContainer {
+                                Text(
+                                    text = "app> ${appText.value}",
+                                    fontFamily = FontFamily.Default,
+                                    maxLines = 5
+                                )
+                            }
                             Spacer(Modifier.height(10.dp))
-                            Text(
-                                text = "find> ${selectedText.value}",
-                                fontFamily = FontFamily.Default,
-                                maxLines = 8
-                            )
+                            SelectionContainer {
+                                Text(
+                                    text = "find> ${selectedText.value}",
+                                    fontFamily = FontFamily.Default,
+
+                                    )
+                            }
+
                         }
                     }
                 }

@@ -1,12 +1,13 @@
 package com.hwj.ai.selection
 
-import androidx.compose.material3.Text
+import com.hwj.ai.except.isMainThread
 import com.sun.jna.Memory
 import com.sun.jna.Native
 import com.sun.jna.Pointer
 import com.sun.jna.platform.win32.Kernel32
 import com.sun.jna.platform.win32.Psapi
 import com.sun.jna.platform.win32.User32
+import com.sun.jna.platform.win32.Variant
 import com.sun.jna.platform.win32.WinDef
 import com.sun.jna.platform.win32.WinDef.LPARAM
 import com.sun.jna.platform.win32.WinNT
@@ -15,17 +16,17 @@ import com.sun.jna.platform.win32.WinUser.HHOOK
 import com.sun.jna.ptr.IntByReference
 import com.sun.jna.ptr.PointerByReference
 import io.ktor.utils.io.core.toByteArray
+import mmarquee.automation.ControlType
 import mmarquee.automation.Element
 import mmarquee.automation.PatternID
 import mmarquee.automation.UIAutomation
 import mmarquee.automation.controls.Application
-import mmarquee.automation.controls.Document
 import mmarquee.automation.controls.ElementBuilder
-import mmarquee.automation.controls.Search
-import mmarquee.automation.controls.Window
 import mmarquee.automation.pattern.Text
+import mmarquee.uiautomation.TreeScope
 import java.nio.charset.StandardCharsets
 import java.util.regex.Pattern
+
 
 /**
  * @author by jason-何伟杰，2025/3/28
@@ -37,12 +38,16 @@ object GlobalMouseHook9 {
     private var mouseHook: HHOOK? = null
     private val user32 = User32.INSTANCE
     private const val WM_LBUTTONUP = 0x0202
+    private const val WM_LBUTTONDOWN = 0x0201
     private val appBuilder = StringBuilder()
     private val contentBuilder = StringBuilder()
     private var endPoint: Long = 0
+    var mousePressedPos = WinDef.POINT() // 记录鼠标按下时的坐标
 
     private var block1: (String?) -> Unit = {}
     private var block2: (String?) -> Unit = {}
+
+    var isDragging = false
 
     private val mouseProc6 = WinUser.LowLevelMouseProc { nCode, wParam, lParam ->
         if (nCode >= 0) {
@@ -50,10 +55,17 @@ object GlobalMouseHook9 {
             //扩展鼠标事件检测
             if (wParamInt == WM_LBUTTONUP) {
 //                printD("鼠标左键抬起，尝试获取前台窗口信息 ${lParam.pt.y}")
-                println("Start--------------mouse left up,find window info>${lParam.pt.y}")
-                fetchForegroundAppInfo()
-                handleMouseAct()
-//                handleWordAct()
+                println("Start--------------mouse left up,find window info> ui=${isMainThread()} ${lParam.pt.y}")
+//                fetchForegroundAppInfo()
+                val d = distanceBetween(mousePressedPos, lParam.pt)
+                if (d>10){ //优化双击
+                    isDragging = true
+                }
+
+//                handleMouseAct() //直接处理容易卡
+            } else if (wParamInt == WM_LBUTTONDOWN) {
+                mousePressedPos = lParam.pt
+                isDragging = false
             }
         }
 
@@ -88,187 +100,223 @@ object GlobalMouseHook9 {
         mouseHook?.let { user32.UnhookWindowsHookEx(it) }
     }
 
-    private fun handleWordAct() {
-        val focusedElement: Element? = automation.focusedElement
-
-        val fhwnd = user32.GetForegroundWindow()
-        val processId = IntByReference()
-        val targetThreadId = user32.GetWindowThreadProcessId(fhwnd, processId)
-        val currentThreadId = Kernel32.INSTANCE.GetCurrentThreadId()
-
-        var attatched = false
-        if (targetThreadId != currentThreadId) {
-            attatched = user32.AttachThreadInput(
-                WinDef.DWORD(currentThreadId.toLong()),
-                WinDef.DWORD(targetThreadId.toLong()), true
-            )
-        }
-
-        val hwnd = ExUser32.INSTANCE.GetFocus()
-//        focusedElement?.let {
-//            val p1=PointerByReference()
-//            it.findAll(TreeScope(TreeScope.NONE),p1)
-//            println("t1>${p1.value}")
-//        }
-
-        try {
-            focusedElement?.let {
-                println("controlType>${it.controlType}") //50030 Document
-                println("name>${it.className} ${it.name}")
-                val pr1 = it.getPattern(PatternID.Text.value)
-                println("pr1>${pr1.pointer.getWideString(0)}")
-                val list = automation.desktopWindows
-                list.forEach { ii ->
-                    println("name>${ii.name} ,${ii.className}")
-                }
-
-//                val window :Window? = automation.getDesktopWindow(Pattern.compile(".*Kotlin.*"),1)
-//                println("w=$window")
-
-//                val document: Document? = window?.getDocument(Search.getBuilder(0).build())
-//                println("document>${document}")
-
-                val chrome = Application(
-                    ElementBuilder().automation(automation)
-                        .applicationPath("\"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe\"")
-                )
-                chrome.launchOrAttach()
-//                val cw1 =chrome.getWindowByClassName("file")
-//                val cw1 = chrome.getWindow(Search.getBuilder(0).build())
-//                println("cw=${cw1.name} ${cw1.getDocument(0)}")
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-    }
-
     //这种命令只可获取到 notepad++的文本，gettext
     //原代码中的handleMouseAct()函数主要使用了 Windows API 的SendMessage方法来获取文本和选中范围，
     // 这种方法更适用于传统的 Win32 控件（如 Notepad++）。而对于 Word 文档、浏览器等现代应用程序，它们通常使用更复杂的 UI 框架（如 WPF、UWP），
     // 这些框架可能不会通过SendMessage响应文本获取请求。
-    private fun handleMouseAct() {
-        try {
-            val focusedElement: Element? = automation.focusedElement
+    fun handleMouseAct() {
+        val focusedElement: Element? = automation.focusedElement
 
-            if (focusedElement != null) {
-                val name = focusedElement.name
-                if (name.isNotEmpty()) {
-                    println("Hack file name>$name") //这个文件名?偶然把整个内容也打出来
+        if (focusedElement != null) {
+//            val name = focusedElement.name
+//            println("Hack  name>$name") //这个文件名?偶然把整个内容也打出来
+
+            try {
+                if (isDragging) {
+//                            val walk = automation.controlViewWalker
+//                            var p1 = walk.getParentElement(focusedElement)
+//                            println("p1>$p1")
+
+//                    val pList = automation.desktopObjects
+//                    val ss1 = StringBuilder()
+//                    pList.forEach { p11 ->
+//                        ss1.append("App> ${p11.name},${p11.processId},${p11.className}}")
+//                            .append("\n")
+//                    }
+//                    val wList = automation.desktopWindows
+//                    wList.forEach { w11 ->
+//                        ss1.append("win> ${w11.name},${w11.processId},${w11.className}}")
+//                            .append("\n")
+//                    }
+//                    block2(ss1.toString())
+
+                    buildTest()
+                    return
                 }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
 
-                println("v>${focusedElement.className} ${focusedElement.isContentElement}")
-                try {
-                    println("k>${focusedElement.controlType} ")
+    fun checkByMsg(): String? {
+        try {
+            val fhwnd = user32.GetForegroundWindow()
+            val processId = IntByReference()
+            val targetThreadId = user32.GetWindowThreadProcessId(fhwnd, processId)
+            val currentThreadId = Kernel32.INSTANCE.GetCurrentThreadId()
 
-//                    val window = automation.getDesktopWindow("*c1.txt - 记事本")
-                    if (true) {
-//                        println("w》${window.name} ${window.isModal}")
-//                        val editBox = window.getEditBox(Search.getBuilder(0).build())
+            var attatched = false
+            if (targetThreadId != currentThreadId) {
+                attatched = user32.AttachThreadInput(
+                    WinDef.DWORD(currentThreadId.toLong()),
+                    WinDef.DWORD(targetThreadId.toLong()), true
+                )
+            }
 
-//                        println("eb>${editBox.frameworkId} ")
-                        val p1 = PointerByReference()
-                        val i1 = focusedElement.element.getCurrentFrameworkId(p1)
-                        var flagType = 0
-                        when (p1.value.getWideString(0)) {
-                            "Win32" -> {
-                                flagType = 0
-                                println("传统Win32控件，优先LegacyIAccessible") //notepad
-                            }
+            val hwnd = ExUser32.INSTANCE.GetFocus()
+//            println("hwnd=$hwnd $attatched")//不是拿当前窗口的句柄，应该是焦点元素控件
 
-                            "WPF" -> {
-                                flagType = 1
-                                println(".NET控件，尝试TextPattern")
-                            }
-
-                            "XAML" -> {
-                                flagType = 2
-                                println("UWP控件，需特殊处理")
-                            }
-                        }
-
-                        if (flagType != 0) {
-
-                            val textPattern = focusedElement.getProvidedPattern(Text::class.java)
-                            if (textPattern != null) {
-                                try {
-                                    val selection = textPattern.selection
-                                    if (null != selection && selection.isNotEmpty()) {
-                                        showContent(selection)
-                                        return
-                                    }
-                                } catch (e: Exception) {
-                                    e.printStackTrace()
-                                }
-                            }
-
-                            //找父元素
-
-                            TreeWalker().v(automation)
-                            return
-                        }
-
-
-                        val fhwnd = user32.GetForegroundWindow()
-                        val processId = IntByReference()
-                        val targetThreadId = user32.GetWindowThreadProcessId(fhwnd, processId)
-                        val currentThreadId = Kernel32.INSTANCE.GetCurrentThreadId()
-
-                        var attatched = false
-                        if (targetThreadId != currentThreadId) {
-                            attatched = user32.AttachThreadInput(
-                                WinDef.DWORD(currentThreadId.toLong()),
-                                WinDef.DWORD(targetThreadId.toLong()), true
-                            )
-                        }
-
-                        val hwnd = ExUser32.INSTANCE.GetFocus()
-                        println("hwnd=$hwnd $attatched")//不是拿当前窗口的句柄，应该是焦点元素控件
-
-                        hwnd?.let {
-                            var textLength = user32.SendMessage(
-                                hwnd, 0x000E,
+            hwnd?.let {
+                var textLength = user32.SendMessage(
+                    hwnd, 0x000E,
 //                                    WinDef.WPARAM(0), LPARAM(0)
-                                null, null
-                            ).toInt()
-                            println("textLength>" + textLength)
+                    null, null
+                ).toInt()
+//                        println("textLength>" + textLength)
 //                                user32.AttachThreadInput()
-                            if (textLength > 0) {
-                                textLength += 1
-                                val buffer = Memory(textLength * 2L)
+                if (textLength > 0) {
+                    textLength += 1
+                    val buffer = Memory(textLength * 2L)
 
-                                user32.SendMessage(
-                                    hwnd,
-                                    0x000D,
-                                    WinDef.WPARAM((textLength).toLong()),
-                                    LPARAM(Pointer.nativeValue(buffer))
-                                )
+                    user32.SendMessage(
+                        hwnd,
+                        0x000D,
+                        WinDef.WPARAM((textLength).toLong()),
+                        LPARAM(Pointer.nativeValue(buffer))
+                    )
 //                                    val fullText = buffer.getString(0, "UTF-16LE")
-                                val fullText = buffer.getWideString(0)
-                                println("fullTxt>$fullText")
-                                var selStart = IntByReference()
-                                var selEnd = IntByReference()
-                                user32.SendMessage(
-                                    hwnd, 0xB0,
-                                    WinDef.WPARAM(Pointer.nativeValue(selStart.pointer)),
-                                    LPARAM(Pointer.nativeValue(selEnd.pointer))
-                                )
-                                val start = selStart.value
-                                val end = selEnd.value
-                                if (start >= 0 && end > start && end <= fullText.length) {
-                                    println("result>>${fullText.substring(start, end)}")
+                    val fullText = buffer.getWideString(0)
+//                            println("fullTxt>$fullText")
+                    var selStart = IntByReference()
+                    var selEnd = IntByReference()
+                    user32.SendMessage(
+                        hwnd, 0xB0,
+                        WinDef.WPARAM(Pointer.nativeValue(selStart.pointer)),
+                        LPARAM(Pointer.nativeValue(selEnd.pointer))
+                    )
+                    val start = selStart.value
+                    val end = selEnd.value
+                    if (start >= 0 && end > start && end <= fullText.length) {
 //                                        val mText=String(fullText.substring(start,end).toByteArray(StandardCharsets.UTF_16LE),StandardCharsets.UTF_8)
-                                }
-
-                            }
-                        }
+                        return fullText.substring(start, end)
                     }
-                } catch (e: Exception) {
-                    e.printStackTrace()
                 }
             }
         } catch (e: Exception) {
             e.printStackTrace()
         }
+        return null
+    }
+
+    fun buildApps(): MutableList<AppInfoModel> {
+        val start = System.currentTimeMillis()
+        val appList = mutableListOf<AppInfoModel>()
+        val panelList = automation.desktopObjects
+        panelList.forEach { p1 ->
+            appList.add(AppInfoModel(p1.processId.toString(), p1.name, p1.className))
+        }
+        val windowList = automation.desktopWindows
+        windowList.forEach { w1 ->
+            appList.add(AppInfoModel(w1.processId.toString(), w1.name, w1.className))
+        }
+        println("costTime> ${System.currentTimeMillis() - start}")
+        return appList
+    }
+
+    //考虑一个丢弃，还有只处理最后一个
+    private fun buildTest() {
+        val nowProcessId = automation.focusedElement.processId.toString()
+        val apps = buildApps()
+//        printList(apps)//Microsoft​ Edge
+        for (app in apps) {
+            if (app.processId == nowProcessId && app.title.isNotEmpty()) {
+//                println("ed> ${app.title}")
+                checkApp(app.title)
+                break
+            }
+        }
+    }
+
+    fun checkApp(appName: String) {
+//        val pattern = Pattern.compile(".*" +)
+        var panel: mmarquee.automation.controls.Panel? = null
+        var window: mmarquee.automation.controls.Window? = null
+        var result: String? = null
+        val cType = automation.focusedElement.controlType
+        println("controlType>$cType")
+        if (appName.endsWith("Google Chrome")) {
+            panel = automation.getDesktopObject(getP("Google Chrome"), 2)
+            if (panel != null && "Chrome_WidgetWin_1".equals(panel.className)) {
+                result = panel.getDocument(0)?.selection
+            }
+        } else if (appName.endsWith("Microsoft\u200B Edge") ||
+            appName.endsWith("Microsoft Edge")
+        ) {
+            window = automation.getDesktopWindow(getP("Microsoft\u200B Edge"), 2)
+            if (window == null) {
+                window = automation.getDesktopWindow(getP("Microsoft Edge"), 2)
+            }
+            if (window != null && window.className.equals("Chrome_WidgetWin_1")) {
+                //50004 Edit
+//                println("me>Microsoft\u200B Edge")//Microsoft​ Edge
+                result = window.getDocument(0).selection
+            }
+        } else if (appName.contains("G平台")) {
+            panel = automation.getDesktopObject(getP("G平台"), 2)
+            if (panel != null && panel.className.equals("Chrome_WidgetWin_1")) {
+//                val txt1 = panel.getTextBox(Search.Builder(0).build())
+//                if (txt1 != null) {
+//
+//                    result = txt1.name
+//
+//                } else {
+//                }
+                //50026 50020=Text
+
+                val textPattern = automation.focusedElement.getProvidedPattern(Text::class.java)
+                if (textPattern != null) {
+                    result = textPattern.selection
+                } else {
+//                    val t11 = panel.getTextBoxByAutomationId(automation.focusedElement.automationId)
+//                    println("T>${t11.name}")
+                    //还是不行、
+//                    val variant1 = Variant.VARIANT.ByValue()
+//                val e11=    automation.focusedElement.findFirst(
+//                        TreeScope(TreeScope.DESCENDANTS),
+//                        automation.createPropertyCondition(ControlType.Text.value,variant1))
+//                    println("e11>$e11")
+                    TreeWalker().v(automation) { s -> result = s }
+                }
+            }
+//                result = panel.getDocument(0).selection
+        } else if (appName.contains("M-AI")) {
+            panel = automation.getDesktopObject(getP("M-AI"), 2)
+            if (panel != null && panel.className.equals("Chrome_WidgetWin_1")) {
+                result = panel.getDocument(0).selection
+            }
+        } else if (appName.contains("Notepad++")) {
+            window = automation.getDesktopWindow(getP("Notepad++"), 2)
+            if (window != null && window.className.equals("Notepad++")) {
+                result = checkByMsg()
+            }
+        } else if (appName.endsWith("记事本")) {
+            window = automation.getDesktopWindow(getP("记事本"), 2)
+            if (window != null && window.className.equals("Notepad")) {
+                result = checkByMsg()
+            }
+        } else if (appName.contains("Terminal")) {
+            window = automation.getDesktopWindow(getP("Terminal"), 2)
+            if (window != null && window.className.equals("SunAwtFrame")) {
+//                window.get //
+                result = checkByMsg()
+            }
+        } else if (appName.contains("WPS 文字")) {
+            window = automation.getDesktopWindow(getP("WPS 文字"), 2)
+            if (null != window && window.className.equals("KxWpsPromeMainWindow")) {
+//                TreeWalker().v(automation)
+            }
+        }
+
+        println("find>>  $result")
+        result?.let {
+            block2(result)
+            isDragging=false
+        }
+    }
+
+    fun getP(title: String): Pattern {
+        return Pattern.compile(".*$title.*")
     }
 
     private fun showContent(text: String) {
