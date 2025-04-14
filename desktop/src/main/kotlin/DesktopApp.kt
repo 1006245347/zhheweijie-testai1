@@ -1,6 +1,18 @@
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Tray
+import androidx.compose.ui.window.WindowPosition
 import androidx.compose.ui.window.application
+import androidx.compose.ui.window.rememberTrayState
+import androidx.compose.ui.window.rememberWindowState
 import com.hwj.ai.PlatformWindowStart
-import com.hwj.ai.test.WindowsCaptureTest
+import com.hwj.ai.capture.LocalMainWindow
+import com.hwj.ai.global.LocalAppResource
+import com.hwj.ai.global.rememberAppResource
+import com.hwj.ai.selection.GlobalMouseHook9
 import com.hwj.ai.test.WindowsSelectionUIATest
 import di.initKoin
 import io.github.aakira.napier.DebugAntilog
@@ -28,11 +40,36 @@ fun main() {
     )
 
     return application {
-//        PlatformWindowStart { exitApplication() }
+        val windowState = rememberWindowState(
+            position = WindowPosition.Aligned(Alignment.Center),
+            width = 700.dp,
+            height = 500.dp,
+        )
+        CompositionLocalProvider(
+            LocalAppResource provides rememberAppResource(),
+        ) {
+            val trayState = rememberTrayState()
+            Tray(icon = LocalAppResource.current.icon, state = trayState,
+                tooltip = "testAi", menu = {
+                    Item("open", onClick = {
+                        windowState.isMinimized = false //设置程序最小化
+                    })
+                    Item("exit", onClick = {
+                        GlobalMouseHook9.stop()
+                        exitApplication()
+                    })
+                }, onAction = { //双击触发
+                    windowState.isMinimized = false
+                })
+
+
+            PlatformWindowStart(windowState) { exitApplication() }
 //        WindowsCaptureTest { exitApplication() } //测试截图
 //        WindowsSelectionTest { exitApplication() } //测试划词
 //        WindowsOcrTest{ exitApplication()} //测试ocr划词
-        WindowsSelectionUIATest { exitApplication() }
+
+//            WindowsSelectionUIATest(windowState) { exitApplication() } //可识别win32、浏览器选中文字
+        }
     }
 }
 

@@ -65,7 +65,7 @@ class GlobalRepository(private val client: HttpClient) {
         hunyuan.model = "hunyuan-vision"
 //        hunyuan.hostUrl = "https://hunyuan.tencentcloudapi.com/"
         hunyuan.hostUrl="https://api.hunyuan.cloud.tencent.com/v1/"
-        hunyuan.url = "ChatCompletions"
+        hunyuan.url = "chat/completions"
         hunyuan.sk = "sk-NDI07Dpew9y1J7W0Fpoj1ywjo50p7H0cwKePxl4EEjJiLIlI"
         val baitong = LLMModel()
         baitong.model = "gpt-4o"

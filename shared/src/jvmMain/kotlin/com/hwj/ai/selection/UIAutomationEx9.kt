@@ -7,23 +7,16 @@ import com.sun.jna.Pointer
 import com.sun.jna.platform.win32.Kernel32
 import com.sun.jna.platform.win32.Psapi
 import com.sun.jna.platform.win32.User32
-import com.sun.jna.platform.win32.Variant
 import com.sun.jna.platform.win32.WinDef
 import com.sun.jna.platform.win32.WinDef.LPARAM
 import com.sun.jna.platform.win32.WinNT
 import com.sun.jna.platform.win32.WinUser
 import com.sun.jna.platform.win32.WinUser.HHOOK
 import com.sun.jna.ptr.IntByReference
-import com.sun.jna.ptr.PointerByReference
 import io.ktor.utils.io.core.toByteArray
-import mmarquee.automation.ControlType
 import mmarquee.automation.Element
-import mmarquee.automation.PatternID
 import mmarquee.automation.UIAutomation
-import mmarquee.automation.controls.Application
-import mmarquee.automation.controls.ElementBuilder
 import mmarquee.automation.pattern.Text
-import mmarquee.uiautomation.TreeScope
 import java.nio.charset.StandardCharsets
 import java.util.regex.Pattern
 
@@ -58,7 +51,7 @@ object GlobalMouseHook9 {
                 println("Start--------------mouse left up,find window info> ui=${isMainThread()} ${lParam.pt.y}")
 //                fetchForegroundAppInfo()
                 val d = distanceBetween(mousePressedPos, lParam.pt)
-                if (d>10){ //优化双击
+                if (d > 10) { //优化双击
                     isDragging = true
                 }
 
@@ -88,16 +81,37 @@ object GlobalMouseHook9 {
         block2 = contentBlock
         println("Hack install success!")
 
+        //快捷键注册
+        val hwnd: WinDef.HWND? = null  //空代表当前进程
+        val k_alt = 0x0001
+        val k_a = 0x41
+        val k_id1 = 1
+        if (!user32.RegisterHotKey(hwnd, k_id1, k_alt, k_a)) {
+            println("register hot failed>")
+        }
+
+
         // 必须阻塞消息循环，否则 Hook 会立即退出
         val msg = WinUser.MSG()
         while (user32.GetMessage(msg, null, 0, 0) != 0) {
+            if (msg.message == WinUser.WM_HOTKEY) {
+                val hotkeyId = msg.wParam.toInt()
+                if (hotkeyId == k_id1) {
+                    println("hwj-alt a")
+                }
+            }
             user32.TranslateMessage(msg)
             user32.DispatchMessage(msg)
         }
     }
 
     fun stop() {
+        releaseHotKey()
         mouseHook?.let { user32.UnhookWindowsHookEx(it) }
+    }
+
+    private fun releaseHotKey() {
+        user32.UnregisterHotKey(null, 1)
     }
 
     //这种命令只可获取到 notepad++的文本，gettext
@@ -311,7 +325,7 @@ object GlobalMouseHook9 {
         println("find>>  $result")
         result?.let {
             block2(result)
-            isDragging=false
+            isDragging = false
         }
     }
 
@@ -376,6 +390,5 @@ object GlobalMouseHook9 {
             val INSTANCE: ExUser32 = Native.load("user32", ExUser32::class.java)
         }
     }
-
 }
 

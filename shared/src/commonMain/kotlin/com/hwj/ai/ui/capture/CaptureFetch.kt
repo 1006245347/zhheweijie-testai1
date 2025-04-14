@@ -27,7 +27,6 @@ import testai1.shared.generated.resources.Res
 import testai1.shared.generated.resources.ic_big_logo
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
-import kotlin.time.measureTimedValue
 
 @Composable
 fun CaptureFetch() {

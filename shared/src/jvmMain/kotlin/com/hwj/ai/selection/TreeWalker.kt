@@ -40,6 +40,8 @@ class TreeWalker {
                         walker!!.walk(this, element)
                         level--
                     }
+
+
                     return true
                 }
             }
