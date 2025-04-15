@@ -132,7 +132,8 @@ actual fun isMainThread(): Boolean {
 @Composable
 actual fun ScreenShotPlatform(onSave: (String?) -> Unit){}
 
-actual class TextSelectionMonitor {
-    actual fun startMonitoring(onTextSelected:(appName:String,text:String)->Unit){}
-    actual fun stopMonitoring(){}
-}
+@Composable
+actual fun HookSelection(){}
+
+@Composable
+actual fun FloatWindow(){}

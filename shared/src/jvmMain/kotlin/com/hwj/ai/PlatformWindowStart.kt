@@ -7,19 +7,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
-import androidx.compose.ui.window.WindowPosition
-import androidx.compose.ui.window.rememberTrayState
-import androidx.compose.ui.window.rememberWindowState
+import androidx.compose.ui.window.WindowState
 import com.hwj.ai.capture.LocalMainWindow
+import com.hwj.ai.global.OsStatus
 import com.hwj.ai.global.ThemeChatLite
-import com.hwj.ai.global.LocalAppResource
-import com.hwj.ai.global.rememberAppResource
 import moe.tlaster.precompose.ProvidePreComposeLocals
 import java.awt.Dimension
-import androidx.compose.ui.window.Tray
-import androidx.compose.ui.window.WindowState
 
 //编译运行命令 ./gradlew :desktop:run
 //打包命令 ./gradlew packageDistributionForCurrentOS
@@ -36,7 +30,7 @@ fun PlatformWindowStart(windowState: WindowState, onCloseRequest: () -> Unit) {
     return Window(
         onCloseRequest = {
             windowState.isMinimized = true
-        }, title = "hwj-ai-chat", state = windowState
+        }, title = "hwj-ai-chat", state = windowState,
     ) {
         val window = this.window
         window.minimumSize = Dimension(650, 450)

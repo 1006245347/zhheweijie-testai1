@@ -18,4 +18,6 @@ sealed class Event {
     data class GlobalEvent(val code:Int) : Event()
 
     data object RefreshEvent : Event()
+
+    data class HotKeyEvent(val code :Int):Event()
 }

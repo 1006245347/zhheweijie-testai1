@@ -77,6 +77,7 @@ import io.github.vinceglb.filekit.PlatformFile
 import io.github.vinceglb.filekit.name
 import io.github.vinceglb.filekit.path
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import moe.tlaster.precompose.koin.koinViewModel
 import moe.tlaster.precompose.navigation.Navigator
@@ -137,7 +138,7 @@ fun InputTopIn(state: LazyListState, navigator: Navigator) {
                         conversationViewModel.addCameraImage(PlatformFile(it))
                     }
                 }
-                needPermissionCamera.value=false
+                needPermissionCamera.value = false
             }
         }, deniedAction = {
             needPermissionCamera.value = false
@@ -147,7 +148,7 @@ fun InputTopIn(state: LazyListState, navigator: Navigator) {
         createPermission(PermissionPlatform.GALLERY, grantedAction = {
             subScope.launch {
                 conversationViewModel.selectImage()
-                needPermissionGallery.value=false //用户打开后却文件管理器点击取消，没法重置
+                needPermissionGallery.value = false //用户打开后却文件管理器点击取消，没法重置
             }
         }, deniedAction = {
             needPermissionGallery.value = false
@@ -161,8 +162,11 @@ fun InputTopIn(state: LazyListState, navigator: Navigator) {
                 onClick = {
                     when (list[index].title) {
                         "相册" -> {
-                            needPermissionGallery.value = true
-//                            printD("set>${needPermissionGallery.value}")
+//                            needPermissionGallery.value = true
+                            subScope.launch {
+                                delay(3000)
+                                chatViewModel.preWindow(true)
+                            }
                         }
 
                         "拍摄" -> {
@@ -174,9 +178,9 @@ fun InputTopIn(state: LazyListState, navigator: Navigator) {
                         }
 
                         "截图" -> {
-                            if (conversationViewModel.checkSelectedImg()){
-                            chatViewModel.shotScreen(true)
-                            }else{
+                            if (conversationViewModel.checkSelectedImg()) {
+                                chatViewModel.shotScreen(true)
+                            } else {
                                 ToastUtils.show("最多处理两张图片")
                             }
                         }

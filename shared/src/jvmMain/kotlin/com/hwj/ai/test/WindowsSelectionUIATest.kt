@@ -14,8 +14,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -24,9 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
-import androidx.compose.ui.window.WindowPosition
 import androidx.compose.ui.window.WindowState
-import androidx.compose.ui.window.rememberWindowState
 import com.hwj.ai.capture.LocalMainWindow
 import com.hwj.ai.checkSystem
 import com.hwj.ai.global.OsStatus
@@ -55,7 +51,7 @@ fun WindowsSelectionUIATest(windowState: WindowState, onCloseRequest: () -> Unit
             subScope.launch(Dispatchers.IO) {
                 GlobalMouseHook9.start(appBlock = { str ->
                     appText.value = str
-                }, contentBlock = { content ->
+                }, contentBlock = { content -> //获取到选中数据
                     selectedText.value = content
                 })
             }

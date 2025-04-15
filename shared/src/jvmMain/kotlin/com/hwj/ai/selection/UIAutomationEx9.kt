@@ -1,6 +1,8 @@
 package com.hwj.ai.selection
 
 import com.hwj.ai.except.isMainThread
+import com.hwj.ai.global.Event
+import com.hwj.ai.global.EventHelper
 import com.sun.jna.Memory
 import com.sun.jna.Native
 import com.sun.jna.Pointer
@@ -98,6 +100,7 @@ object GlobalMouseHook9 {
                 val hotkeyId = msg.wParam.toInt()
                 if (hotkeyId == k_id1) {
                     println("hwj-alt a")
+                    EventHelper.post(Event.HotKeyEvent(k_id1))
                 }
             }
             user32.TranslateMessage(msg)
@@ -331,6 +334,10 @@ object GlobalMouseHook9 {
 
     fun getP(title: String): Pattern {
         return Pattern.compile(".*$title.*")
+    }
+
+    fun handleWps(){
+        
     }
 
     private fun showContent(text: String) {

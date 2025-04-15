@@ -13,7 +13,12 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
@@ -28,8 +33,13 @@ import com.hwj.ai.global.onlyDesktop
 import com.hwj.ai.global.printD
 import com.hwj.ai.global.workInSub
 import com.hwj.ai.models.MessageModel
+import com.hwj.ai.selection.GlobalMouseHook9
+import com.hwj.ai.ui.FloatWindowInside
 import com.hwj.ai.ui.viewmodel.ChatViewModel
 import com.hwj.ai.ui.viewmodel.ConversationViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import moe.tlaster.precompose.koin.koinViewModel
 
 @Composable
@@ -85,7 +95,7 @@ actual fun BotMsgMenu(message: MessageModel) {
 }
 
 @Composable
-actual fun ToolTipCase(modifier: Modifier?,tip: String, content: @Composable () -> Unit) {
+actual fun ToolTipCase(modifier: Modifier?, tip: String, content: @Composable () -> Unit) {
     TooltipArea(
         tooltip = { //鼠标移动浮动指向提示
             Surface(modifier = Modifier.padding(2.dp)) {
@@ -122,16 +132,45 @@ actual fun ScreenShotPlatform(onSave: (String?) -> Unit) {
 }
 
 //AI 划词工具
-actual class TextSelectionMonitor {
-    actual fun startMonitoring(onTextSelected: (appName: String, text: String) -> Unit) {
-        if (checkSystem() == OsStatus.WINDOWS) {
-
-        } else if (checkSystem() == OsStatus.MACOS) {
-
+//只实现windows的划词
+@Composable
+actual fun HookSelection() {
+    if (checkSystem() != OsStatus.WINDOWS) return
+    //浮窗
+    val chatViewModel = koinViewModel(ChatViewModel::class)
+    val isPreWindowState by chatViewModel.isPreWindowState.collectAsState()
+    val useSelectState by chatViewModel.useSelectState.collectAsState()
+    val subScope = rememberCoroutineScope()
+    LaunchedEffect(useSelectState) { //是否开启划词功能
+        if (useSelectState) {
+            subScope.launch(Dispatchers.IO) {
+                GlobalMouseHook9.start(appBlock = { info ->
+                    chatViewModel.findAppInfo(info)
+                }, contentBlock = { content ->
+                    content?.let {
+                        chatViewModel.findSelectText(content)
+                        println("result>$content")
+                        chatViewModel.preWindow(true)
+                    }
+                })
+            }
+            //拆线程才不卡
+            subScope.launch(Dispatchers.IO) {
+                while (useSelectState) {
+                    delay(50)
+                    if (GlobalMouseHook9.isDragging) {
+                        GlobalMouseHook9.handleMouseAct()
+                        GlobalMouseHook9.isDragging = false
+                    }
+                }
+            }
+        } else {
+            GlobalMouseHook9.stop()
         }
-
     }
-
-    actual fun stopMonitoring() {}
 }
 
+@Composable
+actual fun FloatWindow() {
+    FloatWindowInside()
+}

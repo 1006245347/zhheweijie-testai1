@@ -1,6 +1,4 @@
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Tray
@@ -9,11 +7,9 @@ import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberTrayState
 import androidx.compose.ui.window.rememberWindowState
 import com.hwj.ai.PlatformWindowStart
-import com.hwj.ai.capture.LocalMainWindow
 import com.hwj.ai.global.LocalAppResource
 import com.hwj.ai.global.rememberAppResource
 import com.hwj.ai.selection.GlobalMouseHook9
-import com.hwj.ai.test.WindowsSelectionUIATest
 import di.initKoin
 import io.github.aakira.napier.DebugAntilog
 import io.github.aakira.napier.Napier

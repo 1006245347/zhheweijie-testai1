@@ -26,6 +26,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
+import com.hwj.ai.except.FloatWindow
+import com.hwj.ai.except.HookSelection
 import com.hwj.ai.global.CODE_IS_DARK
 import com.hwj.ai.global.ThemeChatLite
 import com.hwj.ai.global.cDeepLine
@@ -39,6 +41,9 @@ import com.hwj.ai.ui.viewmodel.ChatViewModel
 import com.hwj.ai.ui.viewmodel.ConversationViewModel
 import com.hwj.ai.ui.viewmodel.ModelConfigIntent
 import com.hwj.ai.ui.viewmodel.ModelConfigState
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import moe.tlaster.precompose.koin.koinViewModel
 import moe.tlaster.precompose.navigation.BackHandler
@@ -53,7 +58,9 @@ fun ChatScreen(navigator: Navigator) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val drawerOpen by chatViewModel.drawerShouldBeOpened.collectAsState()
     val curConversationId by conversationViewModel.currentConversationState.collectAsState()
-
+    //浮窗
+    val isPreWindowState by chatViewModel.isPreWindowState.collectAsState()
+    val useSelectState by chatViewModel.useSelectState.collectAsState()
     if (drawerOpen) {
         LaunchedEffect(Unit) {
             try {
@@ -87,6 +94,8 @@ fun ChatScreen(navigator: Navigator) {
         //主动获取数据
         chatViewModel.processConfig(ModelConfigIntent.LoadData)
     }
+
+    HookSelection()
 
 //    printD("dark1>${darkTheme.value}")
     ThemeChatLite(isDark = darkTheme.value) {
@@ -138,6 +147,7 @@ fun ChatScreen(navigator: Navigator) {
                         }
                     }
 
+                    //为了全局显示toast
                     ToastHost(
                         modifier = Modifier
                             .padding(horizontal = 16.dp, vertical = 12.dp)
@@ -147,11 +157,28 @@ fun ChatScreen(navigator: Navigator) {
                             .background(Color.Black.copy(alpha = 0.6f), RoundedCornerShape(8.dp))
                             .align(Alignment.BottomCenter)
                     )
+
+                    //全局浮窗 测试
+                    if (isPreWindowState) {
+                        FloatWindow()
+                    }
                 }
             }
         }
     }
 }
+
+//@Composable
+//fun HookSelection() {
+//    val subScope  = rememberCoroutineScope()
+//    val selectText= remember { mutableStateOf<String?>(null) }
+//    val appText = remember { mutableStateOf<String?>(null) }
+//    if (useHook) {
+//        subScope.launch (Dispatchers.IO){
+//
+//        }
+//    }
+//}
 
 @Composable
 fun ChatInit(state: ModelConfigState) {
@@ -165,3 +192,4 @@ fun ChatInit(state: ModelConfigState) {
         }
     }
 }
+

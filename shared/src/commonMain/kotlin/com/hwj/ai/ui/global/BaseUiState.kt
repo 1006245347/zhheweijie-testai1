@@ -28,6 +28,17 @@ open class BaseUiState2<T> {
 }
 
 //全局用户意图
-sealed class GlobalIntent{
-    object CheckDarkTheme:GlobalIntent()
+sealed class GlobalIntent {
+    data object CheckDarkTheme : GlobalIntent()
+}
+
+data class AISelectState(
+    val data: String? = null
+)
+
+sealed class AISelectIntent {
+    data object SearchData : AISelectIntent()
+    data object SummaryData : AISelectIntent()
+    data object CopyData : AISelectIntent()
+
 }

@@ -72,7 +72,6 @@ fun ScreenshotOverlay11(
     onCapture: (BufferedImage) -> Unit,
     onCancel: () -> Unit
 ) {
-
     var showActBtn by remember { mutableStateOf(false) }
     var capturedRect by remember { mutableStateOf<Rect?>(null) }
     val state = remember { ScreenshotState11() }

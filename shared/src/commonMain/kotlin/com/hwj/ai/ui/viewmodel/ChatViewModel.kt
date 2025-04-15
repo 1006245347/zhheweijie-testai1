@@ -1,10 +1,16 @@
 package com.hwj.ai.ui.viewmodel
 
+import com.hwj.ai.data.http.toast
 import com.hwj.ai.data.repository.GlobalRepository
+import com.hwj.ai.except.ClipboardHelper
 import com.hwj.ai.global.CODE_IS_DARK
+import com.hwj.ai.global.Event
+import com.hwj.ai.global.EventHelper
+import com.hwj.ai.global.NotificationsManager
 import com.hwj.ai.global.getCacheBoolean
 import com.hwj.ai.global.getMills
 import com.hwj.ai.models.LLMModel
+import com.hwj.ai.ui.global.AISelectIntent
 import com.hwj.ai.ui.global.GlobalIntent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,7 +20,11 @@ import kotlinx.coroutines.launch
 import moe.tlaster.precompose.viewmodel.ViewModel
 import moe.tlaster.precompose.viewmodel.viewModelScope
 
-class ChatViewModel(private val globalRepo: GlobalRepository) : ViewModel() {
+class ChatViewModel(
+    private val globalRepo: GlobalRepository,
+    private val toastManager: NotificationsManager,
+    private val clipboardHelper: ClipboardHelper
+) : ViewModel() {
 
     private val _drawerShouldBeOpened = MutableStateFlow(false)
     val drawerShouldBeOpened = _drawerShouldBeOpened.asStateFlow()
@@ -44,6 +54,20 @@ class ChatViewModel(private val globalRepo: GlobalRepository) : ViewModel() {
     private val _isShotObs = MutableStateFlow(false)
     val isShotState = _isShotObs.asStateFlow()
 
+    //是否启用划词
+    private val _useSelectObs = MutableStateFlow(true)
+    val useSelectState = _useSelectObs.asStateFlow()
+
+    //显示浮窗功能
+    private val _isPreWindowObs = MutableStateFlow(false)
+    val isPreWindowState = _isPreWindowObs.asStateFlow()
+
+    private val _appInfoObs = MutableStateFlow<String?>(null)
+    val appInfoState = _appInfoObs.asStateFlow()
+
+    private val _selectTextObs = MutableStateFlow<String?>(null)
+    val selectTextState = _selectTextObs.asStateFlow()
+
     fun processConfig(intent: ModelConfigIntent) {
         when (intent) {
             is ModelConfigIntent.LoadData -> {
@@ -62,6 +86,20 @@ class ChatViewModel(private val globalRepo: GlobalRepository) : ViewModel() {
         when (intent) {
             is GlobalIntent.CheckDarkTheme -> {
                 fetchDarkStatus()
+            }
+        }
+    }
+
+    fun processAiSelect(intent: AISelectIntent) {
+        when (intent) {
+            is AISelectIntent.CopyData -> {
+                _selectTextObs.value?.let {
+                    copyToClipboard(it)
+                }
+            }
+
+            else -> {
+                AISearch(intent)
             }
         }
     }
@@ -85,12 +123,54 @@ class ChatViewModel(private val globalRepo: GlobalRepository) : ViewModel() {
         }
     }
 
+    private fun AISearch(intent: AISelectIntent) {
+
+        //对选中的词用完要立刻清掉，不然浮窗又弹？
+    }
+
+
     fun collapsedPage() {
         _isCollapsedObs.value = !_isCollapsedObs.value
     }
 
-    fun shotScreen(flag:Boolean) {
+    fun shotScreen(flag: Boolean) {
         _isShotObs.value = flag
+    }
+
+    fun preWindow(flag: Boolean) {
+        _isPreWindowObs.value = flag
+    }
+
+    fun findAppInfo(info: String?) {
+        info?.let {
+            _appInfoObs.value = info
+        }
+    }
+
+    fun findSelectText(text: String?) {
+        text?.let {
+            _selectTextObs.value = text
+        }
+    }
+
+    fun copyToClipboard(text: String) {
+        try {
+            clipboardHelper.copyToClipboard(text)
+        } catch (e: Exception) {
+            toast(toastManager, "err", e.message.toString())
+        }
+    }
+
+    val eventObs = viewModelScope.launch {
+        EventHelper.events.collect{ event->
+            when (event){
+                is Event.HotKeyEvent->{
+                    //清空界面、缓存数据？？
+                    shotScreen(true)
+                }
+                else->{}
+            }
+        }
     }
 }
 
@@ -104,11 +184,12 @@ data class ModelConfigState(
 
 sealed class ModelConfigIntent {
     //获取所有的大模型数据，解析后保存到本地
-    object LoadData : ModelConfigIntent()
+    data object LoadData : ModelConfigIntent()
 
     //判断时间间隔是否需要更新数据，主动拉取，
     data class UpdateData(val time: Long) : ModelConfigIntent()
 }
+
 
 //// MyState 继承自 UiState
 //data class MyState(

@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.GeneratingTokens
@@ -130,7 +131,7 @@ fun HumanMessageCard(message: MessageModel) {
         message.imagePath?.let { imgList ->
             LazyRow {
                 items(imgList) { imgS ->
-                    val img= PlatformFile(imgS)
+                    val img = PlatformFile(imgS)
                     Box(modifier = Modifier.padding(5.dp).size(60.dp, 50.dp)) {
                         AsyncImage(
                             img.path, contentDescription = img.name,
@@ -141,13 +142,15 @@ fun HumanMessageCard(message: MessageModel) {
                 }
             }
         }
-        Text(
-            text = message.question,
-            fontSize = 14.sp,
-            color = if (isDark) isDarkTxt() else isLightTxt(),
-            modifier = Modifier.padding(horizontal = 15.dp, vertical = 8.dp),
-            textAlign = TextAlign.Justify,
-        )
+        SelectionContainer {
+            Text(
+                text = message.question,
+                fontSize = 14.sp,
+                color = if (isDark) isDarkTxt() else isLightTxt(),
+                modifier = Modifier.padding(horizontal = 15.dp, vertical = 8.dp),
+                textAlign = TextAlign.Justify,
+            )
+        }
     }
 }
 
