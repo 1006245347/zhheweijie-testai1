@@ -27,6 +27,8 @@ import com.hwj.ai.capture.LocalMainWindow
 import com.hwj.ai.capture.ScreenshotOverlay11
 import com.hwj.ai.capture.saveToFile11
 import com.hwj.ai.checkSystem
+import com.hwj.ai.global.Event
+import com.hwj.ai.global.EventHelper
 import com.hwj.ai.global.OsStatus
 import com.hwj.ai.global.PrimaryColor
 import com.hwj.ai.global.onlyDesktop
@@ -121,10 +123,15 @@ actual fun ScreenShotPlatform(onSave: (String?) -> Unit) {
     val chatViewModel = koinViewModel(ChatViewModel::class)
     val subScope = rememberCoroutineScope()
     val isShotState = chatViewModel.isShotState.collectAsState().value
+    val isHotShotState = chatViewModel.isShotByHotKeyState.collectAsState().value
     if (isShotState && onlyDesktop()) {
         ScreenshotOverlay11(mainWindow = mainWindow, onCapture = { pic ->
             val file = saveToFile11(pic)
             onSave(file)
+            if (isHotShotState && file != null) {
+                EventHelper.post(Event.AnalyzePicEvent(file))
+            }
+            //新建会话会清除
         }, onCancel = {
             subScope.launch(Dispatchers.Main) {
                 chatViewModel.shotScreen(false)

@@ -53,6 +53,8 @@ class ChatViewModel(
     //是否触发截图
     private val _isShotObs = MutableStateFlow(false)
     val isShotState = _isShotObs.asStateFlow()
+    private val _isShotByHotKeyObs= MutableStateFlow(false)
+    val isShotByHotKeyState = _isShotByHotKeyObs.asStateFlow()
 
     //是否启用划词
     private val _useSelectObs = MutableStateFlow(true)
@@ -146,6 +148,10 @@ class ChatViewModel(
         _isShotObs.value = flag
     }
 
+    fun shotByHotKey(flag:Boolean){
+        _isShotByHotKeyObs.value=flag
+    }
+
     fun preWindow(flag: Boolean) {
         _isPreWindowObs.value = flag
     }
@@ -176,6 +182,7 @@ class ChatViewModel(
                 is Event.HotKeyEvent -> {
                     if (event.code == 1 && !_isShotObs.value) {
                         //清空界面、缓存数据？？
+                      shotByHotKey(true)
                         shotScreen(true)
                         println("hot>${_isShotObs.value}")
                     }

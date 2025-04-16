@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
@@ -35,7 +34,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -44,7 +42,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
@@ -67,8 +64,6 @@ import com.hwj.ai.global.cDeepLine
 import com.hwj.ai.global.cGrey666666
 import com.hwj.ai.global.isLightTxt
 import com.hwj.ai.global.onlyDesktop
-import com.hwj.ai.global.printD
-import com.hwj.ai.global.printList
 import com.hwj.ai.models.MenuActModel
 import com.hwj.ai.ui.global.KeyEventEnter
 import com.hwj.ai.ui.viewmodel.ChatViewModel
@@ -95,7 +90,6 @@ fun TextInput(
             //判断是否在生成消息不让点击事件
             if (!conversationViewModel.getFabStatus()) {
                 if (imagePathList.isNotEmpty()) {
-//                        conversationViewModel.toast("image>", "rz?")
                     subScope.launch(Dispatchers.Default) {
                         conversationViewModel.sendAnalyzeImageMsg(imagePathList.toList(), text)
                     }
@@ -179,6 +173,7 @@ fun InputTopIn(state: LazyListState, navigator: Navigator) {
 
                         "截图" -> {
                             if (conversationViewModel.checkSelectedImg()) {
+                                chatViewModel.shotByHotKey(false)
                                 chatViewModel.shotScreen(true)
                             } else {
                                 ToastUtils.show("最多处理两张图片")

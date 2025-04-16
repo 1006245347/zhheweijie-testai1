@@ -1,6 +1,5 @@
 package com.hwj.ai.ui.viewmodel
 
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -35,7 +34,6 @@ import com.hwj.ai.global.getNowTime
 import com.hwj.ai.global.onlyDesktop
 import com.hwj.ai.global.printD
 import com.hwj.ai.global.printE
-import com.hwj.ai.global.printList
 import com.hwj.ai.global.thinking
 import com.hwj.ai.global.workInSub
 import com.hwj.ai.models.ConversationModel
@@ -147,6 +145,12 @@ class ConversationViewModel(
                         newConversation()
                         sendTxtMessage("总结如下内容，${event.txt}")
                     }
+                }
+                is Event.AnalyzePicEvent->{
+                    curJob?.cancel()
+                    newConversation()
+//                    addCameraImage(PlatformFile(event.path)) //怎么两张
+                    sendAnalyzeImageMsg(_imageListObs,"图片内容分析")
                 }
 
                 else -> {}
@@ -650,7 +654,6 @@ class ConversationViewModel(
     fun setImageUseStatus(flag: Boolean) {
         _isStopUseImageObs.value = flag
     }
-
 
     fun copyToClipboard(text: String) {
         try {
