@@ -3,6 +3,7 @@ package com.hwj.ai.selection
 import com.hwj.ai.except.isMainThread
 import com.hwj.ai.global.Event
 import com.hwj.ai.global.EventHelper
+import com.hwj.ai.global.printList
 import com.sun.jna.Memory
 import com.sun.jna.Native
 import com.sun.jna.Pointer
@@ -18,7 +19,9 @@ import com.sun.jna.ptr.IntByReference
 import io.ktor.utils.io.core.toByteArray
 import mmarquee.automation.Element
 import mmarquee.automation.UIAutomation
+import mmarquee.automation.controls.Search
 import mmarquee.automation.pattern.Text
+import mmarquee.automation.pattern.Value
 import java.nio.charset.StandardCharsets
 import java.util.regex.Pattern
 
@@ -158,6 +161,7 @@ object GlobalMouseHook9 {
         }
     }
 
+    //notepad 换行时 /r/n为一行
     fun checkByMsg(): String? {
         try {
             val fhwnd = user32.GetForegroundWindow()
@@ -179,11 +183,10 @@ object GlobalMouseHook9 {
             hwnd?.let {
                 var textLength = user32.SendMessage(
                     hwnd, 0x000E,
-//                                    WinDef.WPARAM(0), LPARAM(0)
+//                    WinDef.WPARAM(0), LPARAM(0)
                     null, null
                 ).toInt()
 //                        println("textLength>" + textLength)
-//                                user32.AttachThreadInput()
                 if (textLength > 0) {
                     textLength += 1
                     val buffer = Memory(textLength * 2L)
@@ -197,6 +200,7 @@ object GlobalMouseHook9 {
 //                                    val fullText = buffer.getString(0, "UTF-16LE")
                     val fullText = buffer.getWideString(0)
 //                            println("fullTxt>$fullText")
+                    //发现会有错位，不准确
                     var selStart = IntByReference()
                     var selEnd = IntByReference()
                     user32.SendMessage(
@@ -209,6 +213,8 @@ object GlobalMouseHook9 {
                     if (start >= 0 && end > start && end <= fullText.length) {
 //                                        val mText=String(fullText.substring(start,end).toByteArray(StandardCharsets.UTF_16LE),StandardCharsets.UTF_8)
                         return fullText.substring(start, end)
+//                            .replace("\r\n","\n") //有个图标在好像就不准了位置
+//                            .trim()
                     }
                 }
             }
@@ -229,7 +235,7 @@ object GlobalMouseHook9 {
         windowList.forEach { w1 ->
             appList.add(AppInfoModel(w1.processId.toString(), w1.name, w1.className))
         }
-        println("costTime> ${System.currentTimeMillis() - start}")
+//        println("costTime> ${System.currentTimeMillis() - start}")
         return appList
     }
 
@@ -295,7 +301,7 @@ object GlobalMouseHook9 {
 //                        TreeScope(TreeScope.DESCENDANTS),
 //                        automation.createPropertyCondition(ControlType.Text.value,variant1))
 //                    println("e11>$e11")
-                    TreeWalker().v(automation) { s -> result = s }
+//                    TreeWalker().v(automation) { s -> result = s }
                 }
             }
 //                result = panel.getDocument(0).selection
@@ -307,6 +313,22 @@ object GlobalMouseHook9 {
         } else if (appName.contains("Notepad++")) {
             window = automation.getDesktopWindow(getP("Notepad++"), 2)
             if (window != null && window.className.equals("Notepad++")) {
+                try {
+                    //不行，不是Text
+//                    val panel = window.getPanel(0)
+//                    val txtP = panel.element.getProvidedPattern(Value::class.java)
+//                    if (txtP!=null){
+//                        result=txtP.value()
+//                    }
+
+//                    val ll1 = panel.getChildren(true)
+//                    ll1.forEach { item ->
+//                        println("p1>${item.element.controlType}")
+//                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+
                 result = checkByMsg()
             }
         } else if (appName.endsWith("记事本")) {
@@ -327,7 +349,7 @@ object GlobalMouseHook9 {
             }
         }
 
-        println("find>>  $result")
+//        println("find>>  $result")
         result?.let {
             block2(result)
             isDragging = false
@@ -343,11 +365,11 @@ object GlobalMouseHook9 {
 
     }
 
-    private fun showContent(text: String) {
-        contentBuilder.clear()
-        contentBuilder.append(text)
-        block2(contentBuilder.toString())
-    }
+//    private fun showContent(text: String) {
+//        contentBuilder.clear()
+//        contentBuilder.append(text)
+//        block2(contentBuilder.toString())
+//    }
 
     private fun fetchForegroundAppInfo() {
         val hwnd = user32.GetForegroundWindow()

@@ -327,10 +327,10 @@ fun EnterEventButton(isFabExpanded: Boolean, sendBlock: () -> Unit) {
             }
         },
         onClick = {
+            println("click>$isFabExpanded")
             if (isFabExpanded) {
                 conversationViewModel.stopReceivingResults()
             } else {
-//                    subScope.launch { sendBlock() }
                 sendBlock()
             }
         },

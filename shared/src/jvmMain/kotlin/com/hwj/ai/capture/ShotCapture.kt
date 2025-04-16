@@ -80,7 +80,7 @@ fun ShotCapture(
                         val timeValue = measureTimedValue {
 //                            captureToImage { newBox }
                         }
-                        printD("cost>${timeValue.duration}")
+//                        printD("cost>${timeValue.duration}")
 //                        state.screenshotBitmap = timeValue.value
                     }
                 }

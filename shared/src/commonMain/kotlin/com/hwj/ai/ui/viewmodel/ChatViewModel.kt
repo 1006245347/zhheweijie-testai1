@@ -125,10 +125,17 @@ class ChatViewModel(
     }
 
     private fun AISearch(intent: AISelectIntent) {
-
-        //对选中的词用完要立刻清掉，不然浮窗又弹？
+        //对选中的词用完要立刻清掉，不然浮窗又弹？清数据，但是应用的字可还在选中
+        if (intent == AISelectIntent.SearchData) {
+            _selectTextObs.value?.let {
+                EventHelper.post(Event.SelectionEvent(0, it))
+            }
+        } else if (intent == AISelectIntent.SummaryData) {
+            _selectTextObs.value?.let {
+                EventHelper.post(Event.SelectionEvent(1, it))
+            }
+        }
     }
-
 
     fun collapsedPage() {
         _isCollapsedObs.value = !_isCollapsedObs.value
@@ -165,7 +172,6 @@ class ChatViewModel(
 
     val eventObs = viewModelScope.launch {
         EventHelper.events.collect { event ->
-            println("collect-event?")
             when (event) {
                 is Event.HotKeyEvent -> {
                     if (event.code == 1 && !_isShotObs.value) {

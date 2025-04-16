@@ -36,7 +36,6 @@ object Toast4jNotificationProvider : NotificationProvider {
         get() = ""
 
     override fun init() {
-//        toaster = Toaster.forAumi("com.joelkanyi.HWJ")
         toaster = Toaster.forAumi("com.hwj.ai")
         available = toaster.initialize()
         if (!available) {
@@ -52,6 +51,7 @@ object Toast4jNotificationProvider : NotificationProvider {
 
     private var currentToast: ToastHandle? = null
 
+    //Exception in thread "AWT-EventQueue-0" kotlin.UninitializedPropertyAccessException: lateinit property toaster has not been initialized
     override fun sendNotification(title: String, description: String) {
         currentToast?.hide()
         currentToast = toaster.showToast(

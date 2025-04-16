@@ -24,6 +24,8 @@ import com.hwj.ai.getPlatform
 import com.hwj.ai.global.DATA_IMAGE_TITLE
 import com.hwj.ai.global.DATA_SYSTEM_NAME
 import com.hwj.ai.global.DATA_USER_NAME
+import com.hwj.ai.global.Event
+import com.hwj.ai.global.EventHelper
 import com.hwj.ai.global.NotificationsManager
 import com.hwj.ai.global.OsStatus
 import com.hwj.ai.global.ToastUtils
@@ -91,7 +93,8 @@ class ConversationViewModel(
     val isFetching: StateFlow<Boolean> = _isFetching.asStateFlow()
     val isAutoScroll: StateFlow<Boolean> = _isAutoScroll.asStateFlow()
 
-    val isFabExpanded: StateFlow<Boolean> get() = _isFabExpandObs
+//    val isFabExpanded: StateFlow<Boolean> get() = _isFabExpandObs
+    val isFabExpanded = _isFabExpandObs.asStateFlow()
 
     //停止接收回答
     private val _stopReceivingObs = MutableStateFlow(false)
@@ -126,6 +129,29 @@ class ConversationViewModel(
         }
 
         _isFetching.value = false
+    }
+
+    //全局事件监听 , 应用顶层前置
+    val eventObs = viewModelScope.launch {
+        EventHelper.events.collect { event ->
+            when (event) {
+                is Event.SelectionEvent -> {
+                    if (event.code == 0) {
+                        curJob?.cancel()
+                        newConversation()
+                        printD(event.txt)
+                        sendTxtMessage("搜索如下内容，${event.txt}")
+
+                    } else if (event.code == 1) {
+                        curJob?.cancel()
+                        newConversation()
+                        sendTxtMessage("总结如下内容，${event.txt}")
+                    }
+                }
+
+                else -> {}
+            }
+        }
     }
 
     fun onInputChange(newTxt: String, selection: TextRange = TextRange(newTxt.length)) {
@@ -309,7 +335,7 @@ class ConversationViewModel(
             flowControl.onStart { setFabExpanded(true) }
                 .onCompletion {
                     setFabExpanded(false)
-                    if (_isStopUseImageObs.value) //如果每次都传图参，那就不删
+                    if (_isStopUseImageObs.value){} //如果每次都传图参，那就不删
                         deleteImage(0, true)
                 }.catch { e ->
                     handleAIException(toastManager, e) {
@@ -500,7 +526,7 @@ class ConversationViewModel(
             }
         }
         return response.toList()
-            .also { printList(it, des = "getMessagesParamsTurbo") }
+//            .also { printList(it, des = "getMessagesParamsTurbo") }
     }
 
     suspend fun deleteConversation(conversationId: String) {
@@ -625,6 +651,7 @@ class ConversationViewModel(
         _isStopUseImageObs.value = flag
     }
 
+
     fun copyToClipboard(text: String) {
         try {
             clipboardHelper.copyToClipboard(text)
@@ -645,6 +672,7 @@ class ConversationViewModel(
                 toastManager.showNotification(title, des)
             }
         }
+
     }
 
     fun readFromClipboard(): String? {

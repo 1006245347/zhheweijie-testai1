@@ -153,7 +153,7 @@ actual fun HookSelection() {
                     if (!isShotState)
                         content?.let {
                             chatViewModel.findSelectText(content)
-                            println("result>$content")
+//                            println("result>$content")
                             chatViewModel.preWindow(true)
                         }
                 })

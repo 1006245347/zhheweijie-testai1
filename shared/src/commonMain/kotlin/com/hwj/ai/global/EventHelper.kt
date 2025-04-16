@@ -21,4 +21,6 @@ sealed class Event {
     data object RefreshEvent : Event()
 
     data class HotKeyEvent(val code :Int,val time:Long):Event()
+
+    data class SelectionEvent(val code:Int,val txt:String):Event()
 }
