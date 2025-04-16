@@ -119,14 +119,16 @@ actual fun isMainThread(): Boolean {
 actual fun ScreenShotPlatform(onSave: (String?) -> Unit) {
     val mainWindow = LocalMainWindow.current
     val chatViewModel = koinViewModel(ChatViewModel::class)
-
+    val subScope = rememberCoroutineScope()
     val isShotState = chatViewModel.isShotState.collectAsState().value
     if (isShotState && onlyDesktop()) {
         ScreenshotOverlay11(mainWindow = mainWindow, onCapture = { pic ->
             val file = saveToFile11(pic)
             onSave(file)
         }, onCancel = {
-            chatViewModel.shotScreen(false)
+            subScope.launch(Dispatchers.Main) {
+                chatViewModel.shotScreen(false)
+            }
         })
     }
 }
@@ -140,6 +142,7 @@ actual fun HookSelection() {
     val chatViewModel = koinViewModel(ChatViewModel::class)
     val isPreWindowState by chatViewModel.isPreWindowState.collectAsState()
     val useSelectState by chatViewModel.useSelectState.collectAsState()
+    val isShotState by chatViewModel.isShotState.collectAsState()
     val subScope = rememberCoroutineScope()
     LaunchedEffect(useSelectState) { //是否开启划词功能
         if (useSelectState) {
@@ -147,11 +150,12 @@ actual fun HookSelection() {
                 GlobalMouseHook9.start(appBlock = { info ->
                     chatViewModel.findAppInfo(info)
                 }, contentBlock = { content ->
-                    content?.let {
-                        chatViewModel.findSelectText(content)
-                        println("result>$content")
-                        chatViewModel.preWindow(true)
-                    }
+                    if (!isShotState)
+                        content?.let {
+                            chatViewModel.findSelectText(content)
+                            println("result>$content")
+                            chatViewModel.preWindow(true)
+                        }
                 })
             }
             //拆线程才不卡

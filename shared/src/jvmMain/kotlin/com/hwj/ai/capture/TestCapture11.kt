@@ -14,6 +14,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -42,9 +43,11 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowPosition
 import androidx.compose.ui.window.rememberWindowState
 import com.hwj.ai.global.printD
+import com.hwj.ai.ui.viewmodel.ChatViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import moe.tlaster.precompose.koin.koinViewModel
 import java.awt.GraphicsEnvironment
 import java.awt.Rectangle
 import java.awt.Robot
@@ -82,6 +85,7 @@ fun ScreenshotOverlay11(
     )
     val subScope = rememberCoroutineScope()
     val focusReq = remember { FocusRequester() }
+    val chatViewModel = koinViewModel(ChatViewModel::class)
 
     LaunchedEffect(Unit) {
         mainWindow.isVisible = false
@@ -89,8 +93,10 @@ fun ScreenshotOverlay11(
 
     Window(
         onCloseRequest = {
-            onCancel()
             mainWindow.isVisible = true
+
+            onCancel()
+
         },
         state = windowState,
         transparent = true,
@@ -147,6 +153,7 @@ fun ScreenshotOverlay11(
                 )
             }
         ) {
+            println("canvas>${chatViewModel.isShotState.collectAsState().value}")
             Canvas(modifier = Modifier.fillMaxSize()) {
                 // 背景遮罩
                 drawRect(Color.Black.copy(alpha = 0.3f))
@@ -186,12 +193,9 @@ fun ScreenshotOverlay11(
                 Box(modifier = myModifier) {
                     Row(modifier = Modifier.align(Alignment.BottomCenter).padding(13.dp)) {
                         Button(onClick = {
-                            showActBtn = false
-                            mainWindow.isVisible = true
-                            state.isSelecting = false //有必要吗
-                            capturedRect = null //点击取消没有退出
-                            onCancel() //关闭
-
+                                showActBtn = false
+                                mainWindow.isVisible = true
+                                onCancel() //关闭
                         }) {
                             Text("取消", color = Color.White)
                         }

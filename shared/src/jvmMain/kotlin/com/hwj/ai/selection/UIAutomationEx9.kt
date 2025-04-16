@@ -38,6 +38,7 @@ object GlobalMouseHook9 {
     private val contentBuilder = StringBuilder()
     private var endPoint: Long = 0
     var mousePressedPos = WinDef.POINT() // 记录鼠标按下时的坐标
+    var endPressPos = WinDef.POINT()
 
     private var block1: (String?) -> Unit = {}
     private var block2: (String?) -> Unit = {}
@@ -50,7 +51,8 @@ object GlobalMouseHook9 {
             //扩展鼠标事件检测
             if (wParamInt == WM_LBUTTONUP) {
 //                printD("鼠标左键抬起，尝试获取前台窗口信息 ${lParam.pt.y}")
-                println("Start--------------mouse left up,find window info> ui=${isMainThread()} ${lParam.pt.y}")
+//                println("Start--------------mouse left up,find window info> ui=${isMainThread()} ${lParam.pt.y}")
+                endPressPos = lParam.pt
 //                fetchForegroundAppInfo()
                 val d = distanceBetween(mousePressedPos, lParam.pt)
                 if (d > 10) { //优化双击
@@ -99,8 +101,8 @@ object GlobalMouseHook9 {
             if (msg.message == WinUser.WM_HOTKEY) {
                 val hotkeyId = msg.wParam.toInt()
                 if (hotkeyId == k_id1) {
-                    println("hwj-alt a")
-                    EventHelper.post(Event.HotKeyEvent(k_id1))
+//                    println("hwj-alt a")
+                    EventHelper.post(Event.HotKeyEvent(k_id1, System.currentTimeMillis()))
                 }
             }
             user32.TranslateMessage(msg)
@@ -336,8 +338,9 @@ object GlobalMouseHook9 {
         return Pattern.compile(".*$title.*")
     }
 
-    fun handleWps(){
-        
+    //解决COM接口的方式，用jacob.jar?
+    fun handleWps() {
+
     }
 
     private fun showContent(text: String) {

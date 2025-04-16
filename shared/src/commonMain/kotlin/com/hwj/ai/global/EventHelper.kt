@@ -9,6 +9,7 @@ object EventHelper {
 
     val events = _events.asStateFlow()
     fun post(event: Event?) {
+        println("post>$event")
         _events.value = event
     }
 }
@@ -19,5 +20,5 @@ sealed class Event {
 
     data object RefreshEvent : Event()
 
-    data class HotKeyEvent(val code :Int):Event()
+    data class HotKeyEvent(val code :Int,val time:Long):Event()
 }

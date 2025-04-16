@@ -57,3 +57,27 @@ compose.desktop {
         }
     }
 }
+
+//tasks.register<Copy>("copyJacobDll") {
+////    from("src/jvmMain/resources") // DLL 文件所在目录
+//    from("libs")
+//    include("jacob-1.21-x64.dll")  // 或者 jacob-1.19-x86.dll，取决于你的平台架构
+//    into("$buildDir/libs")         // 将 DLL 复制到 build/libs 目录
+//}
+//
+//tasks.register<JavaExec>("runDesktop"){
+//    dependsOn("copyJacobDll")
+//    doFirst {
+//        // 设置 Java 的 library path 指定 DLL 文件的位置
+//        val javaLibraryPath = System.getProperty("java.library.path")
+//        System.setProperty("java.library.path", "$buildDir/libs")
+//
+//        // 重新加载 System.getProperty("java.library.path") 以确保生效
+//        try {
+//            val field = ClassLoader::class.java.getDeclaredField("sys_paths")
+//            field.isAccessible = true
+//            field.set(null, null)  // 清空缓存的路径
+//        } catch (e: Exception) {
+//            e.printStackTrace()
+//        }}
+//}

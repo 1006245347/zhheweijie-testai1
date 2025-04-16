@@ -62,6 +62,7 @@ class ChatViewModel(
     private val _isPreWindowObs = MutableStateFlow(false)
     val isPreWindowState = _isPreWindowObs.asStateFlow()
 
+    //划词选中的数据
     private val _appInfoObs = MutableStateFlow<String?>(null)
     val appInfoState = _appInfoObs.asStateFlow()
 
@@ -134,6 +135,7 @@ class ChatViewModel(
     }
 
     fun shotScreen(flag: Boolean) {
+        println("shot>$flag")
         _isShotObs.value = flag
     }
 
@@ -162,13 +164,18 @@ class ChatViewModel(
     }
 
     val eventObs = viewModelScope.launch {
-        EventHelper.events.collect{ event->
-            when (event){
-                is Event.HotKeyEvent->{
-                    //清空界面、缓存数据？？
-                    shotScreen(true)
+        EventHelper.events.collect { event ->
+            println("collect-event?")
+            when (event) {
+                is Event.HotKeyEvent -> {
+                    if (event.code == 1 && !_isShotObs.value) {
+                        //清空界面、缓存数据？？
+                        shotScreen(true)
+                        println("hot>${_isShotObs.value}")
+                    }
                 }
-                else->{}
+
+                else -> {}
             }
         }
     }
