@@ -9,7 +9,6 @@ object EventHelper {
 
     val events = _events.asStateFlow()
     fun post(event: Event?) {
-        println("post>$event")
         _events.value = event
     }
 }

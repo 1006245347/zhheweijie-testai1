@@ -296,7 +296,7 @@ fun TextInputIn(
 
 @Composable
 fun EnterEventButton(isFabExpanded: Boolean, sendBlock: () -> Unit) {
-    val subScope = rememberCoroutineScope()
+//    val subScope = rememberCoroutineScope()
     val conversationViewModel = koinViewModel(ConversationViewModel::class)
 
 //    ToolTipCase(tip = "发送/停止", content = {

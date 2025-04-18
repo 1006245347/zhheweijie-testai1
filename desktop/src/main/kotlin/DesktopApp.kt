@@ -10,6 +10,7 @@ import com.hwj.ai.PlatformWindowStart
 import com.hwj.ai.global.LocalAppResource
 import com.hwj.ai.global.rememberAppResource
 import com.hwj.ai.selection.GlobalMouseHook9
+import com.hwj.ai.test.WindowsSelectionUIATest
 import di.initKoin
 import io.github.aakira.napier.DebugAntilog
 import io.github.aakira.napier.Napier
@@ -59,12 +60,12 @@ fun main() {
                 })
 
 
-            PlatformWindowStart(windowState) { exitApplication() }
+//            PlatformWindowStart(windowState) { exitApplication() }
 //        WindowsCaptureTest { exitApplication() } //测试截图
 //        WindowsSelectionTest { exitApplication() } //测试划词
 //        WindowsOcrTest{ exitApplication()} //测试ocr划词
 
-//            WindowsSelectionUIATest(windowState) { exitApplication() } //可识别win32、浏览器选中文字
+            WindowsSelectionUIATest(windowState) { exitApplication() } //可识别win32、浏览器选中文字
         }
     }
 }

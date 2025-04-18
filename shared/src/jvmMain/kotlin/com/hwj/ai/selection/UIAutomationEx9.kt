@@ -1,9 +1,7 @@
 package com.hwj.ai.selection
 
-import com.hwj.ai.except.isMainThread
 import com.hwj.ai.global.Event
 import com.hwj.ai.global.EventHelper
-import com.hwj.ai.global.printList
 import com.sun.jna.Memory
 import com.sun.jna.Native
 import com.sun.jna.Pointer
@@ -17,11 +15,16 @@ import com.sun.jna.platform.win32.WinUser
 import com.sun.jna.platform.win32.WinUser.HHOOK
 import com.sun.jna.ptr.IntByReference
 import io.ktor.utils.io.core.toByteArray
+import mmarquee.automation.ControlType
 import mmarquee.automation.Element
+import mmarquee.automation.PatternID
 import mmarquee.automation.UIAutomation
-import mmarquee.automation.controls.Search
-import mmarquee.automation.pattern.Text
-import mmarquee.automation.pattern.Value
+import mmarquee.automation.controls.Container
+import mmarquee.automation.controls.Document
+import mmarquee.automation.controls.DocumentPage
+import mmarquee.automation.controls.ElementBuilder
+import mmarquee.automation.controls.TextBox
+import mmarquee.uiautomation.TreeScope
 import java.nio.charset.StandardCharsets
 import java.util.regex.Pattern
 
@@ -135,10 +138,7 @@ object GlobalMouseHook9 {
 
             try {
                 if (isDragging) {
-//                            val walk = automation.controlViewWalker
-//                            var p1 = walk.getParentElement(focusedElement)
-//                            println("p1>$p1")
-
+                    //打印所有应用
 //                    val pList = automation.desktopObjects
 //                    val ss1 = StringBuilder()
 //                    pList.forEach { p11 ->
@@ -244,6 +244,7 @@ object GlobalMouseHook9 {
         val nowProcessId = automation.focusedElement.processId.toString()
         val apps = buildApps()
 //        printList(apps)//Microsoft​ Edge
+
         for (app in apps) {
             if (app.processId == nowProcessId && app.title.isNotEmpty()) {
 //                println("ed> ${app.title}")
@@ -254,12 +255,13 @@ object GlobalMouseHook9 {
     }
 
     fun checkApp(appName: String) {
-//        val pattern = Pattern.compile(".*" +)
         var panel: mmarquee.automation.controls.Panel? = null
         var window: mmarquee.automation.controls.Window? = null
         var result: String? = null
         val cType = automation.focusedElement.controlType
-        println("controlType>$cType")
+        val point1 = mousePressedPos
+        println("controlType>$cType ${PatternID.Text.value} ${PatternID.Text2.value}") //50020 10014 10024
+
         if (appName.endsWith("Google Chrome")) {
             panel = automation.getDesktopObject(getP("Google Chrome"), 2)
             if (panel != null && "Chrome_WidgetWin_1".equals(panel.className)) {
@@ -277,34 +279,52 @@ object GlobalMouseHook9 {
 //                println("me>Microsoft\u200B Edge")//Microsoft​ Edge
                 result = window.getDocument(0).selection
             }
+        } else if (appName.endsWith("Mozilla Firefox")) {
+            window = automation.getDesktopWindow(getP("Mozilla Firefox"), 2)
+            if (window != null && "MozillaWindowClass".equals(window.className)) {
+//                println("fire>${window.getDocument(0).selection} ")
+                //这火狐浏览器，点哪个标签index都不认
+//                val d1 = findXDocument()
+                result = window.getDocument(0)?.selection
+            }
         } else if (appName.contains("G平台")) {
             panel = automation.getDesktopObject(getP("G平台"), 2)
             if (panel != null && panel.className.equals("Chrome_WidgetWin_1")) {
-//                val txt1 = panel.getTextBox(Search.Builder(0).build())
-//                if (txt1 != null) {
-//
-//                    result = txt1.name
-//
-//                } else {
-//                }
-                //50026 50020=Text
 
-                val textPattern = automation.focusedElement.getProvidedPattern(Text::class.java)
-                if (textPattern != null) {
-                    result = textPattern.selection
-                } else {
-//                    val t11 = panel.getTextBoxByAutomationId(automation.focusedElement.automationId)
-//                    println("T>${t11.name}")
-                    //还是不行、
-//                    val variant1 = Variant.VARIANT.ByValue()
-//                val e11=    automation.focusedElement.findFirst(
-//                        TreeScope(TreeScope.DESCENDANTS),
-//                        automation.createPropertyCondition(ControlType.Text.value,variant1))
-//                    println("e11>$e11")
-//                    TreeWalker().v(automation) { s -> result = s }
+                //focused是一个大容器不一定是最小组件
+                val c1 = automation.focusedElement.controlType
+                if (c1 == ControlType.Group.value) {
+                    val b2 = Container(ElementBuilder(automation.focusedElement))
+//                    println("b2>${b2.name}") //等同于 focus.name,没用
+                    val l1 = b2.getChildren(false)
+//                    l1.forEach { item->
+//                        println("item>${item.element.controlType}")
+//                    }
+
+                    try {
+//                    println("point>${point1.x} ${point1.y}") //自定义控件没法绕过pattern的判定 requestAutomationPattern
+                        for (c in l1) { //这样以焦点容器内所有的 Text都出来，但是没法筛选哪个？选中内容
+                            if (c.element.controlType == ControlType.Text.value) {
+                                val b3 = TextBox(ElementBuilder(c.element))
+                                if (b3.boundingRectangle.left - 10 < point1.x && b3.boundingRectangle.right + 10 > point1.x
+                                    && b3.boundingRectangle.top - 10 < point1.y && b3.boundingRectangle.bottom + 10 > point1.y
+                                ) { //当点击位置在控件边距内，判定为当前点击控件
+//                                    println("b3c>${b3.boundingRectangle}") //边距还能造成误差，顶
+//                                    println("b3->${b3.name} ")
+//                                    block2(b3.name)
+                                    result = b3.name
+                                    break
+                                }
+
+                            }
+                        }
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
                 }
+
+//                    TreeWalker().v(automation) { s -> result = s }
             }
-//                result = panel.getDocument(0).selection
         } else if (appName.contains("M-AI")) {
             panel = automation.getDesktopObject(getP("M-AI"), 2)
             if (panel != null && panel.className.equals("Chrome_WidgetWin_1")) {
@@ -313,22 +333,6 @@ object GlobalMouseHook9 {
         } else if (appName.contains("Notepad++")) {
             window = automation.getDesktopWindow(getP("Notepad++"), 2)
             if (window != null && window.className.equals("Notepad++")) {
-                try {
-                    //不行，不是Text
-//                    val panel = window.getPanel(0)
-//                    val txtP = panel.element.getProvidedPattern(Value::class.java)
-//                    if (txtP!=null){
-//                        result=txtP.value()
-//                    }
-
-//                    val ll1 = panel.getChildren(true)
-//                    ll1.forEach { item ->
-//                        println("p1>${item.element.controlType}")
-//                    }
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
-
                 result = checkByMsg()
             }
         } else if (appName.endsWith("记事本")) {
@@ -336,24 +340,26 @@ object GlobalMouseHook9 {
             if (window != null && window.className.equals("Notepad")) {
                 result = checkByMsg()
             }
-        } else if (appName.contains("Terminal")) {
-            window = automation.getDesktopWindow(getP("Terminal"), 2)
-            if (window != null && window.className.equals("SunAwtFrame")) {
-//                window.get //
-                result = checkByMsg()
-            }
-        } else if (appName.contains("WPS 文字")) {
-            window = automation.getDesktopWindow(getP("WPS 文字"), 2)
-            if (null != window && window.className.equals("KxWpsPromeMainWindow")) {
-//                TreeWalker().v(automation)
-            }
         }
+//        else if (appName.contains("WPS 文字")) {
+//            window = automation.getDesktopWindow(getP("WPS 文字"), 2)
+//            if (null != window && window.className.equals("KxWpsPromeMainWindow")) {
+////                TreeWalker().v(automation)
+//            }
+//        }
 
 //        println("find>>  $result")
         result?.let {
             block2(result)
             isDragging = false
         }
+    }
+
+    fun findXDocument(): Document? {
+        val pr = automation.createControlTypeCondition(ControlType.Document)
+        val element = automation.focusedElement.findFirst(TreeScope(TreeScope.DESCENDANTS), pr)
+        val c = DocumentPage(ElementBuilder().element(element))
+        return c.getDocument(0)
     }
 
     fun getP(title: String): Pattern {
@@ -365,11 +371,11 @@ object GlobalMouseHook9 {
 
     }
 
-//    private fun showContent(text: String) {
+    private fun showContent(text: String) {
 //        contentBuilder.clear()
-//        contentBuilder.append(text)
-//        block2(contentBuilder.toString())
-//    }
+        contentBuilder.append(text)
+        block2(contentBuilder.toString())
+    }
 
     private fun fetchForegroundAppInfo() {
         val hwnd = user32.GetForegroundWindow()
