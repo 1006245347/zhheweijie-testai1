@@ -130,6 +130,7 @@ actual fun ScreenShotPlatform(onSave: (String?) -> Unit) {
             onSave(file)
             if (isHotShotState && file != null) {
                 EventHelper.post(Event.AnalyzePicEvent(file))
+                GlobalMouseHook9.bring2Front()
             }
             //新建会话会清除
         }, onCancel = {

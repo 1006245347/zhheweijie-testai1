@@ -1,5 +1,6 @@
 package com.hwj.ai.selection
 
+import androidx.compose.ui.input.key.KeyEvent
 import com.hwj.ai.global.Event
 import com.hwj.ai.global.EventHelper
 import com.sun.jna.Memory
@@ -101,6 +102,11 @@ object GlobalMouseHook9 {
         }
 
 
+        if (!user32.RegisterHotKey(hwnd, 2, 0x0001, 0x42)) {
+            println("hot2 failed")
+        }
+
+
         // 必须阻塞消息循环，否则 Hook 会立即退出
         val msg = WinUser.MSG()
         while (user32.GetMessage(msg, null, 0, 0) != 0) {
@@ -109,6 +115,9 @@ object GlobalMouseHook9 {
                 if (hotkeyId == k_id1) {
 //                    println("hwj-alt a")
                     EventHelper.post(Event.HotKeyEvent(k_id1, System.currentTimeMillis()))
+                } else if (hotkeyId == 2) {
+//                    println("alt b")
+//                    bring2Front()
                 }
             }
             user32.TranslateMessage(msg)
@@ -369,6 +378,16 @@ object GlobalMouseHook9 {
     //解决COM接口的方式，用jacob.jar?
     fun handleWps() {
 
+    }
+
+    fun bring2Front() {
+        val hwnd = user32.FindWindow(null, "hwj-ai-chat")
+//        hwnd?.let {
+//
+//        }
+        val code = user32.BringWindowToTop(hwnd) //null是当前进程？ 没用
+//        user32.SetForegroundWindow()
+        println("flag>$code")
     }
 
     private fun showContent(text: String) {

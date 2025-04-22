@@ -4,7 +4,9 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
@@ -25,6 +27,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -64,6 +67,7 @@ import com.hwj.ai.global.cDeepLine
 import com.hwj.ai.global.cGrey666666
 import com.hwj.ai.global.isLightTxt
 import com.hwj.ai.global.onlyDesktop
+import com.hwj.ai.global.toolWeather
 import com.hwj.ai.models.MenuActModel
 import com.hwj.ai.ui.global.KeyEventEnter
 import com.hwj.ai.ui.viewmodel.ChatViewModel
@@ -72,7 +76,6 @@ import io.github.vinceglb.filekit.PlatformFile
 import io.github.vinceglb.filekit.name
 import io.github.vinceglb.filekit.path
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import moe.tlaster.precompose.koin.koinViewModel
 import moe.tlaster.precompose.navigation.Navigator
@@ -95,6 +98,11 @@ fun TextInput(
                     }
                 } else {
                     conversationViewModel.sendTxtMessage(text)
+                    //test function
+                    conversationViewModel.sendTxtToolMessage(
+                        "What's the weather like in San Francisco, Tokyo, and Paris?",
+                        toolWeather
+                    )
                 }
             }
         }, navigator
@@ -104,7 +112,9 @@ fun TextInput(
 @Composable
 fun InputTopIn(state: LazyListState, navigator: Navigator) {
     val subScope = rememberCoroutineScope()
+    val thinkCheckState = remember { mutableStateOf(false) }
     val chatViewModel = koinViewModel(ChatViewModel::class)
+    val isDark = chatViewModel.darkState.collectAsState().value
     val isShotState = chatViewModel.isShotState.collectAsState().value
     val conversationViewModel = koinViewModel(ConversationViewModel::class)
     val needPermissionCamera = remember { mutableStateOf(false) }
@@ -116,9 +126,9 @@ fun InputTopIn(state: LazyListState, navigator: Navigator) {
     if (checkSystem() == OsStatus.ANDROID || checkSystem() == OsStatus.IOS) {
         list.add(MenuActModel("拍摄"))
     } else {
-//        list.add(MenuActModel("翻译"))
         list.add(MenuActModel("截图"))
     }
+//    list.add(MenuActModel("翻译"))
 
     if (needPermissionCamera.value) { //权限设置
         createPermission(PermissionPlatform.CAMERA, grantedAction = {
@@ -149,18 +159,19 @@ fun InputTopIn(state: LazyListState, navigator: Navigator) {
         })
     }
 
-    LazyRow(state = state, modifier = Modifier.animateContentSize().background(Color.Transparent)) {
+    LazyRow(state = state) {
         items(list.size) { index ->
             Button(
-                modifier = Modifier.padding(start = 10.dp, bottom = 4.dp).size(75.dp, 35.dp),
+                modifier = Modifier.padding(start = 10.dp, bottom = 4.dp).size(72.dp, 30.dp),
+                contentPadding = PaddingValues(0.dp),//ButtonDefaults里带padding，坑
                 onClick = {
                     when (list[index].title) {
                         "相册" -> {
-//                            needPermissionGallery.value = true
-                            subScope.launch {
-                                delay(3000)
-                                chatViewModel.preWindow(true)
-                            }
+                            needPermissionGallery.value = true
+//                            subScope.launch { //测试入口
+//                                delay(3000)
+//                                chatViewModel.preWindow(true)
+//                            }
                         }
 
                         "拍摄" -> {
@@ -182,12 +193,28 @@ fun InputTopIn(state: LazyListState, navigator: Navigator) {
                     }
                 }, colors = ButtonDefaults.buttonColors(containerColor = PrimaryColor)
             ) {
+                Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxHeight()) {
+                    Text(
+                        text = list[index].title,
+                        fontSize = 11.sp,
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(bottom = 4.dp)//.background(Color.Blue)
+                    )
+                }
+            }
+        }
+
+        item {
+            Row(Modifier.padding(start = 20.dp)) {
+                Checkbox(thinkCheckState.value, onCheckedChange = { c ->
+                    thinkCheckState.value = c
+                    conversationViewModel.setThinkUsed(c)
+                })
                 Text(
-                    text = list[index].title,
+                    "深度思考",
                     fontSize = 12.sp,
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.align(Alignment.CenterVertically)
+                    color = if (isDark) BackInnerColor1 else isLightTxt()
                 )
             }
         }

@@ -11,6 +11,9 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.RenderVectorGroup
 import androidx.compose.ui.graphics.vector.VectorPainter
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import org.jetbrains.compose.resources.vectorResource
+import testai1.shared.generated.resources.Res
+import testai1.shared.generated.resources.ic_big_logo
 
 class AppResource(val icon: VectorPainter)
 
@@ -22,7 +25,9 @@ val LocalAppResource = staticCompositionLocalOf<AppResource> {
 
 @Composable
 fun rememberAppResource(): AppResource {
-    val icon = rememberVectorPainter(Icons.Default.VoiceChat, Color.Yellow)
+    val icon = rememberVectorPainter(Icons.Default.VoiceChat, Purple40)
+//    val c = vectorResource(Res.drawable.ic_11)
+//    val icon = rememberVectorPainter(c, Purple40)
     return remember { AppResource(icon) }
 }
 

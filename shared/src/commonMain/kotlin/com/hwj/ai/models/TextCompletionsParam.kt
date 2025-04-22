@@ -14,15 +14,15 @@ data class TextCompletionsParam(
     @SerialName("temperature")
     val temperature: Double = 0.9,
     @SerialName("top_p")
-    val topP: Double = 1.0,
+    val topP: Double = 0.95,
     @SerialName("n")
     val n: Int = 1,
     @SerialName("stream")
     var stream: Boolean = true, //流式结果
     @SerialName("maxTokens")
-    val maxTokens: Int = 2048,
+    val maxTokens: Int = 4096,
     @SerialName("model")
-    val model: GPTModel = GPTModel.gpt35Turbo,
+    val model: GPTModel = GPTModel.DeepSeekV3,
     @SerialName("messages")
     val messagesTurbo: List<ChatMessage> = emptyList(),
 //    val messagesTurbo: List<MessageTurbo> = emptyList(),
@@ -78,7 +78,6 @@ fun TextCompletionsParam.toJson(): JsonObject {
             put("prompt", promptText)
         }
     }
-
 
     return jsonObject
 }

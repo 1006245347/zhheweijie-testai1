@@ -60,12 +60,12 @@ fun main() {
                 })
 
 
-//            PlatformWindowStart(windowState) { exitApplication() }
+            PlatformWindowStart(windowState) { exitApplication() }
+
 //        WindowsCaptureTest { exitApplication() } //测试截图
 //        WindowsSelectionTest { exitApplication() } //测试划词
 //        WindowsOcrTest{ exitApplication()} //测试ocr划词
-
-            WindowsSelectionUIATest(windowState) { exitApplication() } //可识别win32、浏览器选中文字
+//            WindowsSelectionUIATest(windowState) { exitApplication() } //可识别win32、浏览器选中文字
         }
     }
 }

@@ -36,6 +36,7 @@ import com.hwj.ai.ui.viewmodel.ChatViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import moe.tlaster.precompose.koin.koinViewModel
+import java.awt.Frame
 import java.awt.Toolkit
 
 /**
@@ -56,13 +57,25 @@ fun FloatWindowInside() {
         y1 = GlobalMouseHook9.endPressPos.y
     }
 
-
-    DisposableEffect(Unit) {
-        onDispose { }
-    }
     val mainWindow = LocalMainWindow.current
+    fun window2Front() {
+        subScope.launch(Dispatchers.Main) {
+            mainWindow.isVisible = true
+            mainWindow.toFront()
+            mainWindow.state = Frame.NORMAL //6，加了这个可以置顶
+        }
+    }
+
     val w1 = Toolkit.getDefaultToolkit().screenSize.width
     val h1 = Toolkit.getDefaultToolkit().screenSize.height
+
+    DisposableEffect(Unit) {
+        onDispose {
+            mainWindow.toFront()
+            println("main to Front>")
+        }
+    }
+
 
     Window( //不要加Surface,会造成一层白色背景
         resizable = false,
@@ -85,8 +98,8 @@ fun FloatWindowInside() {
 
             Row(
                 modifier = Modifier.offset(
-                    x = (x1-45).coerceAtLeast(0).coerceAtMost(w1 - 45).dp,
-                    y = (y1-100).coerceAtLeast(0).dp
+                    x = (x1 - 45).coerceAtLeast(0).coerceAtMost(w1 - 45).dp,
+                    y = (y1 - 100).coerceAtLeast(0).dp
                 ).background(cWhite(), shape = RoundedCornerShape(4.dp))
                     .shadow(elevation = 1.dp, ambientColor = Color.Gray, spotColor = Color.Gray)
             ) {//modifier = Modifier.offset(x = mousePos.x.dp, y = mousePos.y.dp)
@@ -95,11 +108,9 @@ fun FloatWindowInside() {
                     Icons.Default.Description,
                     "AI Chat",
                     modifier = Modifier.size(25.dp).padding(start = 3.dp).clickable {
-                        subScope.launch(Dispatchers.Main) {
-//                            mainWindow.isMinimized = false
-                            mainWindow.isVisible = true
-                            mainWindow.toFront()
-                        }
+
+                            window2Front()
+
                         chatViewModel.preWindow(false)
                     })
                 Text(
@@ -108,15 +119,18 @@ fun FloatWindowInside() {
                     fontSize = 13.sp,
                     modifier = Modifier.clickable {
                         chatViewModel.processAiSelect(AISelectIntent.SearchData)
+                        window2Front()
                         chatViewModel.preWindow(false)
                     }.padding(horizontal = 4.dp)
                 )
                 Text("总结", color = cBlackTxt(), fontSize = 13.sp, modifier = Modifier.clickable {
                     chatViewModel.processAiSelect(AISelectIntent.SummaryData)
+                    window2Front()
                     chatViewModel.preWindow(false)
                 }.padding(horizontal = 4.dp))
                 Text("复制", color = cBlackTxt(), fontSize = 13.sp, modifier = Modifier.clickable {
                     chatViewModel.processAiSelect(AISelectIntent.CopyData)
+                    window2Front()
                     chatViewModel.preWindow(false)
                 }.padding(horizontal = 4.dp))
                 Image(

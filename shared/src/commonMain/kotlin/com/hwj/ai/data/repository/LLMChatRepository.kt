@@ -1,7 +1,17 @@
 package com.hwj.ai.data.repository
 
+import com.aallam.openai.api.assistant.AssistantTool
+import com.aallam.openai.api.chat.ChatCompletion
 import com.aallam.openai.api.chat.ChatCompletionChunk
 import com.aallam.openai.api.chat.ChatCompletionRequest
+import com.aallam.openai.api.chat.ChatMessage
+import com.aallam.openai.api.chat.ChatResponseFormat
+import com.aallam.openai.api.chat.Effort
+import com.aallam.openai.api.chat.StreamOptions
+import com.aallam.openai.api.chat.Tool
+import com.aallam.openai.api.chat.ToolBuilder
+import com.aallam.openai.api.chat.ToolChoice
+import com.aallam.openai.api.chat.chatCompletionRequest
 import com.aallam.openai.api.core.RequestOptions
 import com.aallam.openai.api.exception.OpenAIAPIException
 import com.aallam.openai.api.exception.OpenAIHttpException
@@ -17,6 +27,8 @@ import com.hwj.ai.global.baseHostUrl
 import com.hwj.ai.global.printD
 import com.hwj.ai.global.printE
 import com.hwj.ai.global.printList
+import com.hwj.ai.global.toolWeather
+import com.hwj.ai.models.ChatCompletionChunkReason
 import com.hwj.ai.models.GPTModel
 import com.hwj.ai.models.TextCompletionsParam
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -36,59 +48,78 @@ class LLMChatRepository {//private val openAI: OpenAI,单例的话无法变更�
 
 
     //流式回复
-    fun receiveAIMessage(params: TextCompletionsParam): Flow<ChatCompletionChunk> {
+    fun receiveAIMessage(
+        params: TextCompletionsParam,
+        useThink: Boolean = false,
+        useWeb: Boolean = false
+    ): Flow<ChatCompletionChunk> {
         val openAI = OpenAI(setAIConfig())
+        var thinkEffort: Effort? = null
+        var thinkResponseFormat: ChatResponseFormat? = null
+        if (useThink) {
+            thinkEffort = Effort("medium")
+            thinkResponseFormat = ChatResponseFormat.JsonObject
+        }
+
         val requestArgs = ChatCompletionRequest(
-            model = ModelId(GPTModel.gpt35Turbo.model),
-            messages = (params.messagesTurbo)
+            model = ModelId(if (useThink) GPTModel.DeepSeekR1.model else params.model.model),
+            reasoningEffort = thinkEffort,
+            responseFormat = thinkResponseFormat,
+            messages = params.messagesTurbo,
+            temperature = if (useThink) 0.6 else params.temperature,
+            topP = if (useThink) 0.95 else params.topP,
+            n = params.n,
+            maxTokens = params.maxTokens,
         )
 
         return openAI.chatCompletions(requestArgs)
     }
 
+    suspend fun receiveAICompletion(
+        params: TextCompletionsParam, chats: MutableList<ChatMessage>? = null
+    ): ChatCompletion {
+        val openAI = OpenAI(setAIConfig())
+        var thinkResponseFormat: ChatResponseFormat? = null
 
-    //一次回复所有结果数据
-    suspend fun receiveCompletion(params: TextCompletionsParam): String? {
-        val openAI = OpenAI(
-            setAIConfig(
-                token = "sk-NDI07Dpew9y1J7W0Fpoj1ywjo50p7H0cwKePxl4EEjJiLIlI",
-                hostUrl = "https://hunyuan.tencentcloudapi.com/"
-            )
-        )
         val requestArgs = ChatCompletionRequest(
-            model = ModelId(GPTModel.gpt35Turbo.model),
-            messages = (params.messagesTurbo)
-        )
-        return openAI.chatCompletion(requestArgs).choices.first().message.content
+            model = ModelId(params.model.model),
+            responseFormat = thinkResponseFormat,
+            messages = chats ?: params.messagesTurbo,
+            temperature = params.temperature,
+            topP = params.topP,
+            n = params.n,
+            maxTokens = params.maxTokens,
+
+            )
+
+        return openAI.chatCompletion(requestArgs)
     }
 
+
     //图生文要专用模型才行
-    suspend fun analyzeImage(params: TextCompletionsParam): Flow<ChatCompletionChunk> {
+    fun analyzeImage(params: TextCompletionsParam): Flow<ChatCompletionChunk> {
         val requestArgs = ChatCompletionRequest(
 //            model = ModelId(GPTModel.visionhunyuan.model),
 //            model= ModelId(GPTModel.visionDeepv2.model),
-            model= ModelId(GPTModel.visionQwen.model),
+            model = ModelId(GPTModel.visionQwen.model),
             messages = params.messagesTurbo
         )
-//        printD("thread-${isMainThread()})}")
-//        printList(params.messagesTurbo, "imgReq>")
 
         val map = mutableMapOf<String, String>()
         val openAI = OpenAI(
             setAIConfig(
 //                token = "sk-NDI07Dpew9y1J7W0Fpoj1ywjo50p7H0cwKePxl4EEjJiLIlI",
 //                hostUrl = "https://api.hunyuan.cloud.tencent.com/v1/",
-                token="sk-qylhzhkqljizdtsbqcssefvqbknxbxxydpwppumwfeijince",
+                token = "sk-qylhzhkqljizdtsbqcssefvqbknxbxxydpwppumwfeijince",
                 hostUrl = "https://api.siliconflow.cn/v1/",
                 headers = map
             )
         )
         try {
             return openAI.chatCompletions(requestArgs, requestOptions = RequestOptions())
-        }catch (e:Exception){
+        } catch (e: Exception) {
             e.printStackTrace()
         }
-//        return openAI.chatCompletions(requestArgs, requestOptions = RequestOptions())
         return flowOf()
     }
 
@@ -100,6 +131,21 @@ class LLMChatRepository {//private val openAI: OpenAI,单例的话无法变更�
 //    suspend fun AnalyzeFile(){
 //        OpenAI().file()
 //    }
+
+    //函数工具调用，需要特定模型，有些还内置工具，如网络请求
+    suspend fun toolAICall(
+        params: TextCompletionsParam,
+        tool: Tool
+    ): ChatCompletion {
+        val openAI = OpenAI(setAIConfig())
+        val requestArgs = chatCompletionRequest {
+            model = ModelId(GPTModel.QwenTool.model)
+            messages = (params.messagesTurbo)
+            tools { tool(tool) }
+            toolChoice = ToolChoice.Auto
+        }
+        return openAI.chatCompletion(requestArgs)
+    }
 
     private fun setAIConfig(
         token: String = LLM_API_KEY,

@@ -6,10 +6,16 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
+import com.aallam.openai.api.chat.ChatCompletion
 import com.aallam.openai.api.chat.ChatCompletionChunk
 import com.aallam.openai.api.chat.ChatMessage
 import com.aallam.openai.api.chat.ChatRole
+import com.aallam.openai.api.chat.TextContent
+import com.aallam.openai.api.chat.Tool
+import com.aallam.openai.api.chat.ToolBuilder
+import com.aallam.openai.api.chat.ToolCall
 import com.aallam.openai.api.chat.chatMessage
+import com.aallam.openai.api.model.ModelId
 import com.hwj.ai.checkSystem
 import com.hwj.ai.data.http.handleAIException
 import com.hwj.ai.data.http.toast
@@ -28,15 +34,22 @@ import com.hwj.ai.global.EventHelper
 import com.hwj.ai.global.NotificationsManager
 import com.hwj.ai.global.OsStatus
 import com.hwj.ai.global.ToastUtils
+import com.hwj.ai.global.answerUseZw
+import com.hwj.ai.global.append
 import com.hwj.ai.global.encodeImageToBase64
+import com.hwj.ai.global.execute
 import com.hwj.ai.global.getMills
 import com.hwj.ai.global.getNowTime
 import com.hwj.ai.global.onlyDesktop
 import com.hwj.ai.global.printD
 import com.hwj.ai.global.printE
+import com.hwj.ai.global.printList
+import com.hwj.ai.global.reasoning
 import com.hwj.ai.global.thinking
+import com.hwj.ai.global.toolWeather
 import com.hwj.ai.global.workInSub
 import com.hwj.ai.models.ConversationModel
+import com.hwj.ai.models.GPTModel
 import com.hwj.ai.models.MessageModel
 import com.hwj.ai.models.TextCompletionsParam
 import io.github.vinceglb.filekit.FileKit
@@ -59,6 +72,10 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.add
+import kotlinx.serialization.json.put
+import kotlinx.serialization.json.putJsonArray
+import kotlinx.serialization.json.putJsonObject
 import moe.tlaster.precompose.viewmodel.ViewModel
 import moe.tlaster.precompose.viewmodel.viewModelScope
 
@@ -91,7 +108,7 @@ class ConversationViewModel(
     val isFetching: StateFlow<Boolean> = _isFetching.asStateFlow()
     val isAutoScroll: StateFlow<Boolean> = _isAutoScroll.asStateFlow()
 
-//    val isFabExpanded: StateFlow<Boolean> get() = _isFabExpandObs
+    //    val isFabExpanded: StateFlow<Boolean> get() = _isFabExpandObs
     val isFabExpanded = _isFabExpandObs.asStateFlow()
 
     //停止接收回答
@@ -114,6 +131,10 @@ class ConversationViewModel(
 
     //放在vm是因为拍照回来，输入过的文字会被丢失
     var inputTxt by mutableStateOf(TextFieldValue(""))
+
+    //深度思考
+    val _thinkAiObs = MutableStateFlow(false)
+    val thinkAiState = _thinkAiObs.asStateFlow()
 
 
     suspend fun initialize() {
@@ -146,11 +167,13 @@ class ConversationViewModel(
                         sendTxtMessage("总结如下内容，${event.txt}")
                     }
                 }
-                is Event.AnalyzePicEvent->{
+
+                is Event.AnalyzePicEvent -> {
+
                     curJob?.cancel()
                     newConversation()
 //                    addCameraImage(PlatformFile(event.path)) //怎么两张
-                    sendAnalyzeImageMsg(_imageListObs,"图片内容分析")
+                    sendAnalyzeImageMsg(_imageListObs, "图片内容分析")
                 }
 
                 else -> {}
@@ -227,12 +250,13 @@ class ConversationViewModel(
         curJob = viewModelScope.launch(Dispatchers.Default) {
             val params = TextCompletionsParam(
                 promptText = getPrompt(_currentConversation.value),
-                messagesTurbo = getMessagesParamsTurbo(_currentConversation.value)
+                messagesTurbo = getMessagesParamsTurbo(_currentConversation.value),
+                model = GPTModel.DeepSeekV3
             )//调用大模型接口
 
             var flowControl: Flow<ChatCompletionChunk>? = null
             try {
-                flowControl = openRepo.receiveAIMessage(params)
+                flowControl = openRepo.receiveAIMessage(params, useThink = _thinkAiObs.value)
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -261,6 +285,11 @@ class ConversationViewModel(
                         return@collect
                     }
                     try {
+                        //不行，上面的chunk结构就不对！ reasoning_content
+//                        chunk.choices.first().reasoning()?.let {
+//                            answerFromGPT += it
+//                            updateLocalAnswer(answerFromGPT.trim())
+//                        }
                         chunk.choices.first().delta?.content?.let {
                             answerFromGPT += it
 //                                printD(it) //打印答案
@@ -274,7 +303,7 @@ class ConversationViewModel(
             } catch (e: Exception) {
                 printE(e, "131") //gpt-4o 返回的数据格式好多异常
             }
-            // Save to FireStore
+            // Save to dataStore
             messageRepo.createMessage(newMessageModel.copy(answer = answerFromGPT))
         }
     }
@@ -319,6 +348,61 @@ class ConversationViewModel(
         }
     }
 
+    //怎么多轮连贯调用tool
+    fun sendTxtToolMessage(
+        input: String,
+        tool: Tool
+    ) {
+        _stopReceivingObs.value = false
+        if (getMessagesByConversation(_currentConversation.value).isEmpty()) {
+            workInSub { createConversationRemote(input) }
+        }
+        val newMessageModel = MessageModel(
+            question = input,
+            answer = thinking,
+            conversationId = _currentConversation.value,
+        )
+
+        val currentListMessage: MutableList<MessageModel> =
+            getMessagesByConversation(_currentConversation.value).toMutableList()
+
+        // Insert message to list
+        currentListMessage.add(0, newMessageModel)
+        setMessages(currentListMessage)
+
+        curJob = viewModelScope.launch(Dispatchers.Default) {
+            val curChatList = getMessagesParamsTurbo(_currentConversation.value).toMutableList()
+            val params = TextCompletionsParam(
+                promptText = getPrompt(_currentConversation.value),
+                model = GPTModel.QwenTool,
+                messagesTurbo = curChatList, stream = false //没用到？
+            )
+            var firstChat: ChatCompletion? = null
+            firstChat = openRepo.toolAICall(params, tool) //移到lambda
+
+            val message: ChatMessage = firstChat.choices.first().message
+            curChatList.append(message)
+
+            for (toolCall in message.toolCalls.orEmpty()) { //偶尔只返回一个
+                require(toolCall is ToolCall.Function) { "Tool call is not a function" }
+                val funcRep = toolCall.execute()
+                printD("f>$funcRep")
+                curChatList.append(toolCall, funcRep)//role - Tool
+            }
+            printList(curChatList, "req>")
+            try {
+                val secondResponse = openRepo.receiveAICompletion(params, curChatList)
+                secondResponse.choices.first().message.content?.let {
+                    updateLocalAnswer(it)
+                    messageRepo.createMessage(newMessageModel.copy(answer = it))
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+
     suspend fun sendFileMsg() {
 //        openRepo.AnalyzeImage()
     }
@@ -339,8 +423,9 @@ class ConversationViewModel(
             flowControl.onStart { setFabExpanded(true) }
                 .onCompletion {
                     setFabExpanded(false)
-                    if (_isStopUseImageObs.value){} //如果每次都传图参，那就不删
-                        deleteImage(0, true)
+                    if (_isStopUseImageObs.value) {
+                    } //如果每次都传图参，那就不删
+                    deleteImage(0, true)
                 }.catch { e ->
                     handleAIException(toastManager, e) {
                         printE("imgErr>${e.message}")
@@ -500,16 +585,15 @@ class ConversationViewModel(
                     role = ChatRole.User
                     name = DATA_USER_NAME
                     if (message.imagePath == null) {
-                        content = message.question
+                        content = message.question + answerUseZw
                     } else {
 //                        如果是图片 , 后续多轮对话不再传图片, 怎么区分新旧, 这里是新问题发起，全是旧的
                         if (index == messagesMap[conversationId]!!.size - 1) { //最后一个又有图片，那么就转base64,不然都是历史图片
                             content { //偶尔包装的数据打印出来有缺失字母，是打印问题还是包装问题。。。
-                                text("$DATA_IMAGE_TITLE，" + message.question)
+                                text("$DATA_IMAGE_TITLE，" + message.question + answerUseZw)
                                 partsReq.forEach { part ->
                                     image(part)//base64或url
                                 }
-
                             }
 
                         } else {
@@ -558,7 +642,7 @@ class ConversationViewModel(
             setMessages(it.toMutableList())
         }
         _isAutoScroll.value = true
-        printD("fetchMessages>${_isAutoScroll.value}")
+//        printD("fetchMessages>${_isAutoScroll.value}")
         delay(1000)
         _isAutoScroll.value = false
     }
@@ -581,7 +665,6 @@ class ConversationViewModel(
 
     fun generateMsgAgain() {
         viewModelScope.launch {
-
             printD("generateMsgAgain>")
             val currentListMessage: MutableList<MessageModel> =
                 getMessagesByConversation(_currentConversation.value).toMutableList()
@@ -607,6 +690,10 @@ class ConversationViewModel(
 
     fun getFabStatus(): Boolean {
         return _isFabExpandObs.value
+    }
+
+    fun setThinkUsed(flag: Boolean) { //深度思考不支持图，区分？其他应用又支持
+        _thinkAiObs.value = flag
     }
 
     fun checkSelectedImg(): Boolean {
