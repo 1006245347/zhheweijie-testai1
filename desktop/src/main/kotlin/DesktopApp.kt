@@ -1,5 +1,8 @@
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.awt.ComposeWindow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Tray
 import androidx.compose.ui.window.WindowPosition
@@ -45,11 +48,15 @@ fun main() {
         CompositionLocalProvider(
             LocalAppResource provides rememberAppResource(),
         ) {
+            val isShowWindowState = remember { mutableStateOf(true) }
+            val mainWindow = mutableStateOf<ComposeWindow?>(null)
             val trayState = rememberTrayState()
             Tray(icon = LocalAppResource.current.icon, state = trayState,
                 tooltip = "testAi", menu = {
                     Item("open", onClick = {
                         windowState.isMinimized = false //设置程序最小化
+                        isShowWindowState.value = true
+                        mainWindow.value?.isVisible = true
                     })
                     Item("exit", onClick = {
                         GlobalMouseHook9.stop()
@@ -57,11 +64,20 @@ fun main() {
                     })
                 }, onAction = { //双击触发
                     windowState.isMinimized = false
+                    isShowWindowState.value = true
+                    mainWindow.value?.isVisible = true
                 })
 
 
-            PlatformWindowStart(windowState) { exitApplication() }
-
+            PlatformWindowStart(windowState, isShowWindowState, onWindowChange = { w, isShow ->
+                mainWindow.value = w
+                //主要处理关闭窗口的响应，避免其他地方重复调用
+                if (!isShow)
+                    mainWindow.value?.isVisible = isShow
+            }) {
+                isShowWindowState.value = false
+                exitApplication()
+            }
 //        WindowsCaptureTest { exitApplication() } //测试截图
 //        WindowsSelectionTest { exitApplication() } //测试划词
 //        WindowsOcrTest{ exitApplication()} //测试ocr划词

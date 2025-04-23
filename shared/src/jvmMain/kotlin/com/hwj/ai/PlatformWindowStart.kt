@@ -5,13 +5,23 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.awt.ComposeWindow
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowState
 import com.hwj.ai.capture.LocalMainWindow
 import com.hwj.ai.global.OsStatus
 import com.hwj.ai.global.ThemeChatLite
+import com.hwj.ai.ui.showMainWindow
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import moe.tlaster.precompose.ProvidePreComposeLocals
 import java.awt.Dimension
 
@@ -25,12 +35,19 @@ import java.awt.Dimension
 //control +  option +O       control + C 中断调试
 //Tray 系统托盘
 @Composable
-fun PlatformWindowStart(windowState: WindowState, onCloseRequest: () -> Unit) {
+fun PlatformWindowStart(
+    windowState: WindowState, isShowWindowState: MutableState<Boolean>,
+    onWindowChange: @Composable (ComposeWindow, Boolean) -> Unit,
+    onCloseRequest: () -> Unit
+) {
 
+    var isShow by isShowWindowState
     return Window(
         onCloseRequest = {
-            windowState.isMinimized = true
-        }, title = "hwj-ai-chat", state = windowState,
+            isShowWindowState.value = false
+//            onCloseRequest() //放到托盘，不关闭
+        },
+        title = "hwj-ai-chat", state = windowState,
     ) {
         val window = this.window
         window.minimumSize = Dimension(650, 450)
@@ -39,6 +56,7 @@ fun PlatformWindowStart(windowState: WindowState, onCloseRequest: () -> Unit) {
             CompositionLocalProvider(
                 LocalMainWindow provides window,
             ) {
+                onWindowChange(LocalMainWindow.current, isShow)
                 ThemeChatLite {
                     Surface(Modifier.fillMaxSize()) {
                         Box(

@@ -89,12 +89,10 @@ class LLMChatRepository {//private val openAI: OpenAI,单例的话无法变更�
             topP = params.topP,
             n = params.n,
             maxTokens = params.maxTokens,
-
-            )
+        )
 
         return openAI.chatCompletion(requestArgs)
     }
-
 
     //图生文要专用模型才行
     fun analyzeImage(params: TextCompletionsParam): Flow<ChatCompletionChunk> {

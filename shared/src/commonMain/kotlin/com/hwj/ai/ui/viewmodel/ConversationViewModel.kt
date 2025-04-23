@@ -389,7 +389,7 @@ class ConversationViewModel(
                 printD("f>$funcRep")
                 curChatList.append(toolCall, funcRep)//role - Tool
             }
-            printList(curChatList, "req>")
+//            printList(curChatList, "req>")
             try {
                 val secondResponse = openRepo.receiveAICompletion(params, curChatList)
                 secondResponse.choices.first().message.content?.let {

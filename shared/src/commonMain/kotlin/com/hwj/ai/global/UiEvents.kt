@@ -86,6 +86,7 @@ fun ChatChunk.reasoning(): String? {
 val ChatCompletionChunk.reason: String
     get() = ""
 
+//function call 是指模型在回答用户问题时，调用外部函数或API来获得信息或与外部系统交互的能力。
 fun ToolCall.Function.execute(): String {
     val functionToCall =
         availableFunctions[function.name] ?: error("Function ${function.name} not found")

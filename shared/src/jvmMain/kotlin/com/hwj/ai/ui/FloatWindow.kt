@@ -109,7 +109,7 @@ fun FloatWindowInside() {
                     "AI Chat",
                     modifier = Modifier.size(25.dp).padding(start = 3.dp).clickable {
 
-                            window2Front()
+                        window2Front()
 
                         chatViewModel.preWindow(false)
                     })
@@ -144,3 +144,18 @@ fun FloatWindowInside() {
     }
 }
 
+
+@Composable
+fun showMainWindow(flag: Boolean) {
+        println("showM>$flag")
+    if (flag) {
+        LocalMainWindow.current.apply {
+            isVisible = true
+            toFront()
+            state = Frame.NORMAL
+        }
+    } else {
+        LocalMainWindow.current.isVisible = false
+    }
+
+}

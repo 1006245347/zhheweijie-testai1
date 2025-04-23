@@ -99,10 +99,10 @@ fun TextInput(
                 } else {
                     conversationViewModel.sendTxtMessage(text)
                     //test function
-                    conversationViewModel.sendTxtToolMessage(
-                        "What's the weather like in San Francisco, Tokyo, and Paris?",
-                        toolWeather
-                    )
+//                    conversationViewModel.sendTxtToolMessage(
+//                        "What's the weather like in San Francisco, Tokyo, and Paris?",
+//                        toolWeather
+//                    )
                 }
             }
         }, navigator
