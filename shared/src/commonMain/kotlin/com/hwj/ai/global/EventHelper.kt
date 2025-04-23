@@ -24,4 +24,6 @@ sealed class Event {
     data class SelectionEvent(val code:Int,val txt:String):Event()
 
     data class AnalyzePicEvent(val path:String):Event()
+
+    data class DeleteConversationEvent(val conversationId:String):Event()
 }

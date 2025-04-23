@@ -115,7 +115,6 @@ fun MessageList(
         }
     }
 
-
     Box(modifier = modifier.onSizeChanged { size -> boxHeight = size.height }) {
         LazyColumn(
             contentPadding =

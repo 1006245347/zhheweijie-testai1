@@ -4,6 +4,8 @@ import com.hwj.ai.data.local.deleteMsgByConversationID
 import com.hwj.ai.data.local.getConversationList
 import com.hwj.ai.data.local.saveConversation
 import com.hwj.ai.data.local.saveConversationList
+import com.hwj.ai.global.Event
+import com.hwj.ai.global.EventHelper
 import com.hwj.ai.models.ConversationModel
 
 /**
@@ -43,6 +45,7 @@ class ConversationRepository() {
         }
         saveConversationList(list)
         //通知外部刷新
+        EventHelper.post(Event.DeleteConversationEvent(conversationId))
     }
 
     fun getFirstConversation(): ConversationModel? {

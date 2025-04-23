@@ -78,6 +78,7 @@ import kotlinx.serialization.json.putJsonArray
 import kotlinx.serialization.json.putJsonObject
 import moe.tlaster.precompose.viewmodel.ViewModel
 import moe.tlaster.precompose.viewmodel.viewModelScope
+import kotlin.random.Random
 
 /**
  * Used to communicate between screens.
@@ -169,11 +170,24 @@ class ConversationViewModel(
                 }
 
                 is Event.AnalyzePicEvent -> {
-
                     curJob?.cancel()
                     newConversation()
 //                    addCameraImage(PlatformFile(event.path)) //怎么两张
                     sendAnalyzeImageMsg(_imageListObs, "图片内容分析")
+                }
+
+                is Event.RefreshEvent -> {
+                    //列表也没刷新，不是当前的不需要停止呀
+//                    stopReceivingResults()
+//                    newConversation()
+
+                }
+
+                is Event.DeleteConversationEvent -> {
+                    if (event.conversationId == _currentConversation.value) {
+                        stopReceivingResults()
+                    }
+                    newConversation()
                 }
 
                 else -> {}
@@ -483,7 +497,7 @@ class ConversationViewModel(
     }
 
     fun newConversation() { //构建新的会话ID
-        val conversationId: String = getNowTime().time.toString()
+        val conversationId: String = (getMills() + Random.nextInt(100)).toString()
 
         _currentConversation.value = conversationId
         _imageListObs.clear()
