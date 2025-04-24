@@ -338,27 +338,10 @@ class ConversationViewModel(
 
         currentListMessage.add(0, newMessageModel)
         setMessages(currentListMessage)
-//        a()
 
         updateImageMsg(newMessageModel)
-
     }
 
-    private fun a() {
-        b()
-    }
-
-    private fun b() {
-        printD("ex2> ${isMainThread()}")
-        viewModelScope.launch(Dispatchers.Main) {
-            printD("ex3>${isMainThread()}")
-            println("无法执行？")
-            printD("无法执行")
-        }
-        viewModelScope.launch(Dispatchers.IO) {
-            printD("ex4")
-        }
-    }
 
     //怎么多轮连贯调用tool
     fun sendTxtToolMessage(
