@@ -41,9 +41,6 @@ import com.hwj.ai.ui.viewmodel.ChatViewModel
 import com.hwj.ai.ui.viewmodel.ConversationViewModel
 import com.hwj.ai.ui.viewmodel.ModelConfigIntent
 import com.hwj.ai.ui.viewmodel.ModelConfigState
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import moe.tlaster.precompose.koin.koinViewModel
 import moe.tlaster.precompose.navigation.BackHandler
@@ -130,12 +127,11 @@ fun ChatScreen(navigator: Navigator) {
                 Box(Modifier.fillMaxSize()) {
                     Column(modifier = Modifier.fillMaxSize()) {
                         AppBar(onClickMenu = { scope.launch { drawerState.open() } },
-                            onNewChat = {
+                            onNewChat = { //新建会话
                                 scope.launch {
                                     conversationViewModel.stopReceivingResults()
                                     drawerState.close()
                                     conversationViewModel.newConversation()
-
                                 }
                             })
                         HorizontalDivider(thickness = (0.5f).dp, color = cDeepLine())
@@ -147,8 +143,7 @@ fun ChatScreen(navigator: Navigator) {
                         }
                     }
 
-                    //为了全局显示toast
-                    ToastHost(
+                    ToastHost(  //为了全局显示toast
                         modifier = Modifier
                             .padding(horizontal = 16.dp, vertical = 12.dp)
                             .fillMaxWidth()
@@ -167,18 +162,6 @@ fun ChatScreen(navigator: Navigator) {
         }
     }
 }
-
-//@Composable
-//fun HookSelection() {
-//    val subScope  = rememberCoroutineScope()
-//    val selectText= remember { mutableStateOf<String?>(null) }
-//    val appText = remember { mutableStateOf<String?>(null) }
-//    if (useHook) {
-//        subScope.launch (Dispatchers.IO){
-//
-//        }
-//    }
-//}
 
 @Composable
 fun ChatInit(state: ModelConfigState) {

@@ -88,7 +88,7 @@ class ConversationViewModel(
     private val messageRepo: MessageRepository,
     private val openAIRepo: LLMRepository, private val openRepo: LLMChatRepository,
     private val toastManager: NotificationsManager, private val clipboardHelper: ClipboardHelper
-) : ViewModel() { //换掉这个viewModel
+) : ViewModel() {
     private val _currentConversation: MutableStateFlow<String> =
         MutableStateFlow(getMills().toString())
     private val _conversations: MutableStateFlow<MutableList<ConversationModel>> = MutableStateFlow(
@@ -177,13 +177,10 @@ class ConversationViewModel(
                 }
 
                 is Event.RefreshEvent -> {
-                    //列表也没刷新，不是当前的不需要停止呀
-//                    stopReceivingResults()
 //                    newConversation()
-
                 }
 
-                is Event.DeleteConversationEvent -> {
+                is Event.DeleteConversationEvent -> {     //列表也没刷新，不是当前的不需要停止呀
                     if (event.conversationId == _currentConversation.value) {
                         stopReceivingResults()
                     }
@@ -220,7 +217,7 @@ class ConversationViewModel(
             }
         }
 
-        val newMessageModel: MessageModel = MessageModel(
+        val newMessageModel = MessageModel(
             question = input,
             answer = thinking,
             conversationId = _currentConversation.value,
@@ -233,8 +230,8 @@ class ConversationViewModel(
         currentListMessage.add(0, newMessageModel)
         setMessages(currentListMessage)
 
-        //直接调用api接口方式
-//        // Execute API OpenAI ,返回数据
+//        curJob = viewModelScope.launch(Dispatchers.Default) { //        //直接调用api接口方式
+////        // Execute API OpenAI ,返回数据
 //        val flow: Flow<String> = openAIRepo.textCompletionsWithStream(
 //            TextCompletionsParam(
 //                promptText = getPrompt(_currentConversation.value),
@@ -248,14 +245,17 @@ class ConversationViewModel(
 //        flow.onCompletion {
 //            setFabExpanded(false)
 //        }.collect { value ->
-//            if (stopReceivingResults) {
-//                setFabExpanded(false)
+//            if (_stopReceivingObs.value) {
+//                stopReceiveMsg(newMessageModel)
 //                return@collect
 //            }
 //            answerFromGPT += value
 //            updateLocalAnswer(answerFromGPT.trim())
 //            setFabExpanded(true)
 //        }
+//        //数据库保存
+//        messageRepo.createMessage(newMessageModel.copy(answer = answerFromGPT))
+//    }
         updateTextMsg(newMessageModel)
     }
 
@@ -293,9 +293,7 @@ class ConversationViewModel(
                     }
                 }?.collect { chunk -> //被强制类型
                     if (_stopReceivingObs.value) {
-                        setFabExpanded(false)
-                        curJob?.cancel()
-                        curJob = null
+                        stopReceiveMsg(newMessageModel)
                         return@collect
                     }
                     try {
@@ -451,9 +449,7 @@ class ConversationViewModel(
                 }
                 .collect { chunk ->
                     if (_stopReceivingObs.value) {
-                        setFabExpanded(false)
-                        curJob?.cancel()
-                        curJob = null
+                      stopReceiveMsg(newMessageModel)
                         return@collect
                     }
 
@@ -668,6 +664,13 @@ class ConversationViewModel(
         currentListMessage[0] = currentListMessage[0].copy(answer = answer)
 
         setMessages(currentListMessage)
+    }
+
+    private suspend fun stopReceiveMsg(newMessageModel: MessageModel) {
+        setFabExpanded(false)
+        messageRepo.createMessage(newMessageModel)
+        curJob?.cancel()
+        curJob = null
     }
 
     private fun setMessages(messages: MutableList<MessageModel>) {

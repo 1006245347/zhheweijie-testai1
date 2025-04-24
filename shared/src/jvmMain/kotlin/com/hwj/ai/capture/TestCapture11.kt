@@ -153,7 +153,7 @@ fun ScreenshotOverlay11(
                 )
             }
         ) {
-            println("canvas>${chatViewModel.isShotState.collectAsState().value}")
+//            println("canvas>${chatViewModel.isShotState.collectAsState().value}")
             Canvas(modifier = Modifier.fillMaxSize()) {
                 // 背景遮罩
                 drawRect(Color.Black.copy(alpha = 0.3f))

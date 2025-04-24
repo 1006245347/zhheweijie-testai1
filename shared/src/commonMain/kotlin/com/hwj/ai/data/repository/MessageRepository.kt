@@ -27,6 +27,7 @@ class MessageRepository() {
 
     suspend fun createMessage(message: MessageModel): MessageModel {
         //add ... 向集合添加
+        println("saveMessage>${message.conversationId}")
         saveMessage(message)
         return message
     }

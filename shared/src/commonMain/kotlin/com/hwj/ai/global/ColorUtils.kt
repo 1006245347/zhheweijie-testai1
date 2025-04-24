@@ -16,6 +16,7 @@ fun cGreyF0F0F0() = Color(0xFFF0F0F0)
 fun cGreyF6F6F6() = Color(0xFFF6F6F6)
 fun cBlue629DE8() = Color(0xFF629DE8)
 fun cBlue014AA7() = Color(0xFF014AA7)
+fun cBlueA7BDD8()=Color(0xFFA7BDD8)
 
 //background
 fun cGreyEEEEEE() = Color(0xFFEEEEEE)

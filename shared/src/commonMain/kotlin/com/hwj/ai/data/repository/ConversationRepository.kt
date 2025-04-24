@@ -12,7 +12,7 @@ import com.hwj.ai.models.ConversationModel
  * @author by jason-何伟杰，2025/2/11
  * des:对话增删保存本地
  */
-class ConversationRepository() {
+class ConversationRepository {
 
     suspend fun fetchConversations(): MutableList<ConversationModel> {
         val list = getConversationList()
@@ -47,12 +47,4 @@ class ConversationRepository() {
         //通知外部刷新
         EventHelper.post(Event.DeleteConversationEvent(conversationId))
     }
-
-    fun getFirstConversation(): ConversationModel? {
-
-//        return fakeConversations[0]
-        return null
-    }
-
-
 }

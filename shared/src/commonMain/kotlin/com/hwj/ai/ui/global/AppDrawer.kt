@@ -249,7 +249,7 @@ private fun ColumnScope.HistoryConversations(
                     Icons.AutoMirrored.Filled.Message, //id?匹配不对
                     selected = conversationState[index].id == currentConversationState,
                     onChatClicked = {
-                        println("id> $index ,${conversationState[index].id}")
+//                        println("id> $index ,${conversationState[index].id}")
                         onChatClicked(conversationState[index].id)
                         scope.launch {
                             onConversation(conversationState[index])
