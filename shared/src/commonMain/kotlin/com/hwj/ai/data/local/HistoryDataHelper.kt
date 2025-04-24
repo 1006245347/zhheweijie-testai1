@@ -22,7 +22,7 @@ suspend fun getConversationList(): MutableList<ConversationModel>? {
     }
 }
 
- suspend fun saveConversation(conversation: ConversationModel) {
+suspend fun saveConversation(conversation: ConversationModel) {
     val cacheList = getConversationList()
     if (cacheList.isNullOrEmpty()) {
         val newList = mutableListOf<ConversationModel>()
@@ -37,7 +37,7 @@ suspend fun getConversationList(): MutableList<ConversationModel>? {
     }
 }
 
- suspend fun saveConversationList(list: MutableList<ConversationModel>?) {
+suspend fun saveConversationList(list: MutableList<ConversationModel>?) {
     if (list.isNullOrEmpty()) {
         removeKey(buildConversationTag())
     } else {
@@ -50,11 +50,11 @@ private suspend fun buildConversationTag(): String {
     return DATA_CONVERSATION_TAG + getCacheLong(DATA_USER_ID)
 }
 
-suspend fun deleteMsgByConversationID(conversationId: String){
+suspend fun deleteMsgByConversationID(conversationId: String) {
     removeKey(buildMsgTag(conversationId))
 }
 
- suspend fun getMsgList(conversationId: String): MutableList<MessageModel>? {
+suspend fun getMsgList(conversationId: String): MutableList<MessageModel>? {
     //缓存要跟userID绑定，不然切账号就乱了
     val result = getCacheString(buildMsgTag(conversationId))
     if (!result.isNullOrEmpty()) {
@@ -65,7 +65,7 @@ suspend fun deleteMsgByConversationID(conversationId: String){
     }
 }
 
- suspend fun saveMessage(message: MessageModel) {
+suspend fun saveMessage(message: MessageModel) {
     val cacheList = getMsgList(message.conversationId)
     if (cacheList.isNullOrEmpty()) {
         val newList = mutableListOf<MessageModel>()
@@ -77,6 +77,6 @@ suspend fun deleteMsgByConversationID(conversationId: String){
     }
 }
 
- suspend fun buildMsgTag(conversationId: String): String {
+suspend fun buildMsgTag(conversationId: String): String {
     return DATA_MESSAGE_TAG + getCacheLong(DATA_USER_ID) + "_$conversationId"
 }

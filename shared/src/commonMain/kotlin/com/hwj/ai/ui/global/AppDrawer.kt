@@ -226,6 +226,8 @@ private fun ColumnScope.HistoryConversations(
     var listSize by remember { mutableStateOf(IntSize.Zero) }
     var isScrolling by remember { mutableStateOf(false) }
     var lastScrollTime by remember { mutableStateOf(0L) }
+    val conversationViewModel = koinViewModel(ConversationViewModel::class)
+    val conversationId by conversationViewModel.currentConversationState.collectAsState()
 
     LaunchedEffect(listState.isScrollInProgress) {
         if (listState.isScrollInProgress) {
@@ -250,9 +252,11 @@ private fun ColumnScope.HistoryConversations(
                     selected = conversationState[index].id == currentConversationState,
                     onChatClicked = {
 //                        println("id> $index ,${conversationState[index].id}")
-                        onChatClicked(conversationState[index].id)
-                        scope.launch {
-                            onConversation(conversationState[index])
+                        if (conversationId != conversationState[index].id) {
+                            onChatClicked(conversationState[index].id)
+                            scope.launch {
+                                onConversation(conversationState[index])
+                            }
                         }
                     },
                     onDeleteClicked = {
@@ -265,7 +269,11 @@ private fun ColumnScope.HistoryConversations(
             }
         }
 
-        androidx.compose.animation.AnimatedVisibility(visible = isScrolling, enter = fadeIn(), exit = fadeOut()) {
+        androidx.compose.animation.AnimatedVisibility(
+            visible = isScrolling,
+            enter = fadeIn(),
+            exit = fadeOut()
+        ) {
             //滚动条
             if (listState.layoutInfo.totalItemsCount > 0) {
                 val proportion =
@@ -281,7 +289,7 @@ private fun ColumnScope.HistoryConversations(
                         .offset { IntOffset(x = 0, y = scrollbarOffsetY.toInt()) }
                         .background(
 //                            Color.Cyan.copy(alpha = 0.7f),
-                            if(isDark.value) isDarkTxt() else isLightTxt(),
+                            if (isDark.value) isDarkTxt() else isLightTxt(),
                             shape = MaterialTheme.shapes.small
                         )
                         .align(Alignment.TopEnd)

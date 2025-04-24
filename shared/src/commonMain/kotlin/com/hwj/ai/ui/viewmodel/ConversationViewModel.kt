@@ -206,6 +206,8 @@ class ConversationViewModel(
         _currentConversation.value = conversation.id
 
         fetchMessages()
+        _imageListObs.clear()
+        _isStopUseImageObs.value=false
         _isFetching.value = false
     }
 
@@ -293,7 +295,8 @@ class ConversationViewModel(
                     }
                 }?.collect { chunk -> //被强制类型
                     if (_stopReceivingObs.value) {
-                        stopReceiveMsg(newMessageModel)
+                        stopReceiveMsg(newMessageModel.copy(answer = answerFromGPT))
+
                         return@collect
                     }
                     try {
@@ -316,7 +319,8 @@ class ConversationViewModel(
                 printE(e, "131") //gpt-4o 返回的数据格式好多异常
             }
             // Save to dataStore
-            messageRepo.createMessage(newMessageModel.copy(answer = answerFromGPT))
+            if (!_stopReceivingObs.value)
+                messageRepo.createMessage(newMessageModel.copy(answer = answerFromGPT))
         }
     }
 
@@ -418,9 +422,9 @@ class ConversationViewModel(
             flowControl.onStart { setFabExpanded(true) }
                 .onCompletion {
                     setFabExpanded(false)
-                    if (_isStopUseImageObs.value) {
-                    } //如果每次都传图参，那就不删
-                    deleteImage(0, true)
+                    if (_isStopUseImageObs.value) {  //如果每次都传图参，那就不删
+                        deleteImage(0, true)
+                    }
                 }.catch { e ->
                     handleAIException(toastManager, e) {
                         printE("imgErr>${e.message}")
@@ -432,7 +436,7 @@ class ConversationViewModel(
                 }
                 .collect { chunk ->
                     if (_stopReceivingObs.value) {
-                      stopReceiveMsg(newMessageModel)
+                        stopReceiveMsg(newMessageModel.copy(answer = answerFromGPT))
                         return@collect
                     }
 
@@ -450,7 +454,8 @@ class ConversationViewModel(
             printE(e)
         }
         //数据库保存
-        messageRepo.createMessage(newMessageModel.copy(answer = answerFromGPT))
+        if (_stopReceivingObs.value)
+            messageRepo.createMessage(newMessageModel.copy(answer = answerFromGPT))
     }
 
     private suspend fun createConversationRemote(title: String) {
@@ -652,6 +657,7 @@ class ConversationViewModel(
     private suspend fun stopReceiveMsg(newMessageModel: MessageModel) {
         setFabExpanded(false)
         messageRepo.createMessage(newMessageModel)
+        delay(1000)
         curJob?.cancel()
         curJob = null
     }

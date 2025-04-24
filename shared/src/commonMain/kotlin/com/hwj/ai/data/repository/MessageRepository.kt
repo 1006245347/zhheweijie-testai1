@@ -2,6 +2,7 @@ package com.hwj.ai.data.repository
 
 import com.hwj.ai.data.local.getMsgList
 import com.hwj.ai.data.local.saveMessage
+import com.hwj.ai.global.printList
 import com.hwj.ai.models.MessageModel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -20,6 +21,7 @@ class MessageRepository() {
             if (list.isNullOrEmpty()) {
                 trySend(listOf())
             } else {
+                printList(list,"fetch")
                 trySend(list)
             }
             awaitClose { close() }
@@ -27,8 +29,8 @@ class MessageRepository() {
 
     suspend fun createMessage(message: MessageModel): MessageModel {
         //add ... 向集合添加
-        println("saveMessage>${message.conversationId}")
         saveMessage(message)
+
         return message
     }
 

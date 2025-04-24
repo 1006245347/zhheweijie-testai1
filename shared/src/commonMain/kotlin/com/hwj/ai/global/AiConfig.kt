@@ -13,8 +13,9 @@ const val urlToBot = "https://copilot.gree.com"
 const val conversationTestTag = "ConversationTestTag"
 
 const val logTAG="yuy"
-const val thinking="思考中..."
-const val answerUseZw="\n请用中文回答"
+//const val thinking="思考中..."
+const val thinking="thinking..."
+const val answerUseZw="\n请用英文回答"
 
 //数据
 const val DATA_USER_NAME="User"
