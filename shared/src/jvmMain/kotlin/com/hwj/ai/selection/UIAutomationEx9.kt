@@ -79,7 +79,7 @@ object GlobalMouseHook9 {
         ) // Found: WinUser.MSLLHOOKSTRUCT! Required: WinDef.LPARAM!
     }
 
-    fun start(appBlock: (String?) -> Unit, contentBlock: (String?) -> Unit) {
+    fun start(useHot: Boolean, appBlock: (String?) -> Unit, contentBlock: (String?) -> Unit) {
         mouseHook = user32.SetWindowsHookEx(
             WinUser.WH_MOUSE_LL, mouseProc6, Kernel32.INSTANCE.GetModuleHandle(null), 0
         )
@@ -97,13 +97,14 @@ object GlobalMouseHook9 {
         val k_alt = 0x0001
         val k_a = 0x41
         val k_id1 = 1
-        if (!user32.RegisterHotKey(hwnd, k_id1, k_alt, k_a)) {
-            println("register hot failed>")
-        }
+        if (useHot) {
+            if (!user32.RegisterHotKey(hwnd, k_id1, k_alt, k_a)) {
+                println("register hot failed>")
+            }
 
-
-        if (!user32.RegisterHotKey(hwnd, 2, 0x0001, 0x42)) {
-            println("hot2 failed")
+            if (!user32.RegisterHotKey(hwnd, 2, 0x0001, 0x42)) {
+                println("hot2 failed")
+            }
         }
 
 
@@ -132,6 +133,7 @@ object GlobalMouseHook9 {
 
     private fun releaseHotKey() {
         user32.UnregisterHotKey(null, 1)
+        user32.UnregisterHotKey(null, 2)
     }
 
     //这种命令只可获取到 notepad++的文本，gettext

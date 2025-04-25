@@ -24,3 +24,5 @@ expect fun HookSelection()
 
 @Composable
 expect fun FloatWindow()
+
+expect fun getShotCacheDir():String?

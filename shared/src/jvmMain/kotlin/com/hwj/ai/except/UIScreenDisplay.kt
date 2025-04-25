@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hwj.ai.capture.LocalMainWindow
 import com.hwj.ai.capture.ScreenshotOverlay11
+import com.hwj.ai.capture.getPlatformCacheImgDir11
 import com.hwj.ai.capture.saveToFile11
 import com.hwj.ai.checkSystem
 import com.hwj.ai.global.Event
@@ -37,6 +38,7 @@ import com.hwj.ai.selection.GlobalMouseHook9
 import com.hwj.ai.ui.FloatWindowInside
 import com.hwj.ai.ui.viewmodel.ChatViewModel
 import com.hwj.ai.ui.viewmodel.ConversationViewModel
+import com.hwj.ai.ui.viewmodel.SettingsViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -146,13 +148,15 @@ actual fun HookSelection() {
     if (checkSystem() != OsStatus.WINDOWS) return
     //浮窗
     val chatViewModel = koinViewModel(ChatViewModel::class)
-    val useSelectState by chatViewModel.useSelectState.collectAsState()
+    val settingsViewModel = koinViewModel(SettingsViewModel::class)
+    val useSelectState by settingsViewModel.useSelectState.collectAsState()
+    val useHotKeyState by settingsViewModel.useHotKeyState.collectAsState()
     val isShotState by chatViewModel.isShotState.collectAsState()
     val subScope = rememberCoroutineScope()
-    LaunchedEffect(useSelectState) { //是否开启划词功能
-        if (useSelectState) {
+    LaunchedEffect(useSelectState || useHotKeyState) { //是否开启划词功能
+        if (useSelectState || useHotKeyState) {
             subScope.launch(Dispatchers.IO) {
-                GlobalMouseHook9.start(appBlock = { info ->
+                GlobalMouseHook9.start(useHotKeyState,appBlock = { info ->
                     chatViewModel.findAppInfo(info)
                 }, contentBlock = { content ->
                     if (!isShotState)
@@ -164,16 +168,19 @@ actual fun HookSelection() {
                 })
             }
             //拆线程才不卡
-            subScope.launch(Dispatchers.IO) {
-                while (useSelectState) {
-                    delay(50)
-                    if (GlobalMouseHook9.isDragging) {
-                        GlobalMouseHook9.handleMouseAct()
-                        GlobalMouseHook9.isDragging = false
+            if (useSelectState) {
+                subScope.launch(Dispatchers.IO) {
+                    while (useSelectState) {
+                        delay(50)
+                        if (GlobalMouseHook9.isDragging) {
+                            GlobalMouseHook9.handleMouseAct()
+                            GlobalMouseHook9.isDragging = false
+                        }
                     }
                 }
             }
         } else {
+
             GlobalMouseHook9.stop()
         }
     }
@@ -182,4 +189,8 @@ actual fun HookSelection() {
 @Composable
 actual fun FloatWindow() {
     FloatWindowInside()
+}
+
+actual fun getShotCacheDir():String?{
+    return getPlatformCacheImgDir11().absolutePath
 }

@@ -4,9 +4,14 @@ import androidx.compose.runtime.mutableStateListOf
 import com.hwj.ai.data.repository.GlobalRepository
 import com.hwj.ai.data.repository.SettingsRepository
 import com.hwj.ai.except.DataSettings
+import com.hwj.ai.global.CODE_HOT_KEY
+import com.hwj.ai.global.CODE_LANGUAGE_ZH
+import com.hwj.ai.global.CODE_SELECTION_USE
 import com.hwj.ai.global.NotificationsManager
+import com.hwj.ai.global.getCacheBoolean
 import com.hwj.ai.global.printD
 import com.hwj.ai.models.LLMModel
+import com.hwj.ai.ui.global.StrUtils
 import com.russhwolf.settings.Settings
 import com.russhwolf.settings.coroutines.FlowSettings
 import com.russhwolf.settings.coroutines.toSuspendSettings
@@ -24,7 +29,7 @@ import moe.tlaster.precompose.viewmodel.viewModelScope
  */
 class SettingsViewModel(
     private val repository: SettingsRepository,
-    private val globalRepository: GlobalRepository,private val toastManager: NotificationsManager
+    private val globalRepository: GlobalRepository, private val toastManager: NotificationsManager
 ) : ViewModel() {
 
     //唯一可信数据源
@@ -33,6 +38,27 @@ class SettingsViewModel(
 
     private val _localLLMObs = mutableStateListOf<LLMModel>()
     val localLLMState = MutableStateFlow(_localLLMObs).asStateFlow()
+
+    //语言、快捷键、模型选中、划词、截图路径
+    private val _isChineseObs = MutableStateFlow(true)
+    val isChineseState = MutableStateFlow(_isChineseObs).asStateFlow()
+
+    //是否启用划词
+    private val _useSelectObs = MutableStateFlow(false)
+    val useSelectState = _useSelectObs.asStateFlow()
+
+    private val _useHotKeyObs = MutableStateFlow(false)
+    val useHotKeyState = _useHotKeyObs.asStateFlow()
+
+    suspend fun initialize() {
+        viewModelScope.launch {
+            _isChineseObs.value = getCacheBoolean(CODE_LANGUAGE_ZH, true)
+            _useSelectObs.value = getCacheBoolean(CODE_SELECTION_USE, true)
+            _useHotKeyObs.value = getCacheBoolean(CODE_HOT_KEY, true)
+            println("isChinese>${_isChineseObs.value}")
+            StrUtils.switchTo(_isChineseObs.value)
+        }
+    }
 
     suspend fun fetchLLMModels() {
         _localLLMObs.clear()
@@ -50,7 +76,6 @@ class SettingsViewModel(
                 getItemData(intent.item)
             }
         }
-
     }
 
     fun getAppData() {

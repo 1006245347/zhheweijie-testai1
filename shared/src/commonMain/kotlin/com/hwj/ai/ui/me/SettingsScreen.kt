@@ -2,22 +2,181 @@ package com.hwj.ai.ui.me
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.Text
+import androidx.compose.material.TopAppBar
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBackIosNew
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.FilledIconToggleButton
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Switch
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.state.ToggleableState
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.hwj.ai.except.getShotCacheDir
+import com.hwj.ai.global.CODE_HOT_KEY
+import com.hwj.ai.global.CODE_LANGUAGE_ZH
+import com.hwj.ai.global.CODE_SELECTION_USE
+import com.hwj.ai.global.PrimaryColor
+import com.hwj.ai.global.getCacheBoolean
+import com.hwj.ai.global.isDarkTxt
+import com.hwj.ai.global.isLightTxt
+import com.hwj.ai.global.onlyDesktop
+import com.hwj.ai.global.saveBoolean
+import com.hwj.ai.ui.global.DialogUtils
+import com.hwj.ai.ui.global.StrUtils
+import com.hwj.ai.ui.viewmodel.ChatViewModel
 import com.hwj.ai.ui.viewmodel.SettingsIntent
 import com.hwj.ai.ui.viewmodel.SettingsViewModel
+import io.github.vinceglb.filekit.FileKit
+import io.github.vinceglb.filekit.PlatformFile
+import io.github.vinceglb.filekit.dialogs.openFilePicker
+import kotlinx.coroutines.launch
 import moe.tlaster.precompose.koin.koinViewModel
 import moe.tlaster.precompose.navigation.Navigator
 
 @Composable
-fun SettingsScreen(navigator: Navigator) {
+fun SettingsScreen(openState: MutableState<Boolean>) {
+    val chatViewModel = koinViewModel(ChatViewModel::class)
+    val viewModel = koinViewModel(SettingsViewModel::class)
+    val isDark = chatViewModel.darkState.collectAsState().value
+    var useSelectionState by remember { mutableStateOf(false) }
+    var useHotKeyState by remember { mutableStateOf(false) }
+    var useChineseState by remember { mutableStateOf(false) }
+    val subScope = rememberCoroutineScope()
+    LaunchedEffect(Unit) {
+        subScope.launch {
+            useChineseState = getCacheBoolean(CODE_LANGUAGE_ZH, true)
+            useHotKeyState = getCacheBoolean(CODE_HOT_KEY, true)
+            useSelectionState = getCacheBoolean(CODE_SELECTION_USE, true)
+        }
+    }
 
+    DisposableEffect(Unit) { //页面关闭，响应重组最后的回调
+        onDispose {
+            subScope.launch {
+                viewModel.initialize()
+            }
+        }
+    }
+    DialogUtils.CreateDialog(
+        openState,
+        marginTop = 10.dp,
+        paddingStart = 10.dp,
+        dialogHeight = 400.dp
+    ) {
+        Column {
+            CenterAlignedTopAppBar(navigationIcon = {
+                IconButton(onClick = { openState.value = false }) {
+                    Icon(Icons.Filled.ArrowBackIosNew, "close", tint = PrimaryColor)
+                }
+            }, title = {
+                Text(text = "Settings", color = if (isDark) isDarkTxt() else isLightTxt())
+            }, colors = TopAppBarDefaults.topAppBarColors(
+                //smallTopAppBarColors
+                containerColor = MaterialTheme.colorScheme.background,
+                titleContentColor = PrimaryColor,
+            ), actions = {})
+
+            HorizontalDivider(
+                thickness = 0.5.dp,
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Row {
+                Switch(checked = useChineseState, onCheckedChange = {
+                    subScope.launch {
+                        useChineseState = it
+                        saveBoolean(CODE_LANGUAGE_ZH, useChineseState)
+                    }
+                })
+                Text(
+                    text = StrUtils.switchLanguage,
+                    fontSize = 14.sp,
+                    color = if (isDark) isDarkTxt() else isLightTxt(),
+                    modifier = Modifier.padding(top = 13.dp, start = 5.dp)
+                )
+            }
+            if (onlyDesktop()) {//桌面端才有
+                Row {
+                    Switch(checked = useHotKeyState, onCheckedChange = {
+                        subScope.launch {
+                            useHotKeyState = it
+                            saveBoolean(CODE_HOT_KEY, useHotKeyState)
+                        }
+                    })
+                    Text(
+                        text = "使用Alt A截图", fontSize = 14.sp,
+                        color = if (isDark) isDarkTxt() else isLightTxt(),
+                        modifier = Modifier.padding(top = 13.dp, start = 5.dp)
+                    )
+                }
+
+                Row {
+                    Switch(checked = useSelectionState, onCheckedChange = {
+                        subScope.launch {
+                            useSelectionState = it
+                            saveBoolean(CODE_SELECTION_USE, useSelectionState)
+                        }
+                    })
+                    Text(
+                        "启用划词搜索", fontSize = 14.sp,
+                        color = if (isDark) isDarkTxt() else isLightTxt(),
+                        modifier = Modifier.padding(top = 13.dp, start = 5.dp)
+                    )
+                }
+
+                Row {
+                    SelectionContainer {
+                        Text(text = "截图缓存目录：${getShotCacheDir()}", fontSize = 11.sp,
+                            color = if (isDark) isDarkTxt() else isLightTxt(),
+                            modifier = Modifier.padding(start = 1.dp, end = 10.dp)
+                                .clickable {
+                                    subScope.launch {
+                                        FileKit.openFilePicker(
+                                            directory = PlatformFile(
+                                                getShotCacheDir()!!
+                                            )
+                                        )
+                                    }
+                                })
+                    }
+                }
+            }
+        }
+    }
+
+
+}
+
+@Composable
+fun testAVI(navigator: Navigator) {
     val viewModel = koinViewModel(SettingsViewModel::class)
     val uiState = viewModel.uiState.collectAsState().value
 
@@ -27,6 +186,17 @@ fun SettingsScreen(navigator: Navigator) {
     }
 
     Column {
+        CenterAlignedTopAppBar(navigationIcon = {
+            IconButton(onClick = { navigator.goBack() }) {
+                Icon(Icons.Filled.ArrowBackIosNew, "back", tint = PrimaryColor)
+            }
+        }, title = {
+            Text(text = "Settings")
+        }, colors = TopAppBarDefaults.topAppBarColors(
+            //smallTopAppBarColors
+            containerColor = MaterialTheme.colorScheme.background,
+            titleContentColor = PrimaryColor,
+        ), actions = {})
         if (uiState.isLoading) {
             Text(text = "loading...")
         } else if (uiState.error != null) {

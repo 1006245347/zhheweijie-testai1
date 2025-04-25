@@ -49,7 +49,7 @@ fun WindowsSelectionUIATest(windowState: WindowState, onCloseRequest: () -> Unit
     LaunchedEffect(isStart.value) {
         if (isStart.value) {
             subScope.launch(Dispatchers.IO) {
-                GlobalMouseHook9.start(appBlock = { str ->
+                GlobalMouseHook9.start(true,appBlock = { str ->
                     appText.value = str
                 }, contentBlock = { content -> //获取到选中数据
                     selectedText.value = content

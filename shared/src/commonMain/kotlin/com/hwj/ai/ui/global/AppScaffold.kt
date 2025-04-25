@@ -30,6 +30,7 @@ import com.hwj.ai.global.onlyDesktop
 import com.hwj.ai.global.onlyMobile
 import com.hwj.ai.ui.viewmodel.ChatViewModel
 import com.hwj.ai.ui.viewmodel.ConversationViewModel
+import com.hwj.ai.ui.viewmodel.SettingsViewModel
 import kotlinx.coroutines.launch
 import moe.tlaster.precompose.koin.koinViewModel
 import moe.tlaster.precompose.navigation.Navigator
@@ -44,7 +45,9 @@ fun AppScaffold(
 ) {
     val scope = rememberCoroutineScope()
     val conversationViewModel = koinViewModel(ConversationViewModel::class)
+    val settingsViewModel = koinViewModel(SettingsViewModel::class)
     scope.launch {
+        settingsViewModel.initialize()
         conversationViewModel.initialize()
     }
     if (onlyMobile()) {
@@ -77,9 +80,11 @@ fun AppScaffold(
                         conversationViewModel = conversationViewModel,
                         onIconClicked = onIconClicked, navigator
                     )
-                    VerticalDivider(thickness = (0.5f).dp, color = cDeepLine(), modifier = Modifier.align(
-                        Alignment.BottomEnd
-                    ).fillMaxHeight())
+                    VerticalDivider(
+                        thickness = (0.5f).dp, color = cDeepLine(), modifier = Modifier.align(
+                            Alignment.BottomEnd
+                        ).fillMaxHeight()
+                    )
                 }
             }
         }) {

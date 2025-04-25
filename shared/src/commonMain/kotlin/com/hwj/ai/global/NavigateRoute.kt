@@ -6,7 +6,6 @@ import com.hwj.ai.ui.capture.CameraScreen
 import com.hwj.ai.ui.chat.ChatScreen
 import com.hwj.ai.ui.chat.WelcomeScreen
 import com.hwj.ai.ui.me.ChooseLLMScreen
-import com.hwj.ai.ui.me.SettingsScreen
 import moe.tlaster.precompose.navigation.BackStackEntry
 import moe.tlaster.precompose.navigation.NavHost
 import moe.tlaster.precompose.navigation.Navigator
@@ -28,9 +27,6 @@ fun NavigateRoute(navigator: Navigator) {
         scene(NavigationScene.Chat.path) { backStackEntry: BackStackEntry ->
             ChatScreen(navigator)
         }
-        scene(NavigationScene.Setting.path) {
-            SettingsScreen(navigator)
-        }
         scene(NavigationScene.Camera.path) {
             CameraScreen(navigator)
         }
@@ -44,7 +40,6 @@ sealed class NavigationScene(val path: String, val title: String? = null) {
     object App : NavigationScene("/app", "app")
     object Welcome : NavigationScene("/app/welcome", "welcome")
     object Chat : NavigationScene("/app/chat", "chat")
-    object Setting : NavigationScene("/setting", "setting")
     object SettingLLM : NavigationScene("/setting/llm", "llm")
     object Camera : NavigationScene("/app/chat/camera", "camera")
 }

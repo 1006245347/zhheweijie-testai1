@@ -40,6 +40,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -76,6 +77,7 @@ import com.hwj.ai.global.isLightTxt
 import com.hwj.ai.global.urlToImageAppIcon
 import com.hwj.ai.global.urlToImageAuthor
 import com.hwj.ai.models.ConversationModel
+import com.hwj.ai.ui.me.SettingsScreen
 import com.hwj.ai.ui.viewmodel.ChatViewModel
 import com.hwj.ai.ui.viewmodel.ConversationViewModel
 import kotlinx.coroutines.delay
@@ -91,6 +93,7 @@ fun AppDrawer(
     onIconClicked: () -> Unit = {}, navigator: Navigator
 ) {
     val coroutineScope = rememberCoroutineScope()
+    val openSettings = remember { mutableStateOf(false) }
     AppDrawerIn(
         onChatClicked = onChatClicked,
         onNewChatClicked = onNewChatClicked,
@@ -106,10 +109,13 @@ fun AppDrawer(
         },
         currentConversationState = conversationViewModel.currentConversationState.collectAsState().value,
         conversationState = conversationViewModel.conversationsState.collectAsState().value,
+        openSettings,
         navigator
     )
+    if (openSettings.value) {
+        SettingsScreen(openSettings)
+    }
 }
-
 
 @Composable
 fun AppDrawerIn(
@@ -121,10 +127,9 @@ fun AppDrawerIn(
     onConversation: (ConversationModel) -> Unit,
     currentConversationState: String,
     conversationState: MutableList<ConversationModel>,
+    openSetDialog: MutableState<Boolean>,
     navigator: Navigator? = null
 ) {
-    val context = LocalPlatformContext.current
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -135,7 +140,9 @@ fun AppDrawerIn(
 
         DividerItem(modifier = Modifier.padding(horizontal = 28.dp))
         DrawerItemHeader("Settings")
-        ChatItem("Settings", Icons.Filled.Settings, false) { onChatClicked("Settings") }
+        ChatItem("Settings", Icons.Filled.Settings, false) {
+            openSetDialog.value = true
+        }
         ProfileItem(
             " author zhheweijie",
             urlToImageAuthor,

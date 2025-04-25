@@ -311,7 +311,7 @@ fun saveToFile11(image: BufferedImage): String? {
 //     val desktopPath = System.getProperty("user.home") + File.separator + "Desktop"
 //     val file = File(desktopPath, "screenshot_${System.currentTimeMillis()}.png")
 
-    val cacheDir = getPlatformCacheImgDir()
+    val cacheDir = getPlatformCacheImgDir11()
     if (!cacheDir.exists()) cacheDir.mkdirs()
 
     val file = File(cacheDir, "screenshot_${System.currentTimeMillis()}.png")
@@ -327,7 +327,7 @@ fun saveToFile11(image: BufferedImage): String? {
 //截图已保存到缓存目录：/Users/你的用户名/Library/Caches/com.hwj.ai.capture/screenshot_1710918988888.png
 //截图已保存到缓存目录：C:\Users\你的用户名\AppData\Local\com.hwj.ai.capture\cache\screenshot_1710918988888.png
 //截图已保存到缓存目录：/home/你的用户名/.cache/com.hwj.ai.capture/screenshot_1710918988888.png
-private fun getPlatformCacheImgDir(): File {
+ fun getPlatformCacheImgDir11(): File {
     val osName = System.getProperty("os.name").lowercase()
     return if (osName.contains("mac")) {
         File(System.getProperty("user.home"), "Library/Caches/com.hwj.ai.capture")

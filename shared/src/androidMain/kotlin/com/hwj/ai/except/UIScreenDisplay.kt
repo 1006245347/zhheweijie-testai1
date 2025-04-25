@@ -137,3 +137,7 @@ actual fun HookSelection(){}
 
 @Composable
 actual fun FloatWindow(){}
+
+actual fun getShotCacheDir():String?{
+    return null
+}

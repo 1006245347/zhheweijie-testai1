@@ -28,4 +28,7 @@ const val DATA_USER_ID="DATA_USER_ID"
 
 //标识
 const val CODE_IS_DARK="CODE_IS_DARK" //是否黑暗模式
+const val CODE_LANGUAGE_ZH="CODE_LANGUAGE_ZH"//语言是否是中文
+const val CODE_HOT_KEY="CODE_HOT_KEY" //alt+B快捷键
+const val CODE_SELECTION_USE="CODE_SELECTION_USE"
 

@@ -87,13 +87,13 @@ fun ChatScreen(navigator: Navigator) {
             darkTheme.value = getCacheBoolean(CODE_IS_DARK)
             chatViewModel.processGlobal(GlobalIntent.CheckDarkTheme)
         }
-        //主动获取数据
-        chatViewModel.processConfig(ModelConfigIntent.LoadData)
+        //主动获取数据 //不需要配置模型接口
+//        chatViewModel.processConfig(ModelConfigIntent.LoadData)
     }
 
+    //划词、快捷键
     HookSelection()
 
-//    printD("dark1>${darkTheme.value}")
     ThemeChatLite(isDark = darkTheme.value) {
         Surface(color = MaterialTheme.colorScheme.background) {
             AppScaffold(drawerState = drawerState,
@@ -137,7 +137,6 @@ fun ChatScreen(navigator: Navigator) {
                         if (configState.isLoading || configState.error != null) {
                             ChatInit(configState)
                         } else {
-//                        printList(configState.data) //大模型数据
                             Conversation(navigator)
                         }
                     }

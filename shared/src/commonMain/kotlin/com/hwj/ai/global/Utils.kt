@@ -517,7 +517,7 @@ fun printE(log: String?, tag: String = logTAG) {
     }
 }
 
-fun printE(throws: Throwable,des:String?=null, tag: String = logTAG) {
+fun printE(throws: Throwable, des: String? = null, tag: String = logTAG) {
     Napier.e(throwable = throws, tag = tag) { "error>$des" }
 }
 
@@ -640,22 +640,22 @@ suspend fun saveDouble(key: String, value: Double) {
     settingsCache.putDouble(key, value)
 }
 
-suspend fun saveAsyncLong(key: String,value: Long){
+suspend fun saveAsyncLong(key: String, value: Long) {
     globalScope.launch {
-        settingsCache.putLong(key,value)
+        settingsCache.putLong(key, value)
     }
 }
 
-suspend fun saveLong(key: String,value:Long){
-    settingsCache.putLong(key,value)
+suspend fun saveLong(key: String, value: Long) {
+    settingsCache.putLong(key, value)
 }
 
 suspend fun getCacheInt(key: String): Int {
     return settingsCache.getInt(key, 0)
 }
 
-suspend fun getCacheLong(key:String):Long{
-    return settingsCache.getLong(key,0L)
+suspend fun getCacheLong(key: String): Long {
+    return settingsCache.getLong(key, 0L)
 }
 
 suspend fun getCacheString(key: String): String? {
@@ -663,7 +663,11 @@ suspend fun getCacheString(key: String): String? {
 }
 
 suspend fun getCacheBoolean(key: String): Boolean {
-    return settingsCache.getBoolean(key, false)
+    return getCacheBoolean(key, false)
+}
+
+suspend fun getCacheBoolean(key: String, def: Boolean): Boolean {
+    return settingsCache.getBoolean(key, def)
 }
 
 suspend fun getCacheFloat(key: String): Float {
@@ -678,7 +682,7 @@ suspend fun hasCacheKey(key: String): Boolean {
     return settingsCache.hasKey(key)
 }
 
-suspend fun removeKey(key:String){
+suspend fun removeKey(key: String) {
     settingsCache.remove(key)
 }
 

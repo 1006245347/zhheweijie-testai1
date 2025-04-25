@@ -1,6 +1,8 @@
 package com.hwj.ai.ui.me
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -40,9 +42,12 @@ fun ChooseLLMScreen(navigator: Navigator) {
         }
     }
 
-    LazyColumn(Modifier.padding(top = 80.dp)) {
-        items(modelList) { bean ->
-            CardLLM(bean)
+    Box(Modifier.fillMaxSize()) {
+
+        LazyColumn(Modifier.padding(top = 80.dp)) {
+            items(modelList) { bean ->
+                CardLLM(bean)
+            }
         }
     }
 }
@@ -52,7 +57,7 @@ fun CardLLM(bean: LLMModel) {
     ThemeChatLite {
         Card(modifier = Modifier.fillMaxWidth().padding(10.dp)) {
             Row {
-                Text(text = bean.model!!, modifier = Modifier.fillMaxWidth().padding(start=5.dp))
+                Text(text = bean.model!!, modifier = Modifier.fillMaxWidth().padding(start = 5.dp))
                 Button(onClick = {
                     LLM_API_KEY = bean.sk!!
                     urlChatCompletions = bean.url!!
