@@ -10,12 +10,9 @@ import com.aallam.openai.api.chat.ChatCompletion
 import com.aallam.openai.api.chat.ChatCompletionChunk
 import com.aallam.openai.api.chat.ChatMessage
 import com.aallam.openai.api.chat.ChatRole
-import com.aallam.openai.api.chat.TextContent
 import com.aallam.openai.api.chat.Tool
-import com.aallam.openai.api.chat.ToolBuilder
 import com.aallam.openai.api.chat.ToolCall
 import com.aallam.openai.api.chat.chatMessage
-import com.aallam.openai.api.model.ModelId
 import com.hwj.ai.checkSystem
 import com.hwj.ai.data.http.handleAIException
 import com.hwj.ai.data.http.toast
@@ -24,7 +21,6 @@ import com.hwj.ai.data.repository.LLMChatRepository
 import com.hwj.ai.data.repository.LLMRepository
 import com.hwj.ai.data.repository.MessageRepository
 import com.hwj.ai.except.ClipboardHelper
-import com.hwj.ai.except.isMainThread
 import com.hwj.ai.getPlatform
 import com.hwj.ai.global.DATA_IMAGE_TITLE
 import com.hwj.ai.global.DATA_SYSTEM_NAME
@@ -44,9 +40,7 @@ import com.hwj.ai.global.onlyDesktop
 import com.hwj.ai.global.printD
 import com.hwj.ai.global.printE
 import com.hwj.ai.global.printList
-import com.hwj.ai.global.reasoning
 import com.hwj.ai.global.thinking
-import com.hwj.ai.global.toolWeather
 import com.hwj.ai.global.workInSub
 import com.hwj.ai.models.ConversationModel
 import com.hwj.ai.models.GPTModel
@@ -61,7 +55,6 @@ import io.github.vinceglb.filekit.dialogs.openFilePicker
 import io.github.vinceglb.filekit.path
 import io.github.vinceglb.filekit.size
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -72,10 +65,6 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
-import kotlinx.serialization.json.add
-import kotlinx.serialization.json.put
-import kotlinx.serialization.json.putJsonArray
-import kotlinx.serialization.json.putJsonObject
 import moe.tlaster.precompose.viewmodel.ViewModel
 import moe.tlaster.precompose.viewmodel.viewModelScope
 import kotlin.random.Random
@@ -177,7 +166,6 @@ class ConversationViewModel(
                 }
 
                 is Event.RefreshEvent -> {
-//                    newConversation()
                 }
 
                 is Event.DeleteConversationEvent -> {     //列表也没刷新，不是当前的不需要停止呀
@@ -207,7 +195,7 @@ class ConversationViewModel(
 
         fetchMessages()
         _imageListObs.clear()
-        _isStopUseImageObs.value=false
+        _isStopUseImageObs.value = false
         _isFetching.value = false
     }
 
@@ -282,6 +270,7 @@ class ConversationViewModel(
                 flowControl?.onStart {
                     setFabExpanded(true)
                 }?.onCompletion {
+                    messageRepo.createMessage(newMessageModel.copy(answer = answerFromGPT))
                     setFabExpanded(false)
                 }?.catch { e: Throwable ->
                     e.printStackTrace() //内部错误，请稍后重试 这句话是接口的
@@ -318,9 +307,6 @@ class ConversationViewModel(
             } catch (e: Exception) {
                 printE(e, "131") //gpt-4o 返回的数据格式好多异常
             }
-            // Save to dataStore
-            if (!_stopReceivingObs.value)
-                messageRepo.createMessage(newMessageModel.copy(answer = answerFromGPT))
         }
     }
 
@@ -336,7 +322,7 @@ class ConversationViewModel(
             answer = thinking, conversationId = _currentConversation.value,
             imagePath = imagePaths.map { it.path } //复制一份
         )
-
+        printList(newMessageModel.imagePath, "img>")
         val currentListMessage: MutableList<MessageModel> =
             getMessagesByConversation(_currentConversation.value).toMutableList()
 
@@ -421,6 +407,7 @@ class ConversationViewModel(
         try {
             flowControl.onStart { setFabExpanded(true) }
                 .onCompletion {
+                    messageRepo.createMessage(newMessageModel.copy(answer = answerFromGPT))
                     setFabExpanded(false)
                     if (_isStopUseImageObs.value) {  //如果每次都传图参，那就不删
                         deleteImage(0, true)
@@ -440,12 +427,10 @@ class ConversationViewModel(
                         return@collect
                     }
 
-                    try {
+                    try { //有种特殊异常，网络超时后还能返回数据，如果切换了会话被累加到其他回答,返回的数据没id没能处理
                         chunk.choices.first().delta?.content?.let {
                             answerFromGPT += it
-//                            printD(it)
                             updateLocalAnswer(answerFromGPT.trim())
-//                        setFabExpanded(true)
                         }
                     } catch (e: Exception) {
                     }
@@ -453,9 +438,6 @@ class ConversationViewModel(
         } catch (e: Exception) {
             printE(e)
         }
-        //数据库保存
-        if (_stopReceivingObs.value)
-            messageRepo.createMessage(newMessageModel.copy(answer = answerFromGPT))
     }
 
     private suspend fun createConversationRemote(title: String) {

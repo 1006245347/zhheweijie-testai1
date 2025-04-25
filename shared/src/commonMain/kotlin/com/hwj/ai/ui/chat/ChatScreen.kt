@@ -57,7 +57,6 @@ fun ChatScreen(navigator: Navigator) {
     val curConversationId by conversationViewModel.currentConversationState.collectAsState()
     //浮窗
     val isPreWindowState by chatViewModel.isPreWindowState.collectAsState()
-    val useSelectState by chatViewModel.useSelectState.collectAsState()
     if (drawerOpen) {
         LaunchedEffect(Unit) {
             try {

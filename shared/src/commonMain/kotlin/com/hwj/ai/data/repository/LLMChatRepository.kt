@@ -116,7 +116,7 @@ class LLMChatRepository {//private val openAI: OpenAI,单例的话无法变更�
         try {
             return openAI.chatCompletions(requestArgs, requestOptions = RequestOptions())
         } catch (e: Exception) {
-            e.printStackTrace()
+            printE(e,"http-err")
         }
         return flowOf()
     }
@@ -164,10 +164,10 @@ class LLMChatRepository {//private val openAI: OpenAI,单例的话无法变更�
                     })
                 }
                 install(Logging) {
-                    level = LogLevel.BODY //禁止流式对话日志
+                    level = LogLevel.INFO //禁止流式对话日志
                     logger = object : Logger {
                         override fun log(message: String) {
-                            printD(message)
+//                            printD(message)
                         }
                     }
                 }

@@ -73,16 +73,10 @@ import com.hwj.ai.global.ToastUtils
 import com.hwj.ai.global.cBlue244260FF
 import com.hwj.ai.global.cBlue629DE8
 import com.hwj.ai.global.cDeepLine
-import com.hwj.ai.global.cGrey333333
 import com.hwj.ai.global.cGrey666666
-import com.hwj.ai.global.isDarkBg
-import com.hwj.ai.global.isDarkPanel
 import com.hwj.ai.global.isDarkTxt
-import com.hwj.ai.global.isLightBg
-import com.hwj.ai.global.isLightPanel
 import com.hwj.ai.global.isLightTxt
 import com.hwj.ai.global.onlyDesktop
-import com.hwj.ai.global.printList
 import com.hwj.ai.models.MenuActModel
 import com.hwj.ai.ui.global.KeyEventEnter
 import com.hwj.ai.ui.viewmodel.ChatViewModel
@@ -246,9 +240,7 @@ fun InputTopIn(state: LazyListState, navigator: Navigator) {
                         .clickable(indication = null,
                             interactionSource = remember { MutableInteractionSource() }) {
                             thinkCheckState.value = !thinkCheckState.value
-//                            conversationViewModel.setThinkUsed(thinkCheckState.value)
-
-                            printList(cList,"check1")
+                            conversationViewModel.setThinkUsed(thinkCheckState.value)
                         }
                 )
             }

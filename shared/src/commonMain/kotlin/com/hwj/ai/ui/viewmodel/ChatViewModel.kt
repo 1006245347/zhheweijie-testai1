@@ -57,7 +57,7 @@ class ChatViewModel(
     val isShotByHotKeyState = _isShotByHotKeyObs.asStateFlow()
 
     //是否启用划词
-    private val _useSelectObs = MutableStateFlow(true)
+    private val _useSelectObs = MutableStateFlow(false)
     val useSelectState = _useSelectObs.asStateFlow()
 
     //显示浮窗功能

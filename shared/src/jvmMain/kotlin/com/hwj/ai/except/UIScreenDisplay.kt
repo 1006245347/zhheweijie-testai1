@@ -16,8 +16,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.DpOffset
@@ -148,7 +146,6 @@ actual fun HookSelection() {
     if (checkSystem() != OsStatus.WINDOWS) return
     //浮窗
     val chatViewModel = koinViewModel(ChatViewModel::class)
-    val isPreWindowState by chatViewModel.isPreWindowState.collectAsState()
     val useSelectState by chatViewModel.useSelectState.collectAsState()
     val isShotState by chatViewModel.isShotState.collectAsState()
     val subScope = rememberCoroutineScope()

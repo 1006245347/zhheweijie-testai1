@@ -21,7 +21,7 @@ class MessageRepository() {
             if (list.isNullOrEmpty()) {
                 trySend(listOf())
             } else {
-                printList(list,"fetch")
+//                printList(list,"fetch")
                 trySend(list)
             }
             awaitClose { close() }

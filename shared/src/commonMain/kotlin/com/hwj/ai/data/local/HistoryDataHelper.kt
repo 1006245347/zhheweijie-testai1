@@ -6,6 +6,7 @@ import com.hwj.ai.global.DATA_MESSAGE_TAG
 import com.hwj.ai.global.DATA_USER_ID
 import com.hwj.ai.global.getCacheLong
 import com.hwj.ai.global.getCacheString
+import com.hwj.ai.global.printD
 import com.hwj.ai.global.removeKey
 import com.hwj.ai.global.saveString
 import com.hwj.ai.models.ConversationModel
@@ -73,7 +74,9 @@ suspend fun saveMessage(message: MessageModel) {
         saveString(buildMsgTag(message.conversationId), JsonApi.encodeToString(newList))
     } else {
         cacheList.add(message)
-        saveString(buildMsgTag(message.conversationId), JsonApi.encodeToString(cacheList))
+        saveString(buildMsgTag(message.conversationId), JsonApi.encodeToString(cacheList).also {
+//            println(it)
+        })
     }
 }
 
