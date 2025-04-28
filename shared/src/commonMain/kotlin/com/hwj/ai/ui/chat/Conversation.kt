@@ -3,6 +3,7 @@ package com.hwj.ai.ui.chat
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,12 +11,10 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.add
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -25,8 +24,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.material3.TooltipBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -47,13 +44,18 @@ import androidx.compose.ui.unit.dp
 import com.hwj.ai.except.ToolTipCase
 import com.hwj.ai.global.PrimaryColor
 import com.hwj.ai.global.conversationTestTag
-import com.hwj.ai.global.printD
 import com.hwj.ai.models.MessageModel
 import com.hwj.ai.ui.viewmodel.ConversationViewModel
+import io.github.alexzhirkevich.compottie.Compottie
+import io.github.alexzhirkevich.compottie.DotLottie
+import io.github.alexzhirkevich.compottie.LottieCompositionSpec
+import io.github.alexzhirkevich.compottie.rememberLottieComposition
+import io.github.alexzhirkevich.compottie.rememberLottiePainter
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import moe.tlaster.precompose.koin.koinViewModel
 import moe.tlaster.precompose.navigation.Navigator
+import testai1.shared.generated.resources.Res
 
 @Composable
 fun Conversation(navigator: Navigator) {
@@ -141,8 +143,11 @@ fun MessageList(
                     }
                 }
             }
+        }
 
-
+        //无消息时显示欢迎语
+        if (messages.isEmpty()) {
+            WelcomeAnim(modifier = Modifier.padding(top = 40.dp).align(Alignment.TopCenter))
         }
 
         // 滚动条
@@ -209,4 +214,21 @@ fun MessageList(
             })
         }
     }
+}
+
+@Composable
+fun WelcomeAnim(modifier: Modifier) {
+    val composition by rememberLottieComposition {
+        LottieCompositionSpec.DotLottie(
+            archive = Res.readBytes("files/dotlottie/welcome.lottie")
+        )
+    }
+    Image(
+        painter = rememberLottiePainter(
+            composition = composition,
+            iterations = Compottie.IterateForever //循环播放
+        ),
+        contentDescription = "welcome",
+        modifier = modifier
+    )
 }

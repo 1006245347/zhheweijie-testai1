@@ -1,14 +1,12 @@
 package com.hwj.ai.except
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.os.Looper
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Scaffold
 import androidx.compose.material.SnackbarHost
 import androidx.compose.material.SnackbarHostState
@@ -20,10 +18,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.hwj.ai.camera.PeekabooCameraView
 import com.hwj.ai.global.ThemeChatLite
@@ -140,4 +136,28 @@ actual fun FloatWindow(){}
 
 actual fun getShotCacheDir():String?{
     return null
+}
+
+actual object  EnvLoader {
+    @SuppressLint("StaticFieldLeak")
+    private lateinit var context: Context
+
+    fun init(context: Context) {
+        this.context = context
+    }
+
+    actual fun loadEnv(): Map<String, String> {
+        val map = mutableMapOf<String, String>()
+        val inputStream = context.assets.open(".env")
+        inputStream.bufferedReader().useLines { lines ->
+            lines.forEach { line ->
+                val trimmed = line.trim()
+                if (trimmed.isNotEmpty() && !trimmed.startsWith("#") && trimmed.contains("=")) {
+                    val (key, value) = trimmed.split("=", limit = 2)
+                    map[key.trim()] = value.trim()
+                }
+            }
+        }
+        return map
+    }
 }

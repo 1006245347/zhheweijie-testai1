@@ -3,6 +3,7 @@ package com.hwj.ai.global
 import android.app.Application
 import android.content.Context
 import com.hwj.ai.BuildConfig
+import com.hwj.ai.except.EnvLoader
 import di.initKoin
 import io.github.aakira.napier.DebugAntilog
 import io.github.aakira.napier.Napier
@@ -17,6 +18,7 @@ open class MainApplication : Application() {
         if (BuildConfig.DEBUG){
             Napier.base(DebugAntilog())
         }
+        EnvLoader.init(appContext)
         initKoin {
             //不加这个上下文，单例注入无法成功
             androidContext(androidContext = this@MainApplication)

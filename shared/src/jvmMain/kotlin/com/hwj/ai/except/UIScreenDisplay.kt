@@ -43,6 +43,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import moe.tlaster.precompose.koin.koinViewModel
+import java.io.File
 
 @Composable
 actual fun OpenCameraScreen(isOpen: Boolean, onBack: (Boolean, ByteArray?) -> Unit) {
@@ -156,7 +157,7 @@ actual fun HookSelection() {
     LaunchedEffect(useSelectState || useHotKeyState) { //是否开启划词功能
         if (useSelectState || useHotKeyState) {
             subScope.launch(Dispatchers.IO) {
-                GlobalMouseHook9.start(useHotKeyState,appBlock = { info ->
+                GlobalMouseHook9.start(useHotKeyState, appBlock = { info ->
                     chatViewModel.findAppInfo(info)
                 }, contentBlock = { content ->
                     if (!isShotState)
@@ -191,6 +192,25 @@ actual fun FloatWindow() {
     FloatWindowInside()
 }
 
-actual fun getShotCacheDir():String?{
+actual fun getShotCacheDir(): String? {
     return getPlatformCacheImgDir11().absolutePath
+}
+
+actual object EnvLoader {
+
+    actual fun loadEnv(): Map<String, String> {
+        val classLoader = EnvLoader::class.java.classLoader
+        val inputStream = classLoader.getResourceAsStream(".env") //?: return emptyMap()
+        val map = mutableMapOf<String, String>()
+        inputStream.bufferedReader().useLines { lines ->
+            lines.forEach { line ->
+                val trimmed = line.trim()
+                if (trimmed.isNotEmpty() && !trimmed.startsWith("#") && trimmed.contains("=")) {
+                    val (key, value) = trimmed.split("=", limit = 2)
+                    map[key.trim()] = value.trim()
+                }
+            }
+        }
+        return map
+    }
 }

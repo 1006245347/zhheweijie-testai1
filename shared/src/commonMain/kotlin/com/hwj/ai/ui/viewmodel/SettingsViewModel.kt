@@ -55,7 +55,7 @@ class SettingsViewModel(
             _isChineseObs.value = getCacheBoolean(CODE_LANGUAGE_ZH, true)
             _useSelectObs.value = getCacheBoolean(CODE_SELECTION_USE, true)
             _useHotKeyObs.value = getCacheBoolean(CODE_HOT_KEY, true)
-            println("isChinese>${_isChineseObs.value}")
+//            println("isChinese>${_isChineseObs.value}")
             StrUtils.switchTo(_isChineseObs.value)
         }
     }

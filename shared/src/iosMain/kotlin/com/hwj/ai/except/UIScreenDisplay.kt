@@ -47,9 +47,14 @@ import com.hwj.ai.ui.chat.BotCommonMsgMenu
 import com.hwj.ai.ui.viewmodel.ConversationViewModel
 import io.github.vinceglb.filekit.FileKit
 import io.github.vinceglb.filekit.compressImage
+import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.coroutines.launch
 import moe.tlaster.precompose.koin.koinViewModel
+import platform.Foundation.NSBundle
+import platform.Foundation.NSString
 import platform.Foundation.NSThread
+import platform.Foundation.NSUTF8StringEncoding
+import platform.Foundation.stringWithContentsOfFile
 
 /**
  * @author by jason-何伟杰，2025/3/11
@@ -159,3 +164,26 @@ actual fun FloatWindow(){}
 actual fun getShotCacheDir():String?{
     return null
 }
+
+//你需要把 .env 文件加到 iOS 项目的资源里（Xcode -> 项目 -> Build Phases -> Copy Bundle Resources）
+actual object EnvLoader {
+    @OptIn(ExperimentalForeignApi::class)
+    actual fun loadEnv(): Map<String, String> {
+        val bundle = NSBundle.mainBundle
+        val path = bundle.pathForResource(name = ".env", ofType = null) ?: return emptyMap()
+
+        val content = NSString.stringWithContentsOfFile(path, NSUTF8StringEncoding, null) ?: return emptyMap()
+
+        val lines = content.split("\n")
+        val map = mutableMapOf<String, String>()
+        lines.forEach { line ->
+            val trimmed = line.trim()
+            if (trimmed.isNotEmpty() && !trimmed.startsWith("#") && trimmed.contains("=")) {
+                val parts = trimmed.split("=", limit = 2)
+                if (parts.size == 2) {
+                    map[parts[0].trim()] = parts[1].trim()
+                }
+            }
+        }
+        return map
+    }}

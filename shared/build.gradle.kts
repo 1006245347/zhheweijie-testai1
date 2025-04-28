@@ -92,6 +92,7 @@ kotlin {
             implementation(libs.coil3.ktor)
             implementation(libs.coil3.compose) //这个地址太坑了，官网没更新出来
 
+
             //异步协程库
             implementation(libs.kotlinx.coroutines.core)
 
@@ -143,6 +144,11 @@ kotlin {
 
             implementation(libs.ktoken)
 
+            //https://github.com/alexzhirkevich/compottie
+            implementation(libs.compottie)
+            implementation(libs.compottie.resources)
+            implementation(libs.compottie.dot)
+            implementation(libs.compottie.network)
 
         }
 

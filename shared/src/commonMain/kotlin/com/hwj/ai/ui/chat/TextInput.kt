@@ -63,6 +63,7 @@ import coil3.compose.AsyncImage
 import com.hwj.ai.checkSystem
 import com.hwj.ai.createPermission
 import com.hwj.ai.data.local.PermissionPlatform
+import com.hwj.ai.except.Env
 import com.hwj.ai.except.ScreenShotPlatform
 import com.hwj.ai.except.ToolTipCase
 import com.hwj.ai.global.BackInnerColor1
@@ -240,7 +241,11 @@ fun InputTopIn(state: LazyListState, navigator: Navigator) {
                         .clickable(indication = null,
                             interactionSource = remember { MutableInteractionSource() }) {
                             thinkCheckState.value = !thinkCheckState.value
-                            conversationViewModel.setThinkUsed(thinkCheckState.value)
+//                            conversationViewModel.setThinkUsed(thinkCheckState.value)
+//                            val a = Env.get("API_KEY_SILICONFLOW")
+//                            val b = Env.get("API_HOST_SILICONFLOW")
+//                            println(a)
+//                            println(b)
                         }
                 )
             }

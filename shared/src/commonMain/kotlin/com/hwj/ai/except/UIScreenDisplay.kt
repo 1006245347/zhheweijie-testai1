@@ -26,3 +26,13 @@ expect fun HookSelection()
 expect fun FloatWindow()
 
 expect fun getShotCacheDir():String?
+
+object Env {
+    private val values: Map<String, String> by lazy { EnvLoader.loadEnv() }
+
+    fun get(key: String): String? = values[key]
+}
+
+expect object EnvLoader {
+    fun loadEnv():Map<String,String>
+}

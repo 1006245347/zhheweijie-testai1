@@ -119,7 +119,6 @@ fun ChatScreen(navigator: Navigator) {
                         saveBoolean(CODE_IS_DARK, darkTheme.value)
 
                         chatViewModel.processGlobal(GlobalIntent.CheckDarkTheme)
-//                        printD("t>${getCacheBoolean(CODE_IS_DARK)}")
                         drawerState.close()
                     }
                 }) {
