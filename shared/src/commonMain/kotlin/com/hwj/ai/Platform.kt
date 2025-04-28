@@ -16,7 +16,7 @@ interface Platform {
 
 expect fun getPlatform(): Platform
 
-expect fun createHttpClient(timeout: Long?): HttpClient
+expect fun createKtorHttpClient(timeout: Long?): HttpClient
 
 @Composable
 expect fun setColorScheme(isDark: Boolean): ColorScheme

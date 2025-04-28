@@ -11,13 +11,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.Text
-import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.FilledIconToggleButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -34,9 +31,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hwj.ai.except.getShotCacheDir
@@ -50,7 +45,7 @@ import com.hwj.ai.global.isLightTxt
 import com.hwj.ai.global.onlyDesktop
 import com.hwj.ai.global.saveBoolean
 import com.hwj.ai.ui.global.DialogUtils
-import com.hwj.ai.ui.global.StrUtils
+import com.hwj.ai.global.StrUtils
 import com.hwj.ai.ui.viewmodel.ChatViewModel
 import com.hwj.ai.ui.viewmodel.SettingsIntent
 import com.hwj.ai.ui.viewmodel.SettingsViewModel
@@ -66,6 +61,8 @@ fun SettingsScreen(openState: MutableState<Boolean>) {
     val chatViewModel = koinViewModel(ChatViewModel::class)
     val viewModel = koinViewModel(SettingsViewModel::class)
     val isDark = chatViewModel.darkState.collectAsState().value
+    val isChineseState = remember { mutableStateOf(StrUtils.switchLanguage) }
+
     var useSelectionState by remember { mutableStateOf(false) }
     var useHotKeyState by remember { mutableStateOf(false) }
     var useChineseState by remember { mutableStateOf(false) }
@@ -78,11 +75,13 @@ fun SettingsScreen(openState: MutableState<Boolean>) {
         }
     }
 
+    fun refresh() {
+        viewModel.initialize()
+    }
+
     DisposableEffect(Unit) { //页面关闭，响应重组最后的回调
         onDispose {
-            subScope.launch {
-                viewModel.initialize()
-            }
+            refresh()
         }
     }
     DialogUtils.CreateDialog(
@@ -114,10 +113,11 @@ fun SettingsScreen(openState: MutableState<Boolean>) {
                     subScope.launch {
                         useChineseState = it
                         saveBoolean(CODE_LANGUAGE_ZH, useChineseState)
+                        refresh()
                     }
                 })
                 Text(
-                    text = StrUtils.switchLanguage,
+                    text = isChineseState.value,
                     fontSize = 14.sp,
                     color = if (isDark) isDarkTxt() else isLightTxt(),
                     modifier = Modifier.padding(top = 13.dp, start = 5.dp)
@@ -129,6 +129,7 @@ fun SettingsScreen(openState: MutableState<Boolean>) {
                         subScope.launch {
                             useHotKeyState = it
                             saveBoolean(CODE_HOT_KEY, useHotKeyState)
+                            refresh()
                         }
                     })
                     Text(
@@ -143,6 +144,7 @@ fun SettingsScreen(openState: MutableState<Boolean>) {
                         subScope.launch {
                             useSelectionState = it
                             saveBoolean(CODE_SELECTION_USE, useSelectionState)
+                            refresh()
                         }
                     })
                     Text(

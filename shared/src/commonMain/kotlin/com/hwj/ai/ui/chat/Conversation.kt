@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDownCircle
 import androidx.compose.material3.Icon
@@ -39,12 +40,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.hwj.ai.except.ToolTipCase
 import com.hwj.ai.global.PrimaryColor
 import com.hwj.ai.global.conversationTestTag
+import com.hwj.ai.global.isDarkBg
+import com.hwj.ai.global.isDarkTxt
+import com.hwj.ai.global.isLightTxt
 import com.hwj.ai.models.MessageModel
+import com.hwj.ai.ui.viewmodel.ChatViewModel
 import com.hwj.ai.ui.viewmodel.ConversationViewModel
 import io.github.alexzhirkevich.compottie.Compottie
 import io.github.alexzhirkevich.compottie.DotLottie
@@ -218,17 +225,27 @@ fun MessageList(
 
 @Composable
 fun WelcomeAnim(modifier: Modifier) {
+    val chatViewModel = koinViewModel(ChatViewModel::class)
+    val isDark = chatViewModel.darkState.collectAsState().value
     val composition by rememberLottieComposition {
         LottieCompositionSpec.DotLottie(
             archive = Res.readBytes("files/dotlottie/welcome.lottie")
         )
     }
-    Image(
-        painter = rememberLottiePainter(
-            composition = composition,
-            iterations = Compottie.IterateForever //循环播放
-        ),
-        contentDescription = "welcome",
-        modifier = modifier
-    )
+    Column {
+        Image(
+            painter = rememberLottiePainter(
+                composition = composition,
+                iterations = Compottie.IterateForever //循环播放
+            ),
+            contentDescription = "welcome",
+            modifier = modifier
+        )
+        Text(
+            text = "我可以帮你搜索、答疑、写作，请把\n你的任务交给我吧~", fontSize = 12.sp,
+            color = if (isDark) isDarkTxt() else isLightTxt(),
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(top=10.dp).align(Alignment.CenterHorizontally)
+        )
+    }
 }

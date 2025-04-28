@@ -9,7 +9,7 @@ import kotlinx.serialization.json.put
 @Serializable
 data class LLMModel(
     val prompts: LLMPrompts? = null,
-    var url: String? = null,
+    var url: String? = "chat/completions",
     var hostUrl:String?=null,
     var sk:String?=null,
     val body: LLMBody? = null,

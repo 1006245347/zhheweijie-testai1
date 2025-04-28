@@ -229,7 +229,7 @@ fun InputTopIn(state: LazyListState, navigator: Navigator) {
                 )
             ) {
                 Text(
-                    text = "深度思考",
+                    text = "深度思考R1",
                     fontSize = 11.sp,
                     color = if (thinkCheckState.value) cBlue629DE8() else {
                         if (isDark) isDarkTxt() else isLightTxt()
@@ -241,11 +241,7 @@ fun InputTopIn(state: LazyListState, navigator: Navigator) {
                         .clickable(indication = null,
                             interactionSource = remember { MutableInteractionSource() }) {
                             thinkCheckState.value = !thinkCheckState.value
-//                            conversationViewModel.setThinkUsed(thinkCheckState.value)
-//                            val a = Env.get("API_KEY_SILICONFLOW")
-//                            val b = Env.get("API_HOST_SILICONFLOW")
-//                            println(a)
-//                            println(b)
+                            conversationViewModel.setThinkUsed(thinkCheckState.value)
                         }
                 )
             }
@@ -358,7 +354,6 @@ fun EnterEventButton(isFabExpanded: Boolean, sendBlock: () -> Unit) {
 //    val subScope = rememberCoroutineScope()
     val conversationViewModel = koinViewModel(ConversationViewModel::class)
 
-//    ToolTipCase(tip = "发送/停止", content = {
     ExtendedFloatingActionButton(
         text = {
             Text(text = "Stop Generating", color = Color.White)
@@ -381,7 +376,7 @@ fun EnterEventButton(isFabExpanded: Boolean, sendBlock: () -> Unit) {
             }
         },
         onClick = {
-            println("click>$isFabExpanded")
+            println("click>$isFabExpanded") //断网时初次点击
             if (isFabExpanded) {
                 conversationViewModel.stopReceivingResults()
             } else {
@@ -394,8 +389,6 @@ fun EnterEventButton(isFabExpanded: Boolean, sendBlock: () -> Unit) {
         expanded = isFabExpanded,
         containerColor = PrimaryColor
     )
-
-//    })
 }
 
 @Composable

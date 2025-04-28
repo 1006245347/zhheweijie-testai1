@@ -31,6 +31,7 @@ import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
+import io.ktor.client.plugins.sse.SSE
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 
@@ -44,7 +45,7 @@ class DesktopPlatform : Platform {
 
 actual fun getPlatform(): Platform = DesktopPlatform()
 
-actual fun createHttpClient(timeout: Long?): HttpClient {
+actual fun createKtorHttpClient(timeout: Long?): HttpClient {
     return HttpClient {
         install(HttpTimeout) {
             timeout?.let {
@@ -55,8 +56,10 @@ actual fun createHttpClient(timeout: Long?): HttpClient {
             json(Json {
                 ignoreUnknownKeys = true
                 prettyPrint = true
+
             })
         }
+        install(SSE)
         install(Logging) {
 //                level = LogLevel.ALL
             level = LogLevel.BODY //接口日志屏蔽

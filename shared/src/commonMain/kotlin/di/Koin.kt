@@ -1,6 +1,6 @@
 package di
 
-import com.hwj.ai.createHttpClient
+import com.hwj.ai.createKtorHttpClient
 import com.hwj.ai.data.local.PreferenceLocalDataSource
 import com.hwj.ai.data.local.SettingsFactory
 import com.hwj.ai.data.repository.ConversationRepository
@@ -41,7 +41,7 @@ fun initKoin(): Koin {
 //依赖注入目的是为了对象创建解耦，对象不在new具体的类，而是根据模版依赖生成
 //factory每次都会创建新实例，而single是单例
 val mainModule = module {
-    single { createHttpClient(60000) }
+    single { createKtorHttpClient(20000) }
 
     factoryOf(::PreferenceLocalDataSource)
     single {
@@ -54,7 +54,7 @@ val mainModule = module {
     single { MessageRepository() }
     single { SettingsRepository() }
     single { LocalDataRepository(get()) }
-    single { LLMChatRepository() }
+    single { LLMChatRepository(get()) }
     single { GlobalRepository(get()) }
 
 //    single {
@@ -85,8 +85,7 @@ val mainModule = module {
 }
 
 val modelModule = module {
-//    factoryOf(::ConversationViewModel)
-    single { ConversationViewModel(get(), get(), get(), get(), get(), get()) }
+    single { ConversationViewModel(get(), get(), get(), get(), get(), get(), get()) }
     factory { WelcomeScreenModel(get()) }
     single { ChatViewModel(get(), get(), get()) }
     single { SettingsViewModel(get(), get(), get()) }

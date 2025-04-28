@@ -3,7 +3,6 @@ package com.hwj.ai.ui.viewmodel
 import androidx.compose.runtime.mutableStateListOf
 import com.hwj.ai.data.repository.GlobalRepository
 import com.hwj.ai.data.repository.SettingsRepository
-import com.hwj.ai.except.DataSettings
 import com.hwj.ai.global.CODE_HOT_KEY
 import com.hwj.ai.global.CODE_LANGUAGE_ZH
 import com.hwj.ai.global.CODE_SELECTION_USE
@@ -11,10 +10,7 @@ import com.hwj.ai.global.NotificationsManager
 import com.hwj.ai.global.getCacheBoolean
 import com.hwj.ai.global.printD
 import com.hwj.ai.models.LLMModel
-import com.hwj.ai.ui.global.StrUtils
-import com.russhwolf.settings.Settings
-import com.russhwolf.settings.coroutines.FlowSettings
-import com.russhwolf.settings.coroutines.toSuspendSettings
+import com.hwj.ai.global.StrUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
@@ -50,12 +46,12 @@ class SettingsViewModel(
     private val _useHotKeyObs = MutableStateFlow(false)
     val useHotKeyState = _useHotKeyObs.asStateFlow()
 
-    suspend fun initialize() {
+     fun initialize() {
         viewModelScope.launch {
             _isChineseObs.value = getCacheBoolean(CODE_LANGUAGE_ZH, true)
             _useSelectObs.value = getCacheBoolean(CODE_SELECTION_USE, true)
             _useHotKeyObs.value = getCacheBoolean(CODE_HOT_KEY, true)
-//            println("isChinese>${_isChineseObs.value}")
+            println("isChinese>${_isChineseObs.value}")
             StrUtils.switchTo(_isChineseObs.value)
         }
     }

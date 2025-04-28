@@ -12,7 +12,6 @@ private val _message = MutableStateFlow<String?>(null)
     val messageState= _message.asStateFlow()
     fun show(msg: String) {
         _message.value = msg
-//        printD("show>$msg")
     }
 
     fun dismiss() {

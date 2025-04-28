@@ -34,7 +34,7 @@ class IOSPlatform : Platform {
 
 actual fun getPlatform(): Platform = IOSPlatform()
 
-actual fun createHttpClient(timeout: Long?): HttpClient {
+actual fun createKtorHttpClient(timeout: Long?): HttpClient {
     return HttpClient(Darwin) {
         install(HttpTimeout) {
             timeout?.let {

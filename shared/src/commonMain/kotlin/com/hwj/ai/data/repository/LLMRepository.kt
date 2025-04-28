@@ -86,11 +86,11 @@ class LLMRepository(
                             append(HttpHeaders.ContentType, ContentType.Application.Json)
                             append(HttpHeaders.Authorization, "Bearer $LLM_API_KEY")
                             //加入stream输出,每个包以data:开头，不然字符全拼接乱的
-                            append(HttpHeaders.Accept, ContentType.Text.EventStream)
+//                            append(HttpHeaders.Accept, ContentType.Text.EventStream)
                             append(HttpHeaders.CacheControl, "no-cache")
                             append(HttpHeaders.Connection, "keep-alive")
                             //json返回一串无序
-//                            append(HttpHeaders.Accept, ContentType.Application.Json)
+                            append(HttpHeaders.Accept, ContentType.Application.Json)
                         }
 
                         setBody(params.toJson())

@@ -17,6 +17,7 @@ import com.hwj.ai.checkSystem
 import com.hwj.ai.data.http.handleAIException
 import com.hwj.ai.data.http.toast
 import com.hwj.ai.data.repository.ConversationRepository
+import com.hwj.ai.data.repository.GlobalRepository
 import com.hwj.ai.data.repository.LLMChatRepository
 import com.hwj.ai.data.repository.LLMRepository
 import com.hwj.ai.data.repository.MessageRepository
@@ -30,6 +31,7 @@ import com.hwj.ai.global.EventHelper
 import com.hwj.ai.global.NotificationsManager
 import com.hwj.ai.global.OsStatus
 import com.hwj.ai.global.ToastUtils
+import com.hwj.ai.global.answerUseEw
 import com.hwj.ai.global.answerUseZw
 import com.hwj.ai.global.append
 import com.hwj.ai.global.encodeImageToBase64
@@ -46,6 +48,7 @@ import com.hwj.ai.models.ConversationModel
 import com.hwj.ai.models.GPTModel
 import com.hwj.ai.models.MessageModel
 import com.hwj.ai.models.TextCompletionsParam
+import com.hwj.ai.global.StrUtils
 import io.github.vinceglb.filekit.FileKit
 import io.github.vinceglb.filekit.PlatformFile
 import io.github.vinceglb.filekit.compressImage
@@ -73,6 +76,7 @@ import kotlin.random.Random
  * Used to communicate between screens.
  */
 class ConversationViewModel(
+    private val globalRepo: GlobalRepository,
     private val conversationRepo: ConversationRepository,
     private val messageRepo: MessageRepository,
     private val openAIRepo: LLMRepository, private val openRepo: LLMChatRepository,
@@ -87,18 +91,17 @@ class ConversationViewModel(
     //所有会话记录
     private val _messages: MutableStateFlow<HashMap<String, MutableList<MessageModel>>> =
         MutableStateFlow(HashMap())
-    private val _isFetching: MutableStateFlow<Boolean> = MutableStateFlow(false)
-    private val _isAutoScroll: MutableStateFlow<Boolean> = MutableStateFlow(false)
-    private val _isFabExpandObs = MutableStateFlow(false)
 
     val currentConversationState: StateFlow<String> = _currentConversation.asStateFlow()
     val conversationsState: StateFlow<MutableList<ConversationModel>> = _conversations.asStateFlow()
     val messagesState: StateFlow<HashMap<String, MutableList<MessageModel>>> =
         _messages.asStateFlow()
+
+    private val _isFetching: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    private val _isAutoScroll: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    private val _isFabExpandObs = MutableStateFlow(false)
     val isFetching: StateFlow<Boolean> = _isFetching.asStateFlow()
     val isAutoScroll: StateFlow<Boolean> = _isAutoScroll.asStateFlow()
-
-    //    val isFabExpanded: StateFlow<Boolean> get() = _isFabExpandObs
     val isFabExpanded = _isFabExpandObs.asStateFlow()
 
     //停止接收回答
@@ -126,16 +129,19 @@ class ConversationViewModel(
     val _thinkAiObs = MutableStateFlow(false)
     val thinkAiState = _thinkAiObs.asStateFlow()
 
+    val _isNetObs = MutableStateFlow(false)
+    val isNetState = _isNetObs.asStateFlow()
+
 
     suspend fun initialize() {
         _isFetching.value = true
 
         _conversations.value = conversationRepo.fetchConversations()
 
-        if (_conversations.value.isNotEmpty()) {
-            _currentConversation.value = _conversations.value.first().id
-            fetchMessages()
-        }
+//        if (_conversations.value.isNotEmpty()) { //每次启动拿最新的会话显示
+//            _currentConversation.value = _conversations.value.first().id
+//            fetchMessages()
+//        }
 
         _isFetching.value = false
     }
@@ -220,33 +226,35 @@ class ConversationViewModel(
         currentListMessage.add(0, newMessageModel)
         setMessages(currentListMessage)
 
-//        curJob = viewModelScope.launch(Dispatchers.Default) { //        //直接调用api接口方式
-////        // Execute API OpenAI ,返回数据
-//        val flow: Flow<String> = openAIRepo.textCompletionsWithStream(
-//            TextCompletionsParam(
-//                promptText = getPrompt(_currentConversation.value),
-//                messagesTurbo = getMessagesParamsTurbo(_currentConversation.value)
-//            )
-//        )
-//
-//        var answerFromGPT: String = ""
-//        // When flow collecting updateLocalAnswer including FAB behavior expanded.
-//        // On completion FAB == false
-//        flow.onCompletion {
-//            setFabExpanded(false)
-//        }.collect { value ->
-//            if (_stopReceivingObs.value) {
-//                stopReceiveMsg(newMessageModel)
-//                return@collect
-//            }
-//            answerFromGPT += value
-//            updateLocalAnswer(answerFromGPT.trim())
-//            setFabExpanded(true)
-//        }
-//        //数据库保存
-//        messageRepo.createMessage(newMessageModel.copy(answer = answerFromGPT))
-//    }
-        updateTextMsg(newMessageModel)
+        println("language>${StrUtils.currentLocale.value}")
+        curJob = viewModelScope.launch(Dispatchers.Default) { //        //直接调用api接口方式
+//        // Execute API OpenAI ,返回数据
+            val flow: Flow<String> = openAIRepo.textCompletionsWithStream(
+                TextCompletionsParam(
+                    promptText = getPrompt(_currentConversation.value),
+                    messagesTurbo = getMessagesParamsTurbo(_currentConversation.value)
+                )
+            )
+
+            var answerFromGPT: String = ""
+            // When flow collecting updateLocalAnswer including FAB behavior expanded.
+            // On completion FAB == false
+            flow.onCompletion {
+                setFabExpanded(false)
+            }.collect { value ->
+                if (_stopReceivingObs.value) {
+                    stopReceiveMsg(newMessageModel)
+                    return@collect
+                }
+                answerFromGPT += value
+                updateLocalAnswer(answerFromGPT.trim())
+                setFabExpanded(true)
+            }
+            //数据库保存
+            messageRepo.createMessage(newMessageModel.copy(answer = answerFromGPT))
+        }
+        //另一种请求库
+//        updateTextMsg(newMessageModel)
     }
 
     private fun updateTextMsg(newMessageModel: MessageModel) {
@@ -330,66 +338,6 @@ class ConversationViewModel(
         setMessages(currentListMessage)
 
         updateImageMsg(newMessageModel)
-    }
-
-
-    //怎么多轮连贯调用tool
-    fun sendTxtToolMessage(
-        input: String,
-        tool: Tool
-    ) {
-        _stopReceivingObs.value = false
-        if (getMessagesByConversation(_currentConversation.value).isEmpty()) {
-            workInSub { createConversationRemote(input) }
-        }
-        val newMessageModel = MessageModel(
-            question = input,
-            answer = thinking,
-            conversationId = _currentConversation.value,
-        )
-
-        val currentListMessage: MutableList<MessageModel> =
-            getMessagesByConversation(_currentConversation.value).toMutableList()
-
-        // Insert message to list
-        currentListMessage.add(0, newMessageModel)
-        setMessages(currentListMessage)
-
-        curJob = viewModelScope.launch(Dispatchers.Default) {
-            val curChatList = getMessagesParamsTurbo(_currentConversation.value).toMutableList()
-            val params = TextCompletionsParam(
-                promptText = getPrompt(_currentConversation.value),
-                model = GPTModel.QwenTool,
-                messagesTurbo = curChatList, stream = false //没用到？
-            )
-            var firstChat: ChatCompletion? = null
-            firstChat = openRepo.toolAICall(params, tool) //移到lambda
-
-            val message: ChatMessage = firstChat.choices.first().message
-            curChatList.append(message)
-
-            for (toolCall in message.toolCalls.orEmpty()) { //偶尔只返回一个
-                require(toolCall is ToolCall.Function) { "Tool call is not a function" }
-                val funcRep = toolCall.execute()
-                printD("f>$funcRep")
-                curChatList.append(toolCall, funcRep)//role - Tool
-            }
-//            printList(curChatList, "req>")
-            try {
-                val secondResponse = openRepo.receiveAICompletion(params, curChatList)
-                secondResponse.choices.first().message.content?.let {
-                    updateLocalAnswer(it)
-                    messageRepo.createMessage(newMessageModel.copy(answer = it))
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
-    }
-
-
-    suspend fun sendFileMsg() {
-//        openRepo.AnalyzeImage()
     }
 
     private suspend fun updateImageMsg(newMessageModel: MessageModel) {
@@ -565,12 +513,13 @@ class ConversationViewModel(
                     role = ChatRole.User
                     name = DATA_USER_NAME
                     if (message.imagePath == null) {
-                        content = message.question + answerUseZw
+                        content =
+                            message.question + if (StrUtils.currentLocale.value) answerUseZw else answerUseEw
                     } else {
 //                        如果是图片 , 后续多轮对话不再传图片, 怎么区分新旧, 这里是新问题发起，全是旧的
                         if (index == messagesMap[conversationId]!!.size - 1) { //最后一个又有图片，那么就转base64,不然都是历史图片
                             content { //偶尔包装的数据打印出来有缺失字母，是打印问题还是包装问题。。。
-                                text("$DATA_IMAGE_TITLE，" + message.question + answerUseZw)
+                                text("$DATA_IMAGE_TITLE，" + message.question + if (StrUtils.currentLocale.value) answerUseZw else answerUseEw)
                                 partsReq.forEach { part ->
                                     image(part)//base64或url
                                 }
@@ -668,11 +617,72 @@ class ConversationViewModel(
         }
     }
 
+    //怎么多轮连贯调用tool
+    fun sendTxtToolMessage(
+        input: String,
+        tool: Tool
+    ) {
+        _stopReceivingObs.value = false
+        if (getMessagesByConversation(_currentConversation.value).isEmpty()) {
+            workInSub { createConversationRemote(input) }
+        }
+        val newMessageModel = MessageModel(
+            question = input,
+            answer = thinking,
+            conversationId = _currentConversation.value,
+        )
+
+        val currentListMessage: MutableList<MessageModel> =
+            getMessagesByConversation(_currentConversation.value).toMutableList()
+
+        // Insert message to list
+        currentListMessage.add(0, newMessageModel)
+        setMessages(currentListMessage)
+
+        curJob = viewModelScope.launch(Dispatchers.Default) {
+            val curChatList = getMessagesParamsTurbo(_currentConversation.value).toMutableList()
+            val params = TextCompletionsParam(
+                promptText = getPrompt(_currentConversation.value),
+                model = GPTModel.QwenTool,
+                messagesTurbo = curChatList, stream = false //没用到？
+            )
+            var firstChat: ChatCompletion? = null
+            firstChat = openRepo.toolAICall(params, tool) //移到lambda
+
+            val message: ChatMessage = firstChat.choices.first().message
+            curChatList.append(message)
+
+            for (toolCall in message.toolCalls.orEmpty()) { //偶尔只返回一个
+                require(toolCall is ToolCall.Function) { "Tool call is not a function" }
+                val funcRep = toolCall.execute()
+                printD("f>$funcRep")
+                curChatList.append(toolCall, funcRep)//role - Tool
+            }
+//            printList(curChatList, "req>")
+            try {
+                val secondResponse = openRepo.receiveAICompletion(params, curChatList)
+                secondResponse.choices.first().message.content?.let {
+                    updateLocalAnswer(it)
+                    messageRepo.createMessage(newMessageModel.copy(answer = it))
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+
+    suspend fun sendFileMsg() {
+//        openRepo.AnalyzeImage()
+    }
+
     fun stopReceivingResults() {
         _stopReceivingObs.value = true
+        setFabExpanded(false)
     }
 
     private fun setFabExpanded(expanded: Boolean) {
+        printD("setFabExpanded>$expanded")
         _isFabExpandObs.value = expanded
     }
 
@@ -721,10 +731,14 @@ class ConversationViewModel(
         }
     }
 
+    //合并多个请求规则，现在没有处理合规、隐私、反政治等问题
     suspend fun checkUsefulStatus() {
-
+        checkNetStatus()
     }
 
+    suspend fun checkNetStatus() {
+        _isNetObs.value = globalRepo.isConnectNet()
+    }
 
     fun setImageUseStatus(flag: Boolean) {
         _isStopUseImageObs.value = flag

@@ -69,7 +69,7 @@ class AndroidPlatform : Platform {
 
 actual fun getPlatform(): Platform = AndroidPlatform()
 
-actual fun createHttpClient(timeout: Long?): HttpClient {
+actual fun createKtorHttpClient(timeout: Long?): HttpClient {
     return HttpClient() {
         defaultRequest {
             url.takeFrom(URLBuilder().takeFrom(baseHostUrl))
@@ -78,6 +78,7 @@ actual fun createHttpClient(timeout: Long?): HttpClient {
         install(HttpTimeout) {
             timeout?.let {
                 requestTimeoutMillis = timeout
+                connectTimeoutMillis = 5000
             }
         }
         install(SSE) {
@@ -92,17 +93,17 @@ actual fun createHttpClient(timeout: Long?): HttpClient {
         }
         install(Logging) {
 //            level = LogLevel.NONE
-            level=LogLevel.BODY
+            level = LogLevel.BODY
 //            level= LogLevel.INFO
 //            level = LogLevel.NONE //接口日志屏蔽
             logger = object : io.ktor.client.plugins.logging.Logger {
                 override fun log(message: String) {
-                    printD(message)
+                    printD(message, des = "http-android>")
                 }
             }
         }
         //允许分块处理
-//        expectSuccess = true
+        expectSuccess = true
     }
 }
 
@@ -226,7 +227,7 @@ private fun TestBotMsgCard1(message: MessageModel) {
             modifier = Modifier.padding(
                 horizontal = 18.dp,
                 vertical = 12.dp
-            ).background( if (isDark) isDarkPanel() else isLightPanel()),
+            ).background(if (isDark) isDarkPanel() else isLightPanel()),
             style = richTextStyle,
         ) {
             Markdown(message.answer.trimIndent())
@@ -240,14 +241,15 @@ actual fun createPermission(
     permission: PermissionPlatform,
     grantedAction: () -> Unit,
     deniedAction: () -> Unit
-) { val p = when (permission) {
-    PermissionPlatform.CAMERA -> Permission.CAMERA
-    PermissionPlatform.GALLERY -> Permission.GALLERY
-    PermissionPlatform.STORAGE -> Permission.STORAGE
-    PermissionPlatform.WRITE_STORAGE -> Permission.WRITE_STORAGE
-    PermissionPlatform.REMOTE_NOTIFICATION->Permission.REMOTE_NOTIFICATION
-    else -> Permission.STORAGE
-}
+) {
+    val p = when (permission) {
+        PermissionPlatform.CAMERA -> Permission.CAMERA
+        PermissionPlatform.GALLERY -> Permission.GALLERY
+        PermissionPlatform.STORAGE -> Permission.STORAGE
+        PermissionPlatform.WRITE_STORAGE -> Permission.WRITE_STORAGE
+        PermissionPlatform.REMOTE_NOTIFICATION -> Permission.REMOTE_NOTIFICATION
+        else -> Permission.STORAGE
+    }
     askPermission(p, grantedAction, deniedAction)
 }
 

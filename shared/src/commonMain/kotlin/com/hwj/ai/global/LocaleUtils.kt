@@ -1,4 +1,4 @@
-package com.hwj.ai.ui.global
+package com.hwj.ai.global
 
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
@@ -17,8 +17,7 @@ object StrUtils {
     }
 
     val switchLanguage: String
-        get() = if(currentLocale.value) "用中文回答" else "Answer in english"
-
+        get() = if (currentLocale.value) "用中文回答" else "Answer in chinese"
 }
 
 //用事件透传 把任务放到协程进行

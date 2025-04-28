@@ -3,12 +3,15 @@ package com.hwj.ai.data.repository
 import com.hwj.ai.data.http.JsonApi
 import com.hwj.ai.data.http.getWithCookie
 import com.hwj.ai.data.http.parseJson
+import com.hwj.ai.except.Env
 import com.hwj.ai.global.printD
 import com.hwj.ai.global.printE
 import com.hwj.ai.global.printList
 import com.hwj.ai.global.urlModelConfig
 import com.hwj.ai.models.LLMModel
 import io.ktor.client.HttpClient
+import io.ktor.client.plugins.timeout
+import io.ktor.client.request.prepareGet
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.buildJsonArray
 import kotlinx.serialization.json.jsonObject
@@ -48,34 +51,45 @@ class GlobalRepository(private val client: HttpClient) {
         }
     }
 
+    suspend fun isConnectNet(): Boolean {
+        var isSuc = false
+        try {
+            client.prepareGet("https://www.baidu.com") {
+                timeout { requestTimeoutMillis = 3000 }
+            }.execute { response ->
+                if (response.status.value == 200) {
+                    isSuc = true
+                }
+            }
+            return isSuc
+        } catch (e: Exception) {
+           printE(e)
+            return false
+        }
+    }
+
     suspend fun localModelConfig(): List<LLMModel> {
         val list = mutableListOf<LLMModel>()
 
-        val deepseek = LLMModel()
-        deepseek.model = "deepseek-chat"
-        deepseek.hostUrl = "https://api.deepseek.com/"
-        deepseek.url = "chat/completions"
-        deepseek.sk = "sk-6271abd28b07427ba84a38580ed76bc0"
         val siliconflow = LLMModel()
-        siliconflow.model = "deepseek-ai/DeepSeek-V3"
-        siliconflow.hostUrl = "https://api.siliconflow.cn/"
-        siliconflow.url = "chat/completions"
-        siliconflow.sk = "sk-qylhzhkqljizdtsbqcssefvqbknxbxxydpwppumwfeijince"
+        siliconflow.model = Env.get("MODEL_TEXT_SILICONFLOW")
+        siliconflow.hostUrl = Env.get("API_HOST_SILICONFLOW")
+        siliconflow.sk = Env.get("API_KEY_SILICONFLOW")
+
+        val deepseek = LLMModel()
+        deepseek.model = Env.get("MODEL_THINK")
+        deepseek.hostUrl = Env.get("API_HOST_SILICONFLOW")
+        deepseek.sk = Env.get("API_KEY_SILICONFLOW")
+
         val hunyuan = LLMModel()
-        hunyuan.model = "hunyuan-vision"
-//        hunyuan.hostUrl = "https://hunyuan.tencentcloudapi.com/"
-        hunyuan.hostUrl="https://api.hunyuan.cloud.tencent.com/v1/"
-        hunyuan.url = "chat/completions"
-        hunyuan.sk = "sk-NDI07Dpew9y1J7W0Fpoj1ywjo50p7H0cwKePxl4EEjJiLIlI"
-        val baitong = LLMModel()
-        baitong.model = "gpt-4o"
-        baitong.hostUrl = "https://copilot.gree.com/"
-        baitong.url = "chat/completions"
-        baitong.sk = "1"
+        hunyuan.model = Env.get("MODEL_TEXT_HUANYUAN")
+        hunyuan.hostUrl = Env.get("API_HOST_HUANYUAN")
+        hunyuan.sk = Env.get("API_KEY_HUNYUAN")
+
         list.add(deepseek)
         list.add(siliconflow)
         list.add(hunyuan)
-//        list.add(baitong)
+
         return list
     }
 }

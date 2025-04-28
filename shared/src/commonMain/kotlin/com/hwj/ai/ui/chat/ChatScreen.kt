@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.material3.DrawerValue
@@ -29,7 +30,9 @@ import androidx.compose.ui.unit.dp
 import com.hwj.ai.except.FloatWindow
 import com.hwj.ai.except.HookSelection
 import com.hwj.ai.global.CODE_IS_DARK
+import com.hwj.ai.global.EventHelper
 import com.hwj.ai.global.ThemeChatLite
+import com.hwj.ai.global.ToastUtils
 import com.hwj.ai.global.cDeepLine
 import com.hwj.ai.global.getCacheBoolean
 import com.hwj.ai.global.saveBoolean
@@ -41,6 +44,8 @@ import com.hwj.ai.ui.viewmodel.ChatViewModel
 import com.hwj.ai.ui.viewmodel.ConversationViewModel
 import com.hwj.ai.ui.viewmodel.ModelConfigIntent
 import com.hwj.ai.ui.viewmodel.ModelConfigState
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.launch
 import moe.tlaster.precompose.koin.koinViewModel
 import moe.tlaster.precompose.navigation.BackHandler
@@ -94,6 +99,8 @@ fun ChatScreen(navigator: Navigator) {
     //划词、快捷键
     HookSelection()
 
+    CheckNetConnected()
+
     ThemeChatLite(isDark = darkTheme.value) {
         Surface(color = MaterialTheme.colorScheme.background) {
             AppScaffold(drawerState = drawerState,
@@ -142,9 +149,9 @@ fun ChatScreen(navigator: Navigator) {
 
                     ToastHost(  //为了全局显示toast
                         modifier = Modifier
-                            .padding(horizontal = 16.dp, vertical = 12.dp)
-                            .fillMaxWidth()
-                            .padding(bottom = 100.dp)
+                            .padding(horizontal = 20.dp, vertical = 12.dp)
+                            .wrapContentWidth()
+                            .padding(bottom = 120.dp)
                             .wrapContentHeight()
                             .background(Color.Black.copy(alpha = 0.6f), RoundedCornerShape(8.dp))
                             .align(Alignment.BottomCenter)
@@ -170,6 +177,22 @@ fun ChatInit(state: ModelConfigState) {
                 Text(state.error)
             }
         }
+    }
+}
+
+//网络检查
+@Composable
+fun CheckNetConnected() {
+    val subScope = rememberCoroutineScope()
+    val conversationViewModel = koinViewModel(ConversationViewModel::class)
+    val isNet by conversationViewModel.isNetState.collectAsState()
+    LaunchedEffect(Unit) {
+        subScope.launch(Dispatchers.IO) {
+            conversationViewModel.checkNetStatus()
+        }
+    }
+    if (!isNet){
+       ToastUtils.show("网络无连接")
     }
 }
 
