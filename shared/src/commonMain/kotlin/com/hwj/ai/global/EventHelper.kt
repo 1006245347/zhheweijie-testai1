@@ -27,4 +27,5 @@ sealed class Event {
 
     data class DeleteConversationEvent(val conversationId:String):Event()
 
+    data class PreviewImageEvent(val path:String):Event()
 }

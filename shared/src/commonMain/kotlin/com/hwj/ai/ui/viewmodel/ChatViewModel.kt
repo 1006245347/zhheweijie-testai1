@@ -9,6 +9,7 @@ import com.hwj.ai.global.EventHelper
 import com.hwj.ai.global.NotificationsManager
 import com.hwj.ai.global.getCacheBoolean
 import com.hwj.ai.global.getMills
+import com.hwj.ai.global.onlyDesktop
 import com.hwj.ai.models.LLMModel
 import com.hwj.ai.ui.global.AISelectIntent
 import com.hwj.ai.ui.global.GlobalIntent
@@ -60,12 +61,20 @@ class ChatViewModel(
     private val _isPreWindowObs = MutableStateFlow(false)
     val isPreWindowState = _isPreWindowObs.asStateFlow()
 
+    //响应将后台拉起主窗口
+    private val _bringWindowFrontObs = MutableStateFlow(false)
+    val bringWindowFrontState = _bringWindowFrontObs.asStateFlow()
+
     //划词选中的数据
     private val _appInfoObs = MutableStateFlow<String?>(null)
     val appInfoState = _appInfoObs.asStateFlow()
-
     private val _selectTextObs = MutableStateFlow<String?>(null)
     val selectTextState = _selectTextObs.asStateFlow()
+
+    //正在预览的图片路径
+    private val _previewImgObs = MutableStateFlow<String?>(null)
+    val previewImgState = _previewImgObs.asStateFlow()
+
 
     fun processConfig(intent: ModelConfigIntent) {
         when (intent) {
@@ -152,6 +161,10 @@ class ChatViewModel(
         _isPreWindowObs.value = flag
     }
 
+    fun bringWindowFront(flag: Boolean) {
+        _bringWindowFrontObs.value = flag
+    }
+
     fun findAppInfo(info: String?) {
         info?.let {
             _appInfoObs.value = info
@@ -163,6 +176,11 @@ class ChatViewModel(
             _selectTextObs.value = text
         }
     }
+
+    fun setPreviewImage(path: String?) {
+        _previewImgObs.value = path
+    }
+
 
     fun copyToClipboard(text: String) {
         try {
@@ -180,8 +198,16 @@ class ChatViewModel(
                         //清空界面、缓存数据？？
                         shotByHotKey(true)
                         shotScreen(true)
-                        println("hot>${_isShotObs.value}")
+                    } else if (event.code == 2) { //desktop alt b = open window
+                        if ( !_isPreWindowObs.value && onlyDesktop()) {
+                        println("event-hot 2>")
+                            bringWindowFront(true)
+                        }
                     }
+                }
+
+                is Event.PreviewImageEvent -> {
+                    _previewImgObs.value = event.path
                 }
 
                 else -> {}

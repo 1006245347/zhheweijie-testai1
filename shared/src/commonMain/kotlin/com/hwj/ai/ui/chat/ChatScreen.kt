@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
@@ -27,10 +26,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
+import com.hwj.ai.except.BringMainWindowFront
 import com.hwj.ai.except.FloatWindow
 import com.hwj.ai.except.HookSelection
 import com.hwj.ai.global.CODE_IS_DARK
-import com.hwj.ai.global.EventHelper
 import com.hwj.ai.global.ThemeChatLite
 import com.hwj.ai.global.ToastUtils
 import com.hwj.ai.global.cDeepLine
@@ -39,10 +38,10 @@ import com.hwj.ai.global.saveBoolean
 import com.hwj.ai.ui.global.AppBar
 import com.hwj.ai.ui.global.AppScaffold
 import com.hwj.ai.ui.global.GlobalIntent
+import com.hwj.ai.ui.global.PreviewImageDialog
 import com.hwj.ai.ui.global.ToastHost
 import com.hwj.ai.ui.viewmodel.ChatViewModel
 import com.hwj.ai.ui.viewmodel.ConversationViewModel
-import com.hwj.ai.ui.viewmodel.ModelConfigIntent
 import com.hwj.ai.ui.viewmodel.ModelConfigState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
@@ -60,8 +59,10 @@ fun ChatScreen(navigator: Navigator) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val drawerOpen by chatViewModel.drawerShouldBeOpened.collectAsState()
     val curConversationId by conversationViewModel.currentConversationState.collectAsState()
+    val previewImaState by chatViewModel.previewImgState.collectAsState()
     //浮窗
     val isPreWindowState by chatViewModel.isPreWindowState.collectAsState()
+    val bringWindowFrontState by chatViewModel.bringWindowFrontState.collectAsState()
     if (drawerOpen) {
         LaunchedEffect(Unit) {
             try {
@@ -147,6 +148,21 @@ fun ChatScreen(navigator: Navigator) {
                         }
                     }
 
+                    previewImaState?.let {
+                        PreviewImageDialog(it,darkTheme.value) {
+                            chatViewModel.setPreviewImage(null)
+                        }
+                    }
+                    //全局浮窗 测试
+                    if (isPreWindowState) {
+                        FloatWindow()
+                    }
+
+                    if(bringWindowFrontState){
+                        BringMainWindowFront()
+                        chatViewModel.bringWindowFront(false)
+                    }
+
                     ToastHost(  //为了全局显示toast
                         modifier = Modifier
                             .padding(horizontal = 20.dp, vertical = 12.dp)
@@ -156,11 +172,6 @@ fun ChatScreen(navigator: Navigator) {
                             .background(Color.Black.copy(alpha = 0.6f), RoundedCornerShape(8.dp))
                             .align(Alignment.BottomCenter)
                     )
-
-                    //全局浮窗 测试
-                    if (isPreWindowState) {
-                        FloatWindow()
-                    }
                 }
             }
         }
@@ -191,8 +202,8 @@ fun CheckNetConnected() {
             conversationViewModel.checkNetStatus()
         }
     }
-    if (!isNet){
-       ToastUtils.show("网络无连接")
+    if (!isNet) {
+        ToastUtils.show("网络无连接")
     }
 }
 

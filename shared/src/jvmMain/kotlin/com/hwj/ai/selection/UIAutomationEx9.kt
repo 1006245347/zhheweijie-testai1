@@ -107,18 +107,16 @@ object GlobalMouseHook9 {
             }
         }
 
-
         // 必须阻塞消息循环，否则 Hook 会立即退出
         val msg = WinUser.MSG()
         while (user32.GetMessage(msg, null, 0, 0) != 0) {
             if (msg.message == WinUser.WM_HOTKEY) {
                 val hotkeyId = msg.wParam.toInt()
                 if (hotkeyId == k_id1) {
-//                    println("hwj-alt a")
                     EventHelper.post(Event.HotKeyEvent(k_id1, System.currentTimeMillis()))
                 } else if (hotkeyId == 2) {
-//                    println("alt b")
-//                    bring2Front()
+                    println("alt b")
+                    EventHelper.post(Event.HotKeyEvent(2,System.currentTimeMillis()))
                 }
             }
             user32.TranslateMessage(msg)

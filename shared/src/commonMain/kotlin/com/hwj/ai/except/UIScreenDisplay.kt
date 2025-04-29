@@ -31,6 +31,9 @@ expect fun HookSelection()
 @Composable
 expect fun FloatWindow()
 
+@Composable
+expect fun BringMainWindowFront()
+
 //缓存截图的目录
 expect fun getShotCacheDir():String?
 

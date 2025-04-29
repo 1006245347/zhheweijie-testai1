@@ -226,35 +226,35 @@ class ConversationViewModel(
         currentListMessage.add(0, newMessageModel)
         setMessages(currentListMessage)
 
-        println("language>${StrUtils.currentLocale.value}")
-        curJob = viewModelScope.launch(Dispatchers.Default) { //        //直接调用api接口方式
-//        // Execute API OpenAI ,返回数据
-            val flow: Flow<String> = openAIRepo.textCompletionsWithStream(
-                TextCompletionsParam(
-                    promptText = getPrompt(_currentConversation.value),
-                    messagesTurbo = getMessagesParamsTurbo(_currentConversation.value)
-                )
-            )
-
-            var answerFromGPT: String = ""
-            // When flow collecting updateLocalAnswer including FAB behavior expanded.
-            // On completion FAB == false
-            flow.onCompletion {
-                setFabExpanded(false)
-            }.collect { value ->
-                if (_stopReceivingObs.value) {
-                    stopReceiveMsg(newMessageModel)
-                    return@collect
-                }
-                answerFromGPT += value
-                updateLocalAnswer(answerFromGPT.trim())
-                setFabExpanded(true)
-            }
-            //数据库保存
-            messageRepo.createMessage(newMessageModel.copy(answer = answerFromGPT))
-        }
+//        println("language>${StrUtils.currentLocale.value}")
+//        curJob = viewModelScope.launch(Dispatchers.Default) { //        //直接调用api接口方式
+////        // Execute API OpenAI ,返回数据
+//            val flow: Flow<String> = openAIRepo.textCompletionsWithStream(
+//                TextCompletionsParam(
+//                    promptText = getPrompt(_currentConversation.value),
+//                    messagesTurbo = getMessagesParamsTurbo(_currentConversation.value)
+//                )
+//            )
+//
+//            var answerFromGPT: String = ""
+//            // When flow collecting updateLocalAnswer including FAB behavior expanded.
+//            // On completion FAB == false
+//            flow.onCompletion {
+//                setFabExpanded(false)
+//            }.collect { value ->
+//                if (_stopReceivingObs.value) {
+//                    stopReceiveMsg(newMessageModel)
+//                    return@collect
+//                }
+//                answerFromGPT += value
+//                updateLocalAnswer(answerFromGPT.trim())
+//                setFabExpanded(true)
+//            }
+//            //数据库保存
+//            messageRepo.createMessage(newMessageModel.copy(answer = answerFromGPT))
+//        }
         //另一种请求库
-//        updateTextMsg(newMessageModel)
+        updateTextMsg(newMessageModel)
     }
 
     private fun updateTextMsg(newMessageModel: MessageModel) {

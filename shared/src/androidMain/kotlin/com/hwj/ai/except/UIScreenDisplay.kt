@@ -140,6 +140,11 @@ actual fun HookSelection() {
 actual fun FloatWindow() {
 }
 
+@Composable
+actual fun BringMainWindowFront(){
+
+}
+
 actual fun getShotCacheDir(): String? {
     return null
 }

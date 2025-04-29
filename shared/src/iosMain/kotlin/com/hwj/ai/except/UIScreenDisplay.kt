@@ -53,8 +53,10 @@ import moe.tlaster.precompose.koin.koinViewModel
 import platform.Foundation.NSBundle
 import platform.Foundation.NSString
 import platform.Foundation.NSThread
+import platform.Foundation.NSURL
 import platform.Foundation.NSUTF8StringEncoding
 import platform.Foundation.stringWithContentsOfFile
+import platform.UIKit.UIApplication
 
 /**
  * @author by jason-何伟杰，2025/3/11
@@ -143,7 +145,7 @@ actual fun BotMsgMenu(message: MessageModel) {
 }
 
 @Composable
-actual fun ToolTipCase(modifier: Modifier?,tip: String, content: @Composable () -> Unit) {
+actual fun ToolTipCase(modifier: Modifier?, tip: String, content: @Composable () -> Unit) {
     content()
 }
 
@@ -156,12 +158,18 @@ actual fun ScreenShotPlatform(onSave: (String?) -> Unit) {
 }
 
 @Composable
-actual fun HookSelection(){}
+actual fun HookSelection() {
+}
 
 @Composable
-actual fun FloatWindow(){}
+actual fun FloatWindow() {
+}
 
-actual fun getShotCacheDir():String?{
+@Composable
+actual fun BringMainWindowFront(){
+}
+
+actual fun getShotCacheDir(): String? {
     return null
 }
 
@@ -172,7 +180,8 @@ actual object EnvLoader {
         val bundle = NSBundle.mainBundle
         val path = bundle.pathForResource(name = ".env", ofType = null) ?: return emptyMap()
 
-        val content = NSString.stringWithContentsOfFile(path, NSUTF8StringEncoding, null) ?: return emptyMap()
+        val content =
+            NSString.stringWithContentsOfFile(path, NSUTF8StringEncoding, null) ?: return emptyMap()
 
         val lines = content.split("\n")
         val map = mutableMapOf<String, String>()
@@ -186,9 +195,15 @@ actual object EnvLoader {
             }
         }
         return map
-    }}
+    }
+}
 
+//需在 Info.plist 添加白名单（iOS 9+ 要求）：
+//LSApplicationQueriesSchemes
+//http
+//https
 @Composable
-actual fun switchUrlByBrowser(url:String){
-
+actual fun switchUrlByBrowser(url: String) {
+    val nsUrl = NSURL(string = url)
+    UIApplication.sharedApplication.openURL(nsUrl)
 }

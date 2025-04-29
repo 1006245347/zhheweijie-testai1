@@ -7,9 +7,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -17,11 +14,7 @@ import androidx.compose.ui.awt.ComposeWindow
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowState
 import com.hwj.ai.capture.LocalMainWindow
-import com.hwj.ai.global.OsStatus
 import com.hwj.ai.global.ThemeChatLite
-import com.hwj.ai.ui.showMainWindow
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import moe.tlaster.precompose.ProvidePreComposeLocals
 import java.awt.Dimension
 

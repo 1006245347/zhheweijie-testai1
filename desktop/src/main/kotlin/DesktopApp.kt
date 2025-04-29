@@ -48,7 +48,7 @@ fun main() {
         CompositionLocalProvider(
             LocalAppResource provides rememberAppResource(),
         ) {
-            val isShowWindowState = remember { mutableStateOf(true) }
+            val isShowWindowState = remember { mutableStateOf(true) } //控制主窗口显示
             val mainWindow = mutableStateOf<ComposeWindow?>(null)
             val trayState = rememberTrayState()
             Tray(icon = LocalAppResource.current.icon, state = trayState,
@@ -68,12 +68,11 @@ fun main() {
                     mainWindow.value?.isVisible = true
                 })
 
-
             PlatformWindowStart(windowState, isShowWindowState, onWindowChange = { w, isShow ->
                 mainWindow.value = w
                 //主要处理关闭窗口的响应，避免其他地方重复调用
                 if (!isShow)
-                    mainWindow.value?.isVisible = isShow
+                    mainWindow.value?.isVisible = isShow //关闭主窗口
             }) {
                 isShowWindowState.value = false
                 exitApplication()

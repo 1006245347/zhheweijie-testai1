@@ -36,6 +36,7 @@ import com.hwj.ai.global.workInSub
 import com.hwj.ai.models.MessageModel
 import com.hwj.ai.selection.GlobalMouseHook9
 import com.hwj.ai.ui.FloatWindowInside
+import com.hwj.ai.ui.showMainWindow
 import com.hwj.ai.ui.viewmodel.ChatViewModel
 import com.hwj.ai.ui.viewmodel.ConversationViewModel
 import com.hwj.ai.ui.viewmodel.SettingsViewModel
@@ -192,6 +193,11 @@ actual fun HookSelection() {
 @Composable
 actual fun FloatWindow() {
     FloatWindowInside()
+}
+
+@Composable
+actual fun BringMainWindowFront(){
+   showMainWindow(true)
 }
 
 actual fun getShotCacheDir(): String? {

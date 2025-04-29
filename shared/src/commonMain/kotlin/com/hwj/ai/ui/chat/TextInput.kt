@@ -63,10 +63,11 @@ import coil3.compose.AsyncImage
 import com.hwj.ai.checkSystem
 import com.hwj.ai.createPermission
 import com.hwj.ai.data.local.PermissionPlatform
-import com.hwj.ai.except.Env
 import com.hwj.ai.except.ScreenShotPlatform
 import com.hwj.ai.except.ToolTipCase
 import com.hwj.ai.global.BackInnerColor1
+import com.hwj.ai.global.Event
+import com.hwj.ai.global.EventHelper
 import com.hwj.ai.global.NavigationScene
 import com.hwj.ai.global.OsStatus
 import com.hwj.ai.global.PrimaryColor
@@ -351,7 +352,6 @@ fun TextInputIn(
 
 @Composable
 fun EnterEventButton(isFabExpanded: Boolean, sendBlock: () -> Unit) {
-//    val subScope = rememberCoroutineScope()
     val conversationViewModel = koinViewModel(ConversationViewModel::class)
 
     ExtendedFloatingActionButton(
@@ -408,7 +408,10 @@ fun ImageSelectIn() {
                     imagePathList[index].path,
                     contentDescription = imagePathList[index].name,
 //                        contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier.fillMaxSize().clickable {
+                        //预览图片
+                        EventHelper.post(Event.PreviewImageEvent(imagePathList[index].path))
+                    }
                 )
                 IconButton(
                     onClick = {

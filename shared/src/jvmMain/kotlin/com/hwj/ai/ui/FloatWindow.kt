@@ -76,7 +76,6 @@ fun FloatWindowInside() {
         }
     }
 
-
     Window( //不要加Surface,会造成一层白色背景
         resizable = false,
         onCloseRequest = {
@@ -147,15 +146,18 @@ fun FloatWindowInside() {
 
 @Composable
 fun showMainWindow(flag: Boolean) {
-        println("showM>$flag")
+    val subScope = rememberCoroutineScope()
+    println("showMain>$flag") //托盘时没法响应 isShowWindowState
     if (flag) {
         LocalMainWindow.current.apply {
-            isVisible = true
-            toFront()
-            state = Frame.NORMAL
+            subScope.launch(Dispatchers.Main) {
+                isMinimized = false
+                isVisible = true
+                toFront()
+                state = Frame.NORMAL
+            }
         }
     } else {
         LocalMainWindow.current.isVisible = false
     }
-
 }
