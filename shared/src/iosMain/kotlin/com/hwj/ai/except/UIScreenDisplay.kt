@@ -187,3 +187,8 @@ actual object EnvLoader {
         }
         return map
     }}
+
+@Composable
+actual fun switchUrlByBrowser(url:String){
+
+}

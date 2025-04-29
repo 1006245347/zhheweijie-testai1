@@ -67,6 +67,7 @@ import coil3.compose.LocalPlatformContext
 import coil3.compose.rememberAsyncImagePainter
 import coil3.request.ImageRequest
 import coil3.request.crossfade
+import com.hwj.ai.except.switchUrlByBrowser
 import com.hwj.ai.global.NavigationScene
 import com.hwj.ai.global.PrimaryColor
 import com.hwj.ai.global.getMills
@@ -74,6 +75,8 @@ import com.hwj.ai.global.isDarkPanel
 import com.hwj.ai.global.isDarkTxt
 import com.hwj.ai.global.isLightPanel
 import com.hwj.ai.global.isLightTxt
+import com.hwj.ai.global.urlToAuthor
+import com.hwj.ai.global.urlToAvatarGPT
 import com.hwj.ai.global.urlToImageAppIcon
 import com.hwj.ai.global.urlToImageAuthor
 import com.hwj.ai.models.ConversationModel
@@ -130,6 +133,7 @@ fun AppDrawerIn(
     openSetDialog: MutableState<Boolean>,
     navigator: Navigator? = null
 ) {
+    val canBrowser = remember { mutableStateOf(false) }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -148,7 +152,13 @@ fun AppDrawerIn(
             urlToImageAuthor,
         ) {
 //            UrlLauncher().openUrl(context = context, urlToGithub)
-            navigator?.navigate(NavigationScene.SettingLLM.path)
+//            navigator?.navigate(NavigationScene.SettingLLM.path)
+            canBrowser.value = true
+
+        }
+        if (canBrowser.value) {
+            switchUrlByBrowser(urlToAuthor)
+            canBrowser.value=false
         }
         DrawerItemHeader("Chats")
         ChatItem("New Chat", Icons.Outlined.AddComment, false) {

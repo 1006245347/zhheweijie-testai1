@@ -43,7 +43,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import moe.tlaster.precompose.koin.koinViewModel
+import java.awt.Desktop
 import java.io.File
+import java.net.URI
 
 @Composable
 actual fun OpenCameraScreen(isOpen: Boolean, onBack: (Boolean, ByteArray?) -> Unit) {
@@ -212,5 +214,12 @@ actual object EnvLoader {
             }
         }
         return map
+    }
+}
+
+@Composable
+actual fun switchUrlByBrowser(url: String) {
+    if (Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+        Desktop.getDesktop().browse(URI(url))
     }
 }

@@ -57,7 +57,7 @@ actual fun CameraScreen(navigator: Navigator) {
                 navigator.goBack()
         })
         if (!showCamera) {
-            Row(modifier = Modifier.padding(top = 50.dp).align(Alignment.BottomCenter)) {
+            Row(modifier = Modifier.padding(bottom = 50.dp).align(Alignment.BottomCenter)) {
                 Button(
                     onClick = {
                         navigator.goBack()

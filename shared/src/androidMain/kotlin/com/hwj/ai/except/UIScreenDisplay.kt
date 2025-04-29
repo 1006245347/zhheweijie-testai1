@@ -2,7 +2,9 @@ package com.hwj.ai.except
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.os.Looper
+import android.util.Patterns
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,6 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import coil3.compose.AsyncImage
 import com.hwj.ai.camera.PeekabooCameraView
 import com.hwj.ai.global.ThemeChatLite
@@ -116,7 +119,7 @@ actual fun BotMsgMenu(message: MessageModel) {
 }
 
 @Composable
-actual fun ToolTipCase(modifier: Modifier?,tip: String, content: @Composable () -> Unit) {
+actual fun ToolTipCase(modifier: Modifier?, tip: String, content: @Composable () -> Unit) {
     content()
 }
 
@@ -126,19 +129,22 @@ actual fun isMainThread(): Boolean {
 }
 
 @Composable
-actual fun ScreenShotPlatform(onSave: (String?) -> Unit){}
+actual fun ScreenShotPlatform(onSave: (String?) -> Unit) {
+}
 
 @Composable
-actual fun HookSelection(){}
+actual fun HookSelection() {
+}
 
 @Composable
-actual fun FloatWindow(){}
+actual fun FloatWindow() {
+}
 
-actual fun getShotCacheDir():String?{
+actual fun getShotCacheDir(): String? {
     return null
 }
 
-actual object  EnvLoader {
+actual object EnvLoader {
     @SuppressLint("StaticFieldLeak")
     private lateinit var context: Context
 
@@ -159,5 +165,12 @@ actual object  EnvLoader {
             }
         }
         return map
+    }
+}
+
+@Composable
+actual fun switchUrlByBrowser(url: String) {
+    if (Patterns.WEB_URL.matcher(url).matches()) {
+        LocalContext.current.startActivity(Intent(Intent.ACTION_VIEW, android.net.Uri.parse(url)))
     }
 }
