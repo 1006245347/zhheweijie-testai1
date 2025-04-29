@@ -39,13 +39,13 @@ import com.hwj.ai.global.CODE_HOT_KEY
 import com.hwj.ai.global.CODE_LANGUAGE_ZH
 import com.hwj.ai.global.CODE_SELECTION_USE
 import com.hwj.ai.global.PrimaryColor
+import com.hwj.ai.global.StrUtils
 import com.hwj.ai.global.getCacheBoolean
 import com.hwj.ai.global.isDarkTxt
 import com.hwj.ai.global.isLightTxt
 import com.hwj.ai.global.onlyDesktop
 import com.hwj.ai.global.saveBoolean
 import com.hwj.ai.ui.global.DialogUtils
-import com.hwj.ai.global.StrUtils
 import com.hwj.ai.ui.viewmodel.ChatViewModel
 import com.hwj.ai.ui.viewmodel.SettingsIntent
 import com.hwj.ai.ui.viewmodel.SettingsViewModel
@@ -81,9 +81,11 @@ fun SettingsScreen(openState: MutableState<Boolean>) {
 
     DisposableEffect(Unit) { //页面关闭，响应重组最后的回调
         onDispose {
+            openState.value = false
             refresh()
         }
     }
+
     DialogUtils.CreateDialog(
         openState,
         marginTop = 10.dp,
@@ -173,8 +175,6 @@ fun SettingsScreen(openState: MutableState<Boolean>) {
             }
         }
     }
-
-
 }
 
 @Composable

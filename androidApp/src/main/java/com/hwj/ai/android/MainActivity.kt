@@ -25,13 +25,11 @@ class MainActivity : ComponentActivity() {
 
         FileKit.init(this)
         setContentView(ComposeView(this).apply {
-            consumeWindowInsets=false
+            consumeWindowInsets = false
 
             //只要问答后，状态栏颜色无法修改了
             setContent {
-//                ThemeChatLite {
-                    Surface(modifier = Modifier.fillMaxSize()) { PlatformAppStart() }
-//                }
+                Surface(modifier = Modifier.fillMaxSize()) { PlatformAppStart() }
             }
         })
     }

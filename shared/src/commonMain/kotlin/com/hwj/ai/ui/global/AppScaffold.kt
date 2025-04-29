@@ -55,12 +55,14 @@ fun AppScaffold(
             drawerState = drawerState,
             drawerContent = {
                 ModalDrawerSheet(drawerContainerColor = MaterialTheme.colorScheme.background) {//hwj
-                    AppDrawer(
-                        onChatClicked = onChatClicked,
-                        onNewChatClicked = onNewChatClicked,
-                        conversationViewModel = conversationViewModel,
-                        onIconClicked = onIconClicked, navigator
-                    )
+                    Box {
+                        AppDrawer(
+                            onChatClicked = onChatClicked,
+                            onNewChatClicked = onNewChatClicked,
+                            conversationViewModel = conversationViewModel,
+                            onIconClicked = onIconClicked, navigator
+                        )
+                    }
                 }
             },
             content = content

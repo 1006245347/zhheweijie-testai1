@@ -2,7 +2,6 @@ package com.hwj.ai.ui.global
 
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -64,11 +63,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
-import coil3.compose.rememberAsyncImagePainter
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.hwj.ai.except.switchUrlByBrowser
-import com.hwj.ai.global.NavigationScene
 import com.hwj.ai.global.PrimaryColor
 import com.hwj.ai.global.getMills
 import com.hwj.ai.global.isDarkPanel
@@ -76,7 +73,6 @@ import com.hwj.ai.global.isDarkTxt
 import com.hwj.ai.global.isLightPanel
 import com.hwj.ai.global.isLightTxt
 import com.hwj.ai.global.urlToAuthor
-import com.hwj.ai.global.urlToAvatarGPT
 import com.hwj.ai.global.urlToImageAppIcon
 import com.hwj.ai.global.urlToImageAuthor
 import com.hwj.ai.models.ConversationModel
@@ -87,6 +83,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import moe.tlaster.precompose.koin.koinViewModel
 import moe.tlaster.precompose.navigation.Navigator
+import org.jetbrains.compose.resources.painterResource
+import testai1.shared.generated.resources.Res
+import testai1.shared.generated.resources.ic_big_logo
 
 @Composable
 fun AppDrawer(
@@ -97,6 +96,7 @@ fun AppDrawer(
 ) {
     val coroutineScope = rememberCoroutineScope()
     val openSettings = remember { mutableStateOf(false) }
+
     AppDrawerIn(
         onChatClicked = onChatClicked,
         onNewChatClicked = onNewChatClicked,
@@ -151,14 +151,12 @@ fun AppDrawerIn(
             " author zhheweijie",
             urlToImageAuthor,
         ) {
-//            UrlLauncher().openUrl(context = context, urlToGithub)
 //            navigator?.navigate(NavigationScene.SettingLLM.path)
             canBrowser.value = true
-
         }
         if (canBrowser.value) {
             switchUrlByBrowser(urlToAuthor)
-            canBrowser.value=false
+            canBrowser.value = false
         }
         DrawerItemHeader("Chats")
         ChatItem("New Chat", Icons.Outlined.AddComment, false) {
@@ -191,9 +189,10 @@ private fun DrawerHeader(
             AsyncImage(
                 model = ImageRequest.Builder(LocalPlatformContext.current).data(urlToImageAppIcon)
                     .crossfade(true).build(),
+                contentDescription = "Header",
                 modifier = paddingSizeModifier.then(Modifier.clip(RoundedCornerShape(6.dp))),
                 contentScale = ContentScale.Crop,
-                contentDescription = null
+                error = painterResource(Res.drawable.ic_big_logo),
             )
 
             Column(modifier = Modifier.padding(horizontal = 12.dp)) {
@@ -210,7 +209,6 @@ private fun DrawerHeader(
                     color = PrimaryColor,
                 )
             }
-
         }
 
         IconButton(
@@ -495,12 +493,19 @@ private fun ProfileItem(text: String, urlToImage: String?, onProfileClicked: () 
             .padding(start = 16.dp, top = 5.dp, bottom = 5.dp)
             .size(24.dp)
         if (urlToImage != null) {
-            Image(
-                painter = rememberAsyncImagePainter(urlToImage),
+            AsyncImage(
+                urlToImage,
+                contentDescription = null,
                 modifier = paddingSizeModifier.then(Modifier.clip(CircleShape)),
                 contentScale = ContentScale.Crop,
-                contentDescription = null
+                error = painterResource(Res.drawable.ic_big_logo)
             )
+//            Image(
+//                painter = rememberAsyncImagePainter(urlToImage),
+//                modifier = paddingSizeModifier.then(Modifier.clip(CircleShape)),
+//                contentScale = ContentScale.Crop,
+//                contentDescription = null
+//            )
         } else {
             Spacer(modifier = paddingSizeModifier)
         }

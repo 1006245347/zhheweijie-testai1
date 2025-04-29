@@ -3,12 +3,16 @@ package com.hwj.ai
 import android.os.Build
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
@@ -21,6 +25,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsControllerCompat
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.halilibo.richtext.commonmark.Markdown
 import com.halilibo.richtext.ui.BasicRichText
 import com.halilibo.richtext.ui.CodeBlockStyle
@@ -129,15 +135,24 @@ actual fun setColorScheme(isDark: Boolean): ColorScheme {
             colorScheme = LightColorScheme
         }
     }
-    colorScheme.apply {
-        val view = LocalView.current
-        if (!view.isInEditMode) {
-            SideEffect {
-                (view.context as ComponentActivity).window.statusBarColor =
-                    colorScheme.background.toArgb()
-                ViewCompat.getWindowInsetsController(view)?.isAppearanceLightStatusBars = isDark
-            }
-        }
+//    colorScheme.apply {
+//        val view = LocalView.current
+//        if (!view.isInEditMode) {
+//            SideEffect {
+//                (view.context as ComponentActivity).window.statusBarColor =
+//                    colorScheme.background.toArgb()
+//                ViewCompat.getWindowInsetsController(view)?.isAppearanceLightStatusBars = isDark
+//            }
+//        }
+//    }
+
+    //优化黑白主题下状态栏颜色
+    val view = LocalView.current
+    DisposableEffect(isDark) {
+        val window = (view.context as ComponentActivity).window
+        window.statusBarColor = colorScheme.background.toArgb()
+        WindowInsetsControllerCompat(window, view).isAppearanceLightStatusBars = !isDark
+        onDispose { }
     }
     return colorScheme
 }
