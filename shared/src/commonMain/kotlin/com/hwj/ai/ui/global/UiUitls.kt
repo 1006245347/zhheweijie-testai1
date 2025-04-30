@@ -3,12 +3,16 @@ package com.hwj.ai.ui.global
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
@@ -63,17 +67,18 @@ fun LoadingThinking(text: String) {
             archive = Res.readBytes("files/dotlottie/cloading.lottie")//37
         )
     }
-    Row {
+    Row (modifier = Modifier.height(40.dp)){
         Text(
             text, color = MaterialTheme.colorScheme.onTertiary, fontSize = 13.sp,
-            modifier = Modifier.padding(start = 18.dp, end = 2.dp, top = 12.dp, bottom = 12.dp)
+            modifier = Modifier.padding(start = 18.dp, end = 0.dp, top = 6.dp, bottom = 6.dp)
         )
         Image(
             painter = rememberLottiePainter(
                 composition = composition,
                 iterations = Compottie.IterateForever
             ),
-            contentDescription = "thinking", modifier = Modifier.size(60.dp, 37.dp).padding(end=5.dp)
+            contentDescription = "thinking", modifier = Modifier.width(50.dp).fillMaxHeight()
+                .align(Alignment.CenterVertically).padding(end=2.dp)
         )
     }
 }

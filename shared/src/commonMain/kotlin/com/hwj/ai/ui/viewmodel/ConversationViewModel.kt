@@ -609,7 +609,6 @@ class ConversationViewModel(
         }
         messageRepo.createMessage(newMessageModel.copy(answer = answerFromGPT))
         setFabExpanded(false)
-
     }
 
     private fun setMessages(messages: MutableList<MessageModel>) {
@@ -621,7 +620,6 @@ class ConversationViewModel(
 
     fun generateMsgAgain() {
         viewModelScope.launch {
-            printD("generateMsgAgain>")
             val currentListMessage: MutableList<MessageModel> =
                 getMessagesByConversation(_currentConversation.value).toMutableList()
             //给的数据是倒序，第一条就是最新的
@@ -689,7 +687,6 @@ class ConversationViewModel(
             }
         }
     }
-
 
     suspend fun sendFileMsg() {
 //        openRepo.AnalyzeImage()

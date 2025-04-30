@@ -67,13 +67,7 @@ class LLMChatRepository(private val client: HttpClient) {//private val openAI: O
             maxTokens = params.maxTokens,
         )
 
-//        try {
-
-            return openAI.chatCompletions(requestArgs)
-//        } catch (e: Exception) {
-//            printE(e, des = "msg")
-//            return null
-//        }
+        return openAI.chatCompletions(requestArgs)
     }
 
     suspend fun receiveAICompletion(
@@ -152,7 +146,8 @@ class LLMChatRepository(private val client: HttpClient) {//private val openAI: O
         hostUrl: String = baseHostUrl,
         headers: Map<String, String> = emptyMap()
     ): OpenAIConfig {
-        return OpenAIConfig(token = token,
+        return OpenAIConfig(
+            token = token,
             host = OpenAIHost(hostUrl),
             headers = headers,
             timeout = Timeout(connect = 5.seconds),
