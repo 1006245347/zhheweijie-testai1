@@ -7,8 +7,10 @@ import com.hwj.ai.global.DarkColorScheme
 import com.hwj.ai.global.LightColorScheme
 import com.hwj.ai.global.OsStatus
 import com.hwj.ai.global.askPermission
+import com.hwj.ai.global.thinking
 import com.hwj.ai.models.MessageModel
 import com.hwj.ai.ui.chat.BotCommonCardApp
+import com.hwj.ai.ui.global.LoadingThinking
 import dev.icerock.moko.permissions.Permission
 import dev.icerock.moko.permissions.camera.CAMERA
 import dev.icerock.moko.permissions.gallery.GALLERY
@@ -59,7 +61,7 @@ actual fun createKtorHttpClient(timeout: Long?): HttpClient {
     }
 }
 
-actual fun checkSystem(): OsStatus{
+actual fun checkSystem(): OsStatus {
     return OsStatus.IOS
 }
 
@@ -75,8 +77,11 @@ actual fun setColorScheme(isDark: Boolean): ColorScheme {
 @Composable
 actual fun BotMessageCard(message: MessageModel) {
 //    BotCommonCard(message)
-
-    BotCommonCardApp(message) //可平稳运行
+    if (message.answer == thinking) {
+        LoadingThinking(thinking)
+    } else {
+        BotCommonCardApp(message) //可平稳运行
+    }
 }
 
 @Composable
@@ -84,12 +89,13 @@ actual fun createPermission(
     permission: PermissionPlatform,
     grantedAction: () -> Unit,
     deniedAction: () -> Unit
-) { val p = when (permission) {
-    PermissionPlatform.CAMERA -> Permission.CAMERA
-    PermissionPlatform.GALLERY -> Permission.GALLERY
-    PermissionPlatform.STORAGE -> Permission.STORAGE
-    PermissionPlatform.WRITE_STORAGE -> Permission.WRITE_STORAGE
-    else -> Permission.STORAGE
-}
+) {
+    val p = when (permission) {
+        PermissionPlatform.CAMERA -> Permission.CAMERA
+        PermissionPlatform.GALLERY -> Permission.GALLERY
+        PermissionPlatform.STORAGE -> Permission.STORAGE
+        PermissionPlatform.WRITE_STORAGE -> Permission.WRITE_STORAGE
+        else -> Permission.STORAGE
+    }
     askPermission(p, grantedAction, deniedAction)
 }

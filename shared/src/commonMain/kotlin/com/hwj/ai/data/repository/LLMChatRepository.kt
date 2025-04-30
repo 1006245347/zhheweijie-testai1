@@ -69,9 +69,7 @@ class LLMChatRepository(private val client: HttpClient) {//private val openAI: O
 
 //        try {
 
-            return openAI.chatCompletions(requestArgs).catch { e->
-                printE(e,"msg")
-            }
+            return openAI.chatCompletions(requestArgs)
 //        } catch (e: Exception) {
 //            printE(e, des = "msg")
 //            return null

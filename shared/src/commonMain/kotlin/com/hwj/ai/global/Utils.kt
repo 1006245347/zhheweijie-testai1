@@ -528,7 +528,7 @@ fun printE(log: String?, tag: String = logTAG) {
 }
 
 fun printE(throws: Throwable, des: String? = null, tag: String = logTAG) {
-    Napier.e(throwable = throws, tag = tag) { "error>$des" }
+    Napier.e(throwable = throws, tag = tag) { if (des==null) "Error>" else "Error>$des" }
 }
 
 fun printList(list: List<Any>?, des: String? = null, tag: String = logTAG) {

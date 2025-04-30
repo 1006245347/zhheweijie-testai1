@@ -30,6 +30,7 @@ import com.hwj.ai.global.Event
 import com.hwj.ai.global.EventHelper
 import com.hwj.ai.global.NotificationsManager
 import com.hwj.ai.global.OsStatus
+import com.hwj.ai.global.StrUtils
 import com.hwj.ai.global.ToastUtils
 import com.hwj.ai.global.answerUseEw
 import com.hwj.ai.global.answerUseZw
@@ -42,13 +43,15 @@ import com.hwj.ai.global.onlyDesktop
 import com.hwj.ai.global.printD
 import com.hwj.ai.global.printE
 import com.hwj.ai.global.printList
+import com.hwj.ai.global.stopAnswer
 import com.hwj.ai.global.thinking
+import com.hwj.ai.global.translateEw
+import com.hwj.ai.global.translateZw
 import com.hwj.ai.global.workInSub
 import com.hwj.ai.models.ConversationModel
 import com.hwj.ai.models.GPTModel
 import com.hwj.ai.models.MessageModel
 import com.hwj.ai.models.TextCompletionsParam
-import com.hwj.ai.global.StrUtils
 import io.github.vinceglb.filekit.FileKit
 import io.github.vinceglb.filekit.PlatformFile
 import io.github.vinceglb.filekit.compressImage
@@ -57,6 +60,7 @@ import io.github.vinceglb.filekit.dialogs.FileKitType
 import io.github.vinceglb.filekit.dialogs.openFilePicker
 import io.github.vinceglb.filekit.path
 import io.github.vinceglb.filekit.size
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -126,16 +130,19 @@ class ConversationViewModel(
     var inputTxt by mutableStateOf(TextFieldValue(""))
 
     //深度思考
-    val _thinkAiObs = MutableStateFlow(false)
+    private val _thinkAiObs = MutableStateFlow(false)
     val thinkAiState = _thinkAiObs.asStateFlow()
 
-    val _isNetObs = MutableStateFlow(false)
+    private val _isNetObs = MutableStateFlow(false)
     val isNetState = _isNetObs.asStateFlow()
+
+    //在翻译模型下，每个问答独立不关联
+    private val _isTranslateObs = MutableStateFlow(false)
+    val isTranslateState = _isTranslateObs.asStateFlow()
 
 
     suspend fun initialize() {
         _isFetching.value = true
-
         _conversations.value = conversationRepo.fetchConversations()
 
 //        if (_conversations.value.isNotEmpty()) { //每次启动拿最新的会话显示
@@ -205,6 +212,10 @@ class ConversationViewModel(
         _isFetching.value = false
     }
 
+    fun sendTxtTranslateMsg(input: String) {
+
+    }
+
     fun sendTxtMessage(input: String) {
         _stopReceivingObs.value = false
         if (getMessagesByConversation(_currentConversation.value).isEmpty()) {
@@ -258,8 +269,7 @@ class ConversationViewModel(
     }
 
     private fun updateTextMsg(newMessageModel: MessageModel) {
-        //openAi sdk
-        curJob = viewModelScope.launch(Dispatchers.Default) {
+        curJob = viewModelScope.launch(Dispatchers.Default) {  //openAi sdk
             val params = TextCompletionsParam(
                 promptText = getPrompt(_currentConversation.value),
                 messagesTurbo = getMessagesParamsTurbo(_currentConversation.value),
@@ -277,25 +287,19 @@ class ConversationViewModel(
             try {
                 flowControl?.onStart {
                     setFabExpanded(true)
-                }?.onCompletion {
-                    messageRepo.createMessage(newMessageModel.copy(answer = answerFromGPT))
-                    setFabExpanded(false)
+                }?.onCompletion { cause ->
+                    stopReceiveMsg(newMessageModel, answerFromGPT, cause)
                 }?.catch { e: Throwable ->
+                    printD("catch>ai")
                     e.printStackTrace() //内部错误，请稍后重试 这句话是接口的
                     handleAIException(toastManager, e) { //异常处理
                         setFabExpanded(false)
                         if (answerFromGPT == "") {
-
                             updateLocalAnswer("异常导致回复中断")
                             answerFromGPT = "异常导致回复中断" //不加消息数量会缺失
                         }
                     }
                 }?.collect { chunk -> //被强制类型
-                    if (_stopReceivingObs.value) {
-                        stopReceiveMsg(newMessageModel.copy(answer = answerFromGPT))
-
-                        return@collect
-                    }
                     try {
                         //不行，上面的chunk结构就不对！ reasoning_content
 //                        chunk.choices.first().reasoning()?.let {
@@ -306,14 +310,13 @@ class ConversationViewModel(
                             answerFromGPT += it
 //                                printD(it) //打印答案
                             updateLocalAnswer(answerFromGPT.trim())
-//                            setFabExpanded(true) //有数据才显示终止
                         }
                     } catch (e: Exception) {
                         printE(e, "121")
                     }
                 }
-            } catch (e: Exception) {
-                printE(e, "131") //gpt-4o 返回的数据格式好多异常
+            } catch (e: Exception) { //stopReceiveMsg先进行后才捉到ex
+                printE(e, "cancel-job") //gpt-4o 返回的数据格式好多异常
             }
         }
     }
@@ -354,9 +357,8 @@ class ConversationViewModel(
         val flowControl = openRepo.analyzeImage(params)
         try {
             flowControl.onStart { setFabExpanded(true) }
-                .onCompletion {
-                    messageRepo.createMessage(newMessageModel.copy(answer = answerFromGPT))
-                    setFabExpanded(false)
+                .onCompletion { cause ->
+                    stopReceiveMsg(newMessageModel, answerFromGPT, cause)
                     if (_isStopUseImageObs.value) {  //如果每次都传图参，那就不删
                         deleteImage(0, true)
                     }
@@ -370,11 +372,6 @@ class ConversationViewModel(
                     }
                 }
                 .collect { chunk ->
-                    if (_stopReceivingObs.value) {
-                        stopReceiveMsg(newMessageModel.copy(answer = answerFromGPT))
-                        return@collect
-                    }
-
                     try { //有种特殊异常，网络超时后还能返回数据，如果切换了会话被累加到其他回答,返回的数据没id没能处理
                         chunk.choices.first().delta?.content?.let {
                             answerFromGPT += it
@@ -443,7 +440,10 @@ class ConversationViewModel(
         return response
     }
 
-    private suspend fun getMessagesParamsTurbo(conversationId: String): List<ChatMessage> {
+    private suspend fun getMessagesParamsTurbo(
+        conversationId: String,
+        isTranslateEw: Boolean = true
+    ): List<ChatMessage> {
         if (_messages.value[conversationId] == null) return listOf()
 
         val messagesMap: HashMap<String, MutableList<MessageModel>> =
@@ -458,10 +458,13 @@ class ConversationViewModel(
         )
         val testPic = "https://qcloudimg.tencent-cloud.cn/raw/42c198dbc0b57ae490e57f89aa01ec23.png"
 
-        for (index in messagesMap[conversationId]!!.reversed().indices) { //拆解两条，按时间排序
+        for (index in messagesMap[conversationId]!!.reversed().indices) { //拆解两条，按时间排序 旧到新
             val message = messagesMap[conversationId]!!.reversed()[index]
             val partsReq = mutableListOf<String>() //所有的图片
 
+            if (_isTranslateObs.value && index == messagesMap[conversationId]!!.size - 1) {
+
+            }
 //            printList(message.imagePath,des="moreList")
             if (!_isStopUseImageObs.value) { //一直引用图
                 try {
@@ -513,8 +516,13 @@ class ConversationViewModel(
                     role = ChatRole.User
                     name = DATA_USER_NAME
                     if (message.imagePath == null) {
-                        content =
-                            message.question + if (StrUtils.currentLocale.value) answerUseZw else answerUseEw
+                        if (_isTranslateObs.value) {
+                            content =
+                                if (isTranslateEw) translateEw else translateZw + message.question
+                        } else {
+                            content =
+                                message.question + if (StrUtils.currentLocale.value) answerUseZw else answerUseEw
+                        }
                     } else {
 //                        如果是图片 , 后续多轮对话不再传图片, 怎么区分新旧, 这里是新问题发起，全是旧的
                         if (index == messagesMap[conversationId]!!.size - 1) { //最后一个又有图片，那么就转base64,不然都是历史图片
@@ -585,12 +593,23 @@ class ConversationViewModel(
         setMessages(currentListMessage)
     }
 
-    private suspend fun stopReceiveMsg(newMessageModel: MessageModel) {
+    private suspend fun stopReceiveMsg(
+        newMessageModel: MessageModel,
+        answer: String,
+        cause: Throwable?
+    ) {
+        var answerFromGPT = answer
+        cause?.let { printE(it, "中断") }
+        if (cause is CancellationException) { //中断回答
+            _stopReceivingObs.value = true
+            if (answer.isEmpty()) {
+                answerFromGPT = stopAnswer
+                updateLocalAnswer(answerFromGPT)
+            }
+        }
+        messageRepo.createMessage(newMessageModel.copy(answer = answerFromGPT))
         setFabExpanded(false)
-        messageRepo.createMessage(newMessageModel)
-        delay(1000)
-        curJob?.cancel()
-        curJob = null
+
     }
 
     private fun setMessages(messages: MutableList<MessageModel>) {
@@ -679,10 +698,11 @@ class ConversationViewModel(
     fun stopReceivingResults() {
         _stopReceivingObs.value = true
         setFabExpanded(false)
+        curJob?.cancel()
+        curJob = null
     }
 
     private fun setFabExpanded(expanded: Boolean) {
-        printD("setFabExpanded>$expanded")
         _isFabExpandObs.value = expanded
     }
 

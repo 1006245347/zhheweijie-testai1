@@ -24,7 +24,9 @@ import com.hwj.ai.global.BackCodeTxtColor
 import com.hwj.ai.global.DarkColorScheme
 import com.hwj.ai.global.LightColorScheme
 import com.hwj.ai.global.OsStatus
+import com.hwj.ai.global.thinking
 import com.hwj.ai.models.MessageModel
+import com.hwj.ai.ui.global.LoadingThinking
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -95,7 +97,11 @@ actual fun setColorScheme(isDark: Boolean): ColorScheme {
 @Composable
 actual fun BotMessageCard(message: MessageModel) {
 //    BotCommonCard(message)//默认
-    TestBotMsgCard1(message)
+    if (message.answer == thinking) {
+        LoadingThinking(thinking)
+    } else {
+        TestBotMsgCard1(message)
+    }
 }
 
 @Composable
@@ -203,10 +209,9 @@ private fun TestBotMsgCard1(message: MessageModel) {
 //                Markdown("思考中$dots")
 //            } else {
 //            }
-                Markdown(message.answer.trimIndent())
+            Markdown(message.answer.trimIndent())
         }
     }
-
 }
 
 @Composable

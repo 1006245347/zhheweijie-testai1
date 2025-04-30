@@ -3,17 +3,13 @@ package com.hwj.ai
 import android.os.Build
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBars
-import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
@@ -24,9 +20,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsControllerCompat
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.halilibo.richtext.commonmark.Markdown
 import com.halilibo.richtext.ui.BasicRichText
 import com.halilibo.richtext.ui.CodeBlockStyle
@@ -46,7 +40,9 @@ import com.hwj.ai.global.isDarkTxt
 import com.hwj.ai.global.isLightPanel
 import com.hwj.ai.global.isLightTxt
 import com.hwj.ai.global.printD
+import com.hwj.ai.global.thinking
 import com.hwj.ai.models.MessageModel
+import com.hwj.ai.ui.global.LoadingThinking
 import com.hwj.ai.ui.viewmodel.ChatViewModel
 import dev.icerock.moko.permissions.Permission
 import dev.icerock.moko.permissions.camera.CAMERA
@@ -160,7 +156,11 @@ actual fun setColorScheme(isDark: Boolean): ColorScheme {
 @Composable
 actual fun BotMessageCard(message: MessageModel) {
 //    BotCommonCard(message)    //默认
-    TestBotMsgCard1(message)
+    if (message.answer == thinking) {
+        LoadingThinking(thinking)
+    } else {
+        TestBotMsgCard1(message)
+    }
 }
 
 @Composable

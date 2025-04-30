@@ -5,36 +5,42 @@ package com.hwj.ai.global
  * des:大模型api-key,这个是deepSeek
  */
 
-const val urlToImageAppIcon = "https://res.cloudinary.com/apideck/image/upload/v1672442492/marketplaces/ckhg56iu1mkpc0b66vj7fsj3o/listings/-4-ans_frontend_assets.images.poe.app_icon.png-26-8aa0a2e5f237894d_tbragv.png"
+const val urlToImageAppIcon =
+    "https://res.cloudinary.com/apideck/image/upload/v1672442492/marketplaces/ckhg56iu1mkpc0b66vj7fsj3o/listings/-4-ans_frontend_assets.images.poe.app_icon.png-26-8aa0a2e5f237894d_tbragv.png"
 const val urlToImageAuthor = "https://avatars.githubusercontent.com/u/24426708?v=4"
 const val urlToAvatarGPT = "https://avatars.githubusercontent.com/u/148330874?s=200&v=4"
-const val urlToAuthor="https://blog.csdn.net/j7a2son/article/details/145931038?spm=1001.2101.3001.6650.3&utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7EBlogOpenSearchComplete%7ECtr-3-145931038-blog-147047202.235%5Ev43%5Econtrol&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7EBlogOpenSearchComplete%7ECtr-3-145931038-blog-147047202.235%5Ev43%5Econtrol&utm_relevant_index=3"
+const val urlToAuthor =
+    "https://blog.csdn.net/j7a2son/article/details/145931038?spm=1001.2101.3001.6650.3&utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7EBlogOpenSearchComplete%7ECtr-3-145931038-blog-147047202.235%5Ev43%5Econtrol&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7EBlogOpenSearchComplete%7ECtr-3-145931038-blog-147047202.235%5Ev43%5Econtrol&utm_relevant_index=3"
 
 const val conversationTestTag = "ConversationTestTag"
 
-const val logTAG="yuy"
-const val thinkingZw="思考中..."
-const val thinking="thinking..."
-const val answerUseEw="\n,Please answer in English."
-const val answerUseZw="\n，请用中文回答。"
+const val logTAG = "yuy"
+const val thinkingZw = "思考中..."
+//const val thinking = "thinking..."
+const val thinking = "思考中"
+const val stopAnswer="已停止生成"
+const val answerUseEw = "\n,Please answer in English."
+const val answerUseZw = "\n，请用中文回答。"
+const val translateEw = "将以下内容翻译为英文，保持专业术语准确性，不要添加额外内容："
+const val translateZw = "将以下内容翻译为中文，保持专业术语准确性，不要添加额外内容："
 
 //数据
-const val DATA_USER_NAME="User"
-const val DATA_SYSTEM_NAME="BOT"
-const val DATA_APP_TOKEN="DATA_APP_TOKEN"
-const val DATA_IMAGE_TITLE="识别图片信息,"
-const val DATA_MESSAGE_TAG="DATA_MESSAGE_TAG"
-const val DATA_CONVERSATION_TAG="DATA_CONVERSATION_TAG"
-const val DATA_USER_ID="DATA_USER_ID"
+const val DATA_USER_NAME = "User"
+const val DATA_SYSTEM_NAME = "BOT"
+const val DATA_APP_TOKEN = "DATA_APP_TOKEN"
+const val DATA_IMAGE_TITLE = "识别图片信息,"
+const val DATA_MESSAGE_TAG = "DATA_MESSAGE_TAG"
+const val DATA_CONVERSATION_TAG = "DATA_CONVERSATION_TAG"
+const val DATA_USER_ID = "DATA_USER_ID"
 
 //标识
-const val CODE_IS_DARK="CODE_IS_DARK" //是否黑暗模式
-const val CODE_LANGUAGE_ZH="CODE_LANGUAGE_ZH"//语言是否是中文
-const val CODE_HOT_KEY="CODE_HOT_KEY" //alt+B快捷键
-const val CODE_SELECTION_USE="CODE_SELECTION_USE"
+const val CODE_IS_DARK = "CODE_IS_DARK" //是否黑暗模式
+const val CODE_LANGUAGE_ZH = "CODE_LANGUAGE_ZH"//语言是否是中文
+const val CODE_HOT_KEY = "CODE_HOT_KEY" //alt+B快捷键
+const val CODE_SELECTION_USE = "CODE_SELECTION_USE"
 
 //联网搜索,博查api
-const val DATA_ZH_WEB_SEARCH="\\\n" +
+const val DATA_ZH_WEB_SEARCH = "\\\n" +
         "'''# 以下内容是基于用户发送的消息的搜索结果:\n" +
         "{search_results}\n" +
         "在我给你的搜索结果中，每个结果都是[webpage X begin]...[webpage X end]格式的，X代表每篇文章的数字索引。请在适当的情况下在句子末尾引用上下文。请按照引用编号[citation:X]的格式在答案中对应部分引用上下文。如果一句话源自多个上下文，请列出所有相关的引用编号，例如[citation:3][citation:5]，切记不要将引用集中在最后返回引用编号，而是在答案对应部分列出。\n" +
@@ -52,7 +58,7 @@ const val DATA_ZH_WEB_SEARCH="\\\n" +
         "# 用户消息为：\n" +
         "{question}'''"
 
-const val DATA_EN_WEB_SEARCH="\\\n" +
+const val DATA_EN_WEB_SEARCH = "\\\n" +
         "'''# The following contents are the search results related to the user's message:\n" +
         "{search_results}\n" +
         "In the search results I provide to you, each result is formatted as [webpage X begin]...[webpage X end], where X represents the numerical index of each article. Please cite the context at the end of the relevant sentence when appropriate. Use the citation format [citation:X] in the corresponding part of your answer. If a sentence is derived from multiple contexts, list all relevant citation numbers, such as [citation:3][citation:5]. Be sure not to cluster all citations at the end; instead, include them in the corresponding parts of the answer.\n" +

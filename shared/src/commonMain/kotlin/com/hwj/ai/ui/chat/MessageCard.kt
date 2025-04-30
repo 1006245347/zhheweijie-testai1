@@ -117,7 +117,7 @@ fun MessageCard(
                 BotMessageCard(message = message)
             }
         }
-        if (!isHuman && isLatest && message.answer != thinking && !isFabExpanded) { //最后一条
+        if (!isHuman && isLatest && !isFabExpanded) { //最后一条,菜单复制、重生
             BotMsgMenu(message)
         }
     }

@@ -47,7 +47,6 @@ import androidx.compose.ui.unit.sp
 import com.hwj.ai.except.ToolTipCase
 import com.hwj.ai.global.PrimaryColor
 import com.hwj.ai.global.conversationTestTag
-import com.hwj.ai.global.isDarkBg
 import com.hwj.ai.global.isDarkTxt
 import com.hwj.ai.global.isLightTxt
 import com.hwj.ai.models.MessageModel

@@ -122,11 +122,12 @@ fun TextInput(
 @Composable
 fun InputTopIn(state: LazyListState, navigator: Navigator) {
     val subScope = rememberCoroutineScope()
-    val thinkCheckState = remember { mutableStateOf(false) }
+//    val thinkCheckState = remember { mutableStateOf(false) }
     val chatViewModel = koinViewModel(ChatViewModel::class)
     val isDark = chatViewModel.darkState.collectAsState().value
     val isShotState = chatViewModel.isShotState.collectAsState().value
     val conversationViewModel = koinViewModel(ConversationViewModel::class)
+    val thinkCheckState = conversationViewModel.thinkAiState.collectAsState()
     val needPermissionCamera = remember { mutableStateOf(false) }
     val needPermissionGallery = remember { mutableStateOf(false) }
     val imageList = conversationViewModel.imageListState.collectAsState().value
@@ -241,8 +242,7 @@ fun InputTopIn(state: LazyListState, navigator: Navigator) {
                     ).padding(bottom = 4.dp, start = 13.dp, end = 13.dp)
                         .clickable(indication = null,
                             interactionSource = remember { MutableInteractionSource() }) {
-                            thinkCheckState.value = !thinkCheckState.value
-                            conversationViewModel.setThinkUsed(thinkCheckState.value)
+                            conversationViewModel.setThinkUsed(!thinkCheckState.value)
                         }
                 )
             }
