@@ -19,7 +19,7 @@ data class TextCompletionsParam(
     val n: Int = 1,
     @SerialName("stream")
     var stream: Boolean = true, //流式结果
-    @SerialName("maxTokens")
+    @SerialName("max_tokens")
     val maxTokens: Int = 4096,
     @SerialName("model")
     val model: GPTModel = GPTModel.DeepSeekV3,
@@ -67,6 +67,9 @@ fun TextCompletionsParam.toJson(): JsonObject {
         put("temperature", temperature)
         put("stream", stream)
         put("model", model.model)
+        put("top_p",topP)
+        put("n",n)
+        put("max_tokens",maxTokens)
         if (isChatCompletions) {
             val jsonArray = buildJsonArray {
                 for (message in messagesTurbo) {

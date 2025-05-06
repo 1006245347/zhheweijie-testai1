@@ -24,6 +24,7 @@ actual class NotificationsManager {
     actual fun showNotification(title: String, description: String) {
         Sound.playSound()
         val hostOs = System.getProperty("os.name")
+        Toast4jNotificationProvider.init()
         when {
             hostOs.startsWith("Windows") -> {
                 Toast4jNotificationProvider.sendNotification(

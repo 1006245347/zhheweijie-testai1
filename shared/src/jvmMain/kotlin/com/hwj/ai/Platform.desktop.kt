@@ -52,6 +52,7 @@ actual fun createKtorHttpClient(timeout: Long?): HttpClient {
         install(HttpTimeout) {
             timeout?.let {
                 requestTimeoutMillis = it
+                socketTimeoutMillis = 80_000
             }
         }
         install(ContentNegotiation) {
@@ -61,7 +62,7 @@ actual fun createKtorHttpClient(timeout: Long?): HttpClient {
 
             })
         }
-        install(SSE)
+//        install(SSE)
         install(Logging) {
 //                level = LogLevel.ALL
             level = LogLevel.BODY //接口日志屏蔽

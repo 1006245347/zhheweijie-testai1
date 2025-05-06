@@ -48,6 +48,7 @@ import com.hwj.ai.global.thinking
 import com.hwj.ai.global.translateEw
 import com.hwj.ai.global.translateZw
 import com.hwj.ai.global.workInSub
+import com.hwj.ai.models.ChatCompletionChunkReason
 import com.hwj.ai.models.ConversationModel
 import com.hwj.ai.models.GPTModel
 import com.hwj.ai.models.MessageModel
@@ -60,6 +61,7 @@ import io.github.vinceglb.filekit.dialogs.FileKitType
 import io.github.vinceglb.filekit.dialogs.openFilePicker
 import io.github.vinceglb.filekit.path
 import io.github.vinceglb.filekit.size
+import io.ktor.client.statement.HttpResponse
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -83,8 +85,10 @@ class ConversationViewModel(
     private val globalRepo: GlobalRepository,
     private val conversationRepo: ConversationRepository,
     private val messageRepo: MessageRepository,
-    private val openAIRepo: LLMRepository, private val openRepo: LLMChatRepository,
-    private val toastManager: NotificationsManager, private val clipboardHelper: ClipboardHelper
+    private val openAIRepo: LLMRepository,
+    private val openRepo: LLMChatRepository,
+    private val toastManager: NotificationsManager,
+    private val clipboardHelper: ClipboardHelper
 ) : ViewModel() {
     private val _currentConversation: MutableStateFlow<String> =
         MutableStateFlow(getMills().toString())
@@ -238,34 +242,50 @@ class ConversationViewModel(
         setMessages(currentListMessage)
 
 //        println("language>${StrUtils.currentLocale.value}")
-//        curJob = viewModelScope.launch(Dispatchers.Default) { //        //直接调用api接口方式
-////        // Execute API OpenAI ,返回数据
-//            val flow: Flow<String> = openAIRepo.textCompletionsWithStream(
-//                TextCompletionsParam(
-//                    promptText = getPrompt(_currentConversation.value),
-//                    messagesTurbo = getMessagesParamsTurbo(_currentConversation.value)
-//                )
-//            )
-//
-//            var answerFromGPT: String = ""
-//            // When flow collecting updateLocalAnswer including FAB behavior expanded.
-//            // On completion FAB == false
-//            flow.onCompletion {
-//                setFabExpanded(false)
-//            }.collect { value ->
-//                if (_stopReceivingObs.value) {
-//                    stopReceiveMsg(newMessageModel)
-//                    return@collect
-//                }
-//                answerFromGPT += value
-//                updateLocalAnswer(answerFromGPT.trim())
-//                setFabExpanded(true)
-//            }
-//            //数据库保存
-//            messageRepo.createMessage(newMessageModel.copy(answer = answerFromGPT))
-//        }
-        //另一种请求库
-        updateTextMsg(newMessageModel)
+
+        if (_thinkAiObs.value) {
+            updateTextApi(newMessageModel)
+        } else {
+            updateTextMsg(newMessageModel) //三方库没适配深度思考
+        }
+    }
+
+    private fun updateTextApi(newMessageModel: MessageModel) {
+        curJob = viewModelScope.launch(Dispatchers.Default) {          //直接调用api接口方式
+//        // Execute API OpenAI ,返回数据
+            val flow: Flow<ChatCompletionChunkReason> = openAIRepo.chatRequestStream(
+                TextCompletionsParam(
+                    promptText = getPrompt(_currentConversation.value),
+                    messagesTurbo = getMessagesParamsTurbo(_currentConversation.value),
+                    model = if (_thinkAiObs.value) GPTModel.DeepSeekR1 else GPTModel.DeepSeekV3
+                ), useWeb = false
+            )
+
+            var answerFromGPT = ""
+            // When flow collecting updateLocalAnswer including FAB behavior expanded.
+            // On completion FAB == false
+            flow.onStart { setFabExpanded(true) }
+                .onCompletion { cause ->
+                    stopReceiveMsg(newMessageModel, answerFromGPT, cause)
+                }.catch { e: Throwable ->
+                    handleAIException(toastManager, e) {
+                        setFabExpanded(false)
+                        if (answerFromGPT == "") {
+                            answerFromGPT = "异常导致回复中断"
+                            updateLocalAnswer(answerFromGPT)
+                        }
+                    }
+                }.collect { chunk ->
+                    chunk.choices.first().delta?.reasoning_content?.let {
+                        answerFromGPT += it
+                        updateLocalAnswer(answerFromGPT.trim())
+                    }
+                    chunk.choices.first().delta?.content?.let {
+                        answerFromGPT += it
+                        updateLocalAnswer(answerFromGPT.trim())
+                    }
+                }
+        }
     }
 
     private fun updateTextMsg(newMessageModel: MessageModel) {
@@ -295,17 +315,13 @@ class ConversationViewModel(
                     handleAIException(toastManager, e) { //异常处理
                         setFabExpanded(false)
                         if (answerFromGPT == "") {
-                            updateLocalAnswer("异常导致回复中断")
                             answerFromGPT = "异常导致回复中断" //不加消息数量会缺失
+                            updateLocalAnswer(answerFromGPT)
                         }
                     }
                 }?.collect { chunk -> //被强制类型
                     try {
                         //不行，上面的chunk结构就不对！ reasoning_content
-//                        chunk.choices.first().reasoning()?.let {
-//                            answerFromGPT += it
-//                            updateLocalAnswer(answerFromGPT.trim())
-//                        }
                         chunk.choices.first().delta?.content?.let {
                             answerFromGPT += it
 //                                printD(it) //打印答案
@@ -328,9 +344,9 @@ class ConversationViewModel(
             createConversationRemote(DATA_IMAGE_TITLE) //创建新的会话
         }
         //一轮对话两条问答消息
-        val newMessageModel = MessageModel(
-            question = if (input.isNullOrEmpty()) "" else input,
-            answer = thinking, conversationId = _currentConversation.value,
+        val newMessageModel = MessageModel(question = if (input.isNullOrEmpty()) "" else input,
+            answer = thinking,
+            conversationId = _currentConversation.value,
             imagePath = imagePaths.map { it.path } //复制一份
         )
         printList(newMessageModel.imagePath, "img>")
@@ -356,30 +372,28 @@ class ConversationViewModel(
         var answerFromGPT = ""
         val flowControl = openRepo.analyzeImage(params)
         try {
-            flowControl.onStart { setFabExpanded(true) }
-                .onCompletion { cause ->
-                    stopReceiveMsg(newMessageModel, answerFromGPT, cause)
-                    if (_isStopUseImageObs.value) {  //如果每次都传图参，那就不删
-                        deleteImage(0, true)
-                    }
-                }.catch { e ->
-                    handleAIException(toastManager, e) {
-                        printE("imgErr>${e.message}")
-                        setFabExpanded(false)
-                        if (answerFromGPT == "") {
-                            updateLocalAnswer("异常导致消息中断")
-                        }
+            flowControl.onStart { setFabExpanded(true) }.onCompletion { cause ->
+                stopReceiveMsg(newMessageModel, answerFromGPT, cause)
+                if (_isStopUseImageObs.value) {  //如果每次都传图参，那就不删
+                    deleteImage(0, true)
+                }
+            }.catch { e ->
+                handleAIException(toastManager, e) {
+                    printE("imgErr>${e.message}")
+                    setFabExpanded(false)
+                    if (answerFromGPT == "") {
+                        updateLocalAnswer("异常导致消息中断")
                     }
                 }
-                .collect { chunk ->
-                    try { //有种特殊异常，网络超时后还能返回数据，如果切换了会话被累加到其他回答,返回的数据没id没能处理
-                        chunk.choices.first().delta?.content?.let {
-                            answerFromGPT += it
-                            updateLocalAnswer(answerFromGPT.trim())
-                        }
-                    } catch (e: Exception) {
+            }.collect { chunk ->
+                try { //有种特殊异常，网络超时后还能返回数据，如果切换了会话被累加到其他回答,返回的数据没id没能处理
+                    chunk.choices.first().delta?.content?.let {
+                        answerFromGPT += it
+                        updateLocalAnswer(answerFromGPT.trim())
                     }
+                } catch (e: Exception) {
                 }
+            }
         } catch (e: Exception) {
             printE(e)
         }
@@ -441,21 +455,18 @@ class ConversationViewModel(
     }
 
     private suspend fun getMessagesParamsTurbo(
-        conversationId: String,
-        isTranslateEw: Boolean = true
+        conversationId: String, isTranslateEw: Boolean = true
     ): List<ChatMessage> {
         if (_messages.value[conversationId] == null) return listOf()
 
         val messagesMap: HashMap<String, MutableList<MessageModel>> =
             _messages.value.mapValues { entry -> entry.value.toMutableList() } as HashMap<String, MutableList<MessageModel>>
-        val response: MutableList<ChatMessage> = mutableListOf(
-            chatMessage {
-                role = ChatRole.System
-                name = DATA_SYSTEM_NAME
+        val response: MutableList<ChatMessage> = mutableListOf(chatMessage {
+            role = ChatRole.System
+            name = DATA_SYSTEM_NAME
 //                content = "如果有代码，用Markdown样式回复，用中文回答"
-                content = "Markdown style if exists code"
-            }
-        )
+            content = "Markdown style if exists code"
+        })
         val testPic = "https://qcloudimg.tencent-cloud.cn/raw/42c198dbc0b57ae490e57f89aa01ec23.png"
 
         for (index in messagesMap[conversationId]!!.reversed().indices) { //拆解两条，按时间排序 旧到新
@@ -492,13 +503,11 @@ class ConversationViewModel(
                             pics.forEach { picS ->
                                 val pic = PlatformFile(picS)
                                 if (pic.size() > 1000 * 1000 * 5) { //压缩再base64
-                                    val newPic =
-                                        encodeImageToBase64(
-                                            FileKit.compressImage(
-                                                pic,
-                                                quality = 70
-                                            )
+                                    val newPic = encodeImageToBase64(
+                                        FileKit.compressImage(
+                                            pic, quality = 70
                                         )
+                                    )
                                     partsReq.add(newPic)
                                 } else {
                                     partsReq.add(encodeImageToBase64(pic))
@@ -541,13 +550,11 @@ class ConversationViewModel(
             )
 
             if (message.answer != thinking) { //AI回答中
-                response.add(
-                    chatMessage {
-                        role = ChatRole.Assistant
-                        name = DATA_SYSTEM_NAME
-                        content = message.answer
-                    }
-                )
+                response.add(chatMessage {
+                    role = ChatRole.Assistant
+                    name = DATA_SYSTEM_NAME
+                    content = message.answer
+                })
             }
         }
         return response.toList()
@@ -569,9 +576,7 @@ class ConversationViewModel(
     }
 
     private suspend fun fetchMessages() {
-        if (_currentConversation.value.isEmpty() ||
-            _messages.value[_currentConversation.value] != null
-        ) return
+        if (_currentConversation.value.isEmpty() || _messages.value[_currentConversation.value] != null) return
 
         val flow: Flow<List<MessageModel>> = messageRepo.fetchMessages(_currentConversation.value)
 
@@ -594,12 +599,10 @@ class ConversationViewModel(
     }
 
     private suspend fun stopReceiveMsg(
-        newMessageModel: MessageModel,
-        answer: String,
-        cause: Throwable?
+        newMessageModel: MessageModel, answer: String, cause: Throwable?
     ) {
         var answerFromGPT = answer
-        cause?.let { printE(it, "中断") }
+//        cause?.let { printE(it, "中断") }
         if (cause is CancellationException) { //中断回答
             _stopReceivingObs.value = true
             if (answer.isEmpty()) {
@@ -636,8 +639,7 @@ class ConversationViewModel(
 
     //怎么多轮连贯调用tool
     fun sendTxtToolMessage(
-        input: String,
-        tool: Tool
+        input: String, tool: Tool
     ) {
         _stopReceivingObs.value = false
         if (getMessagesByConversation(_currentConversation.value).isEmpty()) {
@@ -661,7 +663,8 @@ class ConversationViewModel(
             val params = TextCompletionsParam(
                 promptText = getPrompt(_currentConversation.value),
                 model = GPTModel.QwenTool,
-                messagesTurbo = curChatList, stream = false //没用到？
+                messagesTurbo = curChatList,
+                stream = false //没用到？
             )
             var firstChat: ChatCompletion? = null
             firstChat = openRepo.toolAICall(params, tool) //移到lambda
@@ -720,9 +723,7 @@ class ConversationViewModel(
             ToastUtils.show("最多处理两张图片")
             return //最多两张图
         }
-        if (getPlatform().os == OsStatus.ANDROID
-            || getPlatform().os == OsStatus.IOS
-        ) {
+        if (getPlatform().os == OsStatus.ANDROID || getPlatform().os == OsStatus.IOS) {
             val model = FileKitMode.Multiple(2)
             //需要对选取的图片进行压缩不
             val files = FileKit.openFilePicker(mode = model, type = FileKitType.Image)
