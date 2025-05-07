@@ -40,7 +40,9 @@ actual fun createKtorHttpClient(timeout: Long?): HttpClient {
     return HttpClient(Darwin) {
         install(HttpTimeout) {
             timeout?.let {
-                requestTimeoutMillis = it
+//                requestTimeoutMillis = it
+                connectTimeoutMillis = timeout
+                socketTimeoutMillis = 5000
             }
         }
         install(ContentNegotiation) {

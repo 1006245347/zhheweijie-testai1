@@ -21,8 +21,8 @@ const val thinking = "思考中"
 const val stopAnswer="已停止生成"
 const val answerUseEw = ",\nPlease answer in English."
 const val answerUseZw = ",\n请用中文回答。"
-const val translateEw = "将以下内容翻译为英文，保持专业术语准确性，不要添加额外内容："
-const val translateZw = "将以下内容翻译为中文，保持专业术语准确性，不要添加额外内容："
+const val translateEw = "如果以下内容是英文，将内容翻译为中文，如果以下内容不是英文，将内容翻译成英文，保持专业术语准确性，不要添加额外内容："
+//const val translateZw = "将以下内容翻译为中文，保持专业术语准确性，不要添加额外内容："
 
 //数据
 const val DATA_USER_NAME = "User"

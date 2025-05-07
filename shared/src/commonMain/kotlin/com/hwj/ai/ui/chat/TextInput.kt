@@ -140,7 +140,7 @@ fun InputTopIn(state: LazyListState, navigator: Navigator) {
     } else {
         list.add(MenuActModel("截图"))
     }
-//    list.add(MenuActModel("翻译"))
+    list.add(MenuActModel("翻译"))
 
     if (needPermissionCamera.value) { //权限设置
         createPermission(PermissionPlatform.CAMERA, grantedAction = {
@@ -191,8 +191,8 @@ fun InputTopIn(state: LazyListState, navigator: Navigator) {
                                 needPermissionCamera.value = true
                             }
 
-                            "翻译" -> {
-
+                            "翻译" -> { //自动设置模式？并重置回来？然后发生？ //重生咋搞
+                                conversationViewModel.setTranslateMode(true)
                             }
 
                             "截图" -> {

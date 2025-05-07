@@ -51,8 +51,9 @@ actual fun createKtorHttpClient(timeout: Long?): HttpClient {
     return HttpClient {
         install(HttpTimeout) {
             timeout?.let {
-                requestTimeoutMillis = it
-                socketTimeoutMillis = 80_000
+//                requestTimeoutMillis = it //完整请求超时
+                connectTimeoutMillis = timeout //建立链接
+                socketTimeoutMillis = 5000
             }
         }
         install(ContentNegotiation) {
@@ -65,7 +66,8 @@ actual fun createKtorHttpClient(timeout: Long?): HttpClient {
 //        install(SSE)
         install(Logging) {
 //                level = LogLevel.ALL
-            level = LogLevel.BODY //接口日志屏蔽
+            level = LogLevel.INFO //接口日志屏蔽
+            level = LogLevel.BODY
             logger = object : Logger {
                 override fun log(message: String) {
                     println(message)

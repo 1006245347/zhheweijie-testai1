@@ -46,7 +46,6 @@ import com.hwj.ai.global.printList
 import com.hwj.ai.global.stopAnswer
 import com.hwj.ai.global.thinking
 import com.hwj.ai.global.translateEw
-import com.hwj.ai.global.translateZw
 import com.hwj.ai.global.workInSub
 import com.hwj.ai.models.ChatCompletionChunkReason
 import com.hwj.ai.models.ConversationModel
@@ -61,7 +60,6 @@ import io.github.vinceglb.filekit.dialogs.FileKitType
 import io.github.vinceglb.filekit.dialogs.openFilePicker
 import io.github.vinceglb.filekit.path
 import io.github.vinceglb.filekit.size
-import io.ktor.client.statement.HttpResponse
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -527,7 +525,7 @@ class ConversationViewModel(
                     if (message.imagePath == null) {
                         if (_isTranslateObs.value) {
                             content =
-                                if (isTranslateEw) translateEw else translateZw + message.question
+                                translateEw + message.question
                         } else {
                             content =
                                 message.question + if (StrUtils.currentLocale.value) answerUseZw else answerUseEw
@@ -630,7 +628,11 @@ class ConversationViewModel(
             setMessages(currentListMessage)
             //重新生成，就应该删除最新的回答,还要分是文字问还是图问？
             if (currentListMessage[0].imagePath == null) {
-                updateTextMsg(currentListMessage[0])
+                if (_thinkAiObs.value) {
+                    updateTextApi(currentListMessage[0])
+                } else {
+                    updateTextMsg(currentListMessage[0])
+                }
             } else {
                 updateImageMsg(currentListMessage[0])
             }
@@ -712,6 +714,10 @@ class ConversationViewModel(
 
     fun setThinkUsed(flag: Boolean) { //深度思考不支持图，区分？其他应用又支持
         _thinkAiObs.value = flag
+    }
+
+    fun setTranslateMode(flag: Boolean) {
+        _isTranslateObs.value = flag
     }
 
     fun checkSelectedImg(): Boolean {
