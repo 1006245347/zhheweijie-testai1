@@ -35,12 +35,12 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import com.hwj.ai.BotMessageCard
 import com.hwj.ai.except.BotMsgMenu
-import com.hwj.ai.except.ClipboardHelper
 import com.hwj.ai.getPlatform
 import com.hwj.ai.global.BackCodeGroundColor
 import com.hwj.ai.global.BackCodeTxtColor
@@ -54,8 +54,6 @@ import com.hwj.ai.global.isLightBg
 import com.hwj.ai.global.isLightPanel
 import com.hwj.ai.global.isLightTxt
 import com.hwj.ai.global.printD
-import com.hwj.ai.global.thinking
-import com.hwj.ai.global.workInSub
 import com.hwj.ai.models.MessageModel
 import com.hwj.ai.ui.global.GlobalIntent
 import com.hwj.ai.ui.viewmodel.ChatViewModel
@@ -81,11 +79,11 @@ fun MessageCard(
     val isDark = chatViewModel.darkState.collectAsState().value
     val conversationViewModel = koinViewModel(ConversationViewModel::class)
     val isFabExpanded by conversationViewModel.isFabExpanded.collectAsState()
-    var maxWidth = 260.dp
-    if (getPlatform().os == OsStatus.ANDROID || getPlatform().os == OsStatus.IOS) {
-        maxWidth = 260.dp
+    var maxWidth: Dp
+    maxWidth = if (getPlatform().os == OsStatus.ANDROID || getPlatform().os == OsStatus.IOS) {
+        260.dp
     } else {
-        maxWidth = 450.dp
+        450.dp
     }
 
     Column(

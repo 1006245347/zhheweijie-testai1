@@ -269,7 +269,7 @@ kotlin {
 
             //wps识别 com组件
 //            implementation("com.jacob:jacob:1.21")
-            implementation(files("libs/jacob.jar"))
+//            implementation(files("libs/jacob.jar"))
 //            implementation(files("libs/jacob-1.21-x64.dll"))
 
             //ocr识别，不好用，准确度，裁剪不规则文本行，下载语言包，配置环境变量

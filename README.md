@@ -10,7 +10,7 @@ A chat-prompt based app for Android, iOS, Desktop, Linux.
 以compose multiplatform为UI框架，kotlin
 multiplatform为逻辑开发，实现Android、iOS、macOS、Windows、Linux端，以大模型api为接口调用数据，
 kotlin 2.1.0，jdk 21（17也是支持的），
-开发机器人聊天、截图、翻译、历史保存、划词检测、深度思考、
+开发机器人聊天、文本问答、图片问答、截图、快捷键识别、翻译、历史保存、划词检测、深度思考、黑白主题切换。
 
 #### Mobile App (Android & iOS)
 

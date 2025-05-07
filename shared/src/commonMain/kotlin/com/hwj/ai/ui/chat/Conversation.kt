@@ -92,7 +92,6 @@ fun MessageList(
     val subScope = rememberCoroutineScope()
     val conversationId by conversationViewModel.currentConversationState.collectAsState()
     val messagesMap by conversationViewModel.messagesState.collectAsState()
-    val isFabExpanded by conversationViewModel.isFabExpanded.collectAsState()
     val isAutoScroll by conversationViewModel.isAutoScroll.collectAsState()
     var showScrollBar by remember { mutableStateOf(false) }
     var isScrolling by remember { mutableStateOf(false) }

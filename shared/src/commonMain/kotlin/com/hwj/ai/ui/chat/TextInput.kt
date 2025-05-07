@@ -66,6 +66,7 @@ import com.hwj.ai.data.local.PermissionPlatform
 import com.hwj.ai.except.ScreenShotPlatform
 import com.hwj.ai.except.ToolTipCase
 import com.hwj.ai.global.BackInnerColor1
+import com.hwj.ai.global.DATA_SIZE_INPUT_SEND
 import com.hwj.ai.global.Event
 import com.hwj.ai.global.EventHelper
 import com.hwj.ai.global.NavigationScene
@@ -102,6 +103,7 @@ fun TextInput(
         sendMessage = { text ->
             //判断是否在生成消息不让点击事件
             if (!conversationViewModel.getFabStatus()) {
+                conversationViewModel.setTranslateMode(false)
                 if (imagePathList.isNotEmpty()) {
                     subScope.launch(Dispatchers.Default) {
                         conversationViewModel.sendAnalyzeImageMsg(imagePathList.toList(), text)
@@ -192,7 +194,7 @@ fun InputTopIn(state: LazyListState, navigator: Navigator) {
                             }
 
                             "翻译" -> { //自动设置模式？并重置回来？然后发生？ //重生咋搞
-                                conversationViewModel.setTranslateMode(true)
+                                conversationViewModel.sendTxtTranslateMsg()
                             }
 
                             "截图" -> {
@@ -270,7 +272,6 @@ fun TextInputIn(
     val isFabExpanded by conversationViewModel.isFabExpanded.collectAsState()
     var hasFocus by remember { mutableStateOf(false) } //判断焦点
     val focusManager = LocalFocusManager.current
-    val maxInputSize = 300
     val chatViewModel = koinViewModel(ChatViewModel::class)
     val isDark = chatViewModel.darkState.collectAsState().value
     val inputHint = if (onlyDesktop()) "给AI发送消息（Enter+Shift换行、Enter发送）" else "给AI发送消息"
@@ -294,7 +295,7 @@ fun TextInputIn(
                 Row {
                     TextField(value = conversationViewModel.inputTxt,
                         onValueChange = { newText ->
-                            if (newText.text.length <= maxInputSize) {
+                            if (newText.text.length <= DATA_SIZE_INPUT_SEND) {
                                 conversationViewModel.onInputChange(newText)
                             }
                         },

@@ -66,7 +66,7 @@ actual fun createKtorHttpClient(timeout: Long?): HttpClient {
 //        install(SSE)
         install(Logging) {
 //                level = LogLevel.ALL
-            level = LogLevel.INFO //接口日志屏蔽
+//            level = LogLevel.INFO //接口日志屏蔽
             level = LogLevel.BODY
             logger = object : Logger {
                 override fun log(message: String) {

@@ -23,8 +23,7 @@ compose.desktop {
 
             packageName = "hwjAi"
             packageVersion = project.version as String
-            description =
-                "An  app that helps users enhance their productivity and time management skills through focused work intervals and short breaks."
+            description = "A chat-prompt based app for Android, iOS, Desktop, Linux."
             copyright = "© 2025 hwj"
             vendor = "Heweijie"
 
@@ -40,6 +39,7 @@ compose.desktop {
             val iconsRoot = project.file("src/main/resources/drawables")
 
             linux {
+                shortcut = true
                 iconFile.set(iconsRoot.resolve("launcher_icons/linuxos.png"))
                 modules("jdk.security.auth") //来自FileKit
             }
@@ -49,6 +49,10 @@ compose.desktop {
                 upgradeUuid = "31575EDF-D0D5-4CEF-A4D2-7562083D6D89"
                 menuGroup = packageName
                 perUserInstall = true
+                shortcut = true
+
+                menuGroup = "AI"
+                dirChooser = true
             }
 
             macOS {
@@ -57,6 +61,7 @@ compose.desktop {
         }
     }
 }
+
 
 //tasks.register<Copy>("copyJacobDll") {
 ////    from("src/jvmMain/resources") // DLL 文件所在目录

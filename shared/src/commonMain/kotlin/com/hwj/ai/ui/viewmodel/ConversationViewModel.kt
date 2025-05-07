@@ -214,8 +214,16 @@ class ConversationViewModel(
         _isFetching.value = false
     }
 
-    fun sendTxtTranslateMsg(input: String) {
-
+    fun sendTxtTranslateMsg() {
+        inputTxt.text.also {
+            if (it.isNotEmpty()) {
+                _isStopUseImageObs.value=true  //默认true吧，其他 地方有错
+                _imageListObs.clear()
+                setTranslateMode(true)
+                sendTxtMessage(it)
+                onInputChange("")
+            }
+        }
     }
 
     fun sendTxtMessage(input: String) {
@@ -238,8 +246,6 @@ class ConversationViewModel(
         // Insert message to list
         currentListMessage.add(0, newMessageModel)
         setMessages(currentListMessage)
-
-//        println("language>${StrUtils.currentLocale.value}")
 
         if (_thinkAiObs.value) {
             updateTextApi(newMessageModel)
@@ -347,7 +353,7 @@ class ConversationViewModel(
             conversationId = _currentConversation.value,
             imagePath = imagePaths.map { it.path } //复制一份
         )
-        printList(newMessageModel.imagePath, "img>")
+//        printList(newMessageModel.imagePath, "img>")
         val currentListMessage: MutableList<MessageModel> =
             getMessagesByConversation(_currentConversation.value).toMutableList()
 
@@ -471,8 +477,10 @@ class ConversationViewModel(
             val message = messagesMap[conversationId]!!.reversed()[index]
             val partsReq = mutableListOf<String>() //所有的图片
 
-            if (_isTranslateObs.value && index == messagesMap[conversationId]!!.size - 1) {
-
+            if (_isTranslateObs.value){
+                if (index != messagesMap[conversationId]!!.size - 1){
+                    continue
+                }
             }
 //            printList(message.imagePath,des="moreList")
             if (!_isStopUseImageObs.value) { //一直引用图

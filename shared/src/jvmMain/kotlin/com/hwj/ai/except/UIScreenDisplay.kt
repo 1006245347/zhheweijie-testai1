@@ -26,12 +26,12 @@ import com.hwj.ai.capture.ScreenshotOverlay11
 import com.hwj.ai.capture.getPlatformCacheImgDir11
 import com.hwj.ai.capture.saveToFile11
 import com.hwj.ai.checkSystem
+import com.hwj.ai.global.DATA_SIZE_INPUT_SEND
 import com.hwj.ai.global.Event
 import com.hwj.ai.global.EventHelper
 import com.hwj.ai.global.OsStatus
 import com.hwj.ai.global.PrimaryColor
 import com.hwj.ai.global.onlyDesktop
-import com.hwj.ai.global.printD
 import com.hwj.ai.global.workInSub
 import com.hwj.ai.models.MessageModel
 import com.hwj.ai.selection.GlobalMouseHook9
@@ -45,7 +45,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import moe.tlaster.precompose.koin.koinViewModel
 import java.awt.Desktop
-import java.io.File
 import java.net.URI
 
 @Composable
@@ -65,8 +64,18 @@ actual fun BotMsgMenu(message: MessageModel) {
             delayMillis = 100,
             tooltipPlacement = TooltipPlacement.CursorPoint(offset = DpOffset(5.dp, 5.dp))
         ) {
-            IconButton(onClick = { //复制
-                printD(message.answer)
+            IconButton(onClick = { //复制 不成功是字数超了
+                if (message.answer.length > DATA_SIZE_INPUT_SEND) {
+                    conversationViewModel.copyToClipboard(
+                        message.answer.substring(
+                            0,
+                            DATA_SIZE_INPUT_SEND
+                        )
+                    )
+                } else {
+
+                    conversationViewModel.copyToClipboard(message.answer)
+                }
             }, modifier = Modifier.padding(start = 15.dp, end = 10.dp)) {
                 Icon(
                     imageVector = Icons.Default.ContentCopy,
@@ -196,8 +205,8 @@ actual fun FloatWindow() {
 }
 
 @Composable
-actual fun BringMainWindowFront(){
-   showMainWindow(true)
+actual fun BringMainWindowFront() {
+    showMainWindow(true)
 }
 
 actual fun getShotCacheDir(): String? {
