@@ -18,21 +18,12 @@ import com.aallam.openai.client.OpenAIConfig
 import com.aallam.openai.client.OpenAIHost
 import com.hwj.ai.global.LLM_API_KEY
 import com.hwj.ai.global.baseHostUrl
-import com.hwj.ai.global.printD
 import com.hwj.ai.global.printE
 import com.hwj.ai.models.GPTModel
 import com.hwj.ai.models.TextCompletionsParam
 import io.ktor.client.HttpClient
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.client.plugins.logging.LogLevel
-import io.ktor.client.plugins.logging.Logger
-import io.ktor.client.plugins.logging.Logging
-import io.ktor.serialization.kotlinx.json.json
-import kotlinx.coroutines.flow.DEFAULT_CONCURRENCY_PROPERTY_NAME
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.serialization.json.Json
 import kotlin.time.Duration.Companion.seconds
 
 /**
@@ -117,8 +108,10 @@ class LLMChatRepository(private val client: HttpClient) {//private val openAI: O
     }
 
     suspend fun GenerateImage(params: TextCompletionsParam) {
+        val openAI = OpenAI(setAIConfig())
         //        val imageRequest = ImageCreationRequest(prompt = "美女",n=1,size=is256x256,responseFormat= ImageResponseFormat("url"))
-
+//        val imageEdit = imageEdit { }
+//openAI.imageURL()
     }
 
 //    suspend fun AnalyzeFile(){

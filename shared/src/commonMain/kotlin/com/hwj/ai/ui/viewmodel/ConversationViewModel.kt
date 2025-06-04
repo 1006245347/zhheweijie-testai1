@@ -147,7 +147,7 @@ class ConversationViewModel(
         _isFetching.value = true
         _conversations.value = conversationRepo.fetchConversations()
 
-//        if (_conversations.value.isNotEmpty()) { //每次启动拿最新的会话显示
+//        if (_conversations.value.isNotEmpty()) { //每次启动拿最新近的会话显示
 //            _currentConversation.value = _conversations.value.first().id
 //            fetchMessages()
 //        }
@@ -364,10 +364,7 @@ class ConversationViewModel(
     }
 
     private suspend fun updateImageMsg(newMessageModel: MessageModel) {
-//        printD("updateImageMsg1>")
-//        curJob = viewModelScope.launch() {   //加线程切换，无法执行？
-//        printD("updateImageMsg2>")
-//        if (onlyDesktop()) //测试手机也行
+        if (onlyDesktop()) //测试手机也行
         setImageUseStatus(false) //重置
         val params = TextCompletionsParam( //这里要抽出来顺序执行，openRepo内部又异步，当数据大导致参数属性竟然被扣了。。
             promptText = getPrompt(_currentConversation.value),

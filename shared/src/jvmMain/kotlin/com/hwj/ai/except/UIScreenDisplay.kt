@@ -73,7 +73,6 @@ actual fun BotMsgMenu(message: MessageModel) {
                         )
                     )
                 } else {
-
                     conversationViewModel.copyToClipboard(message.answer)
                 }
             }, modifier = Modifier.padding(start = 15.dp, end = 10.dp)) {
