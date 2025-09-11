@@ -6,12 +6,16 @@ plugins {
     alias(libs.plugins.kotlinAndroid)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.kotlinKapt)
 }
 
 //处理依赖库重复问题
 configurations.all {
     resolutionStrategy.force("androidx.compose.ui:ui-test-junit4-android:1.7.6")
         .force("androidx.compose.ui:ui-test-android:1.7.6")
+
+    // FIXME exclude netty from Koog dependencies?
+    exclude(group = "io.netty", module = "*")
 }
 
 android {
@@ -76,18 +80,13 @@ android {
         }
     }
     compileOptions {
-//        sourceCompatibility = JavaVersion.VERSION_17
-//        targetCompatibility = JavaVersion.VERSION_17
         sourceCompatibility = JavaVersion.toVersion(libs.versions.java.get())
         targetCompatibility = JavaVersion.toVersion(libs.versions.java.get())
     }
     kotlinOptions {
-//        jvmTarget = "17"
-   // kotlin {
         jvmTarget=libs.versions.java.get()
     }
     kotlin {
-//        jvmToolchain(17)
         jvmToolchain(libs.versions.java.get().toInt())
     }
     signingConfigs {
@@ -163,4 +162,9 @@ dependencies {
     implementation(libs.appCompat)
     implementation(libs.compose.material3)
     coreLibraryDesugaring(libs.desugar.jdk.libs)
+
+    //kmp不支持，原生只能放这,放这里shared/jvmMain里面没法识别呀
+//    debugImplementation(libs.objects.browser)
+//    releaseImplementation(libs.objects.android)
+//    kapt(libs.objects.processor)
 }

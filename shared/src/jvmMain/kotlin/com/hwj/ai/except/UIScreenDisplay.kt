@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.hwj.ai.agent.QuickAgent
 import com.hwj.ai.capture.LocalMainWindow
 import com.hwj.ai.capture.ScreenshotOverlay11
 import com.hwj.ai.capture.getPlatformCacheImgDir11
@@ -123,7 +124,6 @@ actual fun ToolTipCase(modifier: Modifier?, tip: String, content: @Composable ()
         content()
     }
 }
-
 
 actual fun isMainThread(): Boolean {
     return Thread.currentThread().name == "main"
@@ -236,4 +236,8 @@ actual fun switchUrlByBrowser(url: String) {
     if (Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
         Desktop.getDesktop().browse(URI(url))
     }
+}
+
+actual suspend fun AgentRunning(input: String) {
+    QuickAgent(input)
 }

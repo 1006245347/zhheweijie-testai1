@@ -1,6 +1,8 @@
 import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING
+//import org.gradle.kotlin.dsl.kapt
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -12,6 +14,8 @@ plugins {
     alias(libs.plugins.buildKonfig)
     alias(libs.plugins.sqlDelight)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.kotlinKapt)// ✅ 添加 kapt 支持
+//    id("io.objectbox") // Apply last //加了这个注解成功了 //ios编译时应该要去掉
 }
 
 kotlin {
@@ -19,7 +23,7 @@ kotlin {
         compilations.all {
             compileTaskProvider.configure {
                 compilerOptions {
-                    jvmTarget.set(JvmTarget.JVM_21)
+                    jvmTarget.set(JvmTarget.JVM_17)
                 }
             }
         }
@@ -41,10 +45,12 @@ kotlin {
         compilations.all {
             compileTaskProvider.configure {
                 compilerOptions {
-                    jvmTarget.set(JvmTarget.JVM_21) //这修改jdk
+                    jvmTarget.set(JvmTarget.JVM_17) //这修改jdk
                 }
             }
         }
+
+
     }
 
     sourceSets {
@@ -91,7 +97,6 @@ kotlin {
             implementation(libs.coil3.svg)
             implementation(libs.coil3.ktor)
             implementation(libs.coil3.compose) //这个地址太坑了，官网没更新出来
-
 
             //异步协程库
             implementation(libs.kotlinx.coroutines.core)
@@ -149,6 +154,9 @@ kotlin {
             implementation(libs.compottie.resources)
             implementation(libs.compottie.dot)
             implementation(libs.compottie.network)
+
+            //AI代理框架
+            implementation(libs.koog.agents)
 
         }
 
@@ -221,6 +229,9 @@ kotlin {
             implementation(libs.accompanist.permissions)
             implementation(libs.kotlinx.coroutines.guava)
 
+            //生成不了MyObjectBox   ksp还是不兼容，官方回复kapt
+//            implementation(libs.objects.android)
+
         }
 
         iosMain.dependencies {
@@ -259,7 +270,6 @@ kotlin {
                 exclude(group = "net.java.dev.jna", module = "jna")
             }
 
-
             // JNA for Windows
             implementation(libs.jna)
             implementation(libs.jna.platform)
@@ -289,6 +299,19 @@ kotlin {
             implementation(libs.richtext.material)
             implementation(libs.richtext.material3)
 
+            //java langchain4j 模块化功能设计，打通大模型跟与外部工具、数据和工作流高效集成
+//            implementation 'dev.langchain4j:langchain4j-web-search-engine-searchapi:1.0.1-beta6'
+
+
+            //AI代理 v0.4.1支持iOS了，不用拆
+//            implementation(libs.koog.agents)
+
+            //可能不支持kmp,没法生成代码，原生是可以
+//            implementation(libs.objects.javax)
+//            implementation(libs.objects.window)
+//            implementation(libs.objects.linux)
+//            implementation(libs.objects.mac)
+//         //   kapt(libs.objects.processor )
         }
     }
 
@@ -325,7 +348,13 @@ kotlin {
     }
 }
 
+tasks.withType(type = org.jetbrains.kotlin.gradle.tasks.KotlinCompile::class) {
+    compilerOptions{ jvmTarget.set(JvmTarget.JVM_17)}
+}
 
+tasks.withType(type = org.jetbrains.kotlin.gradle.internal.KaptGenerateStubsTask::class) {
+    compilerOptions{ jvmTarget.set(JvmTarget.JVM_17)}
+}
 
 android {
     namespace = "com.hwj.ai"
@@ -381,3 +410,5 @@ kotlin.sourceSets.all {
     languageSettings.optIn("kotlin.Experimental")
     languageSettings.optIn("kotlin.RequiresOptIn")
 }
+
+

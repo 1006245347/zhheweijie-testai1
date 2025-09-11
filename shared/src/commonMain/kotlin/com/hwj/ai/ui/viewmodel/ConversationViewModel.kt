@@ -69,6 +69,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
@@ -134,6 +135,9 @@ class ConversationViewModel(
     //深度思考
     private val _thinkAiObs = MutableStateFlow(false)
     val thinkAiState = _thinkAiObs.asStateFlow()
+
+    private val _agentAiObs = MutableStateFlow(false)
+    val agentAiState = _agentAiObs.asStateFlow()
 
     private val _isNetObs = MutableStateFlow(false)
     val isNetState = _isNetObs.asStateFlow()
@@ -217,7 +221,7 @@ class ConversationViewModel(
     fun sendTxtTranslateMsg() {
         inputTxt.text.also {
             if (it.isNotEmpty()) {
-                _isStopUseImageObs.value=true  //默认true吧，其他 地方有错
+                _isStopUseImageObs.value = true  //默认true吧，其他 地方有错
                 _imageListObs.clear()
                 setTranslateMode(true)
                 sendTxtMessage(it)
@@ -348,7 +352,8 @@ class ConversationViewModel(
             createConversationRemote(DATA_IMAGE_TITLE) //创建新的会话
         }
         //一轮对话两条问答消息
-        val newMessageModel = MessageModel(question = if (input.isNullOrEmpty()) "" else input,
+        val newMessageModel = MessageModel(
+            question = if (input.isNullOrEmpty()) "" else input,
             answer = thinking,
             conversationId = _currentConversation.value,
             imagePath = imagePaths.map { it.path } //复制一份
@@ -363,9 +368,27 @@ class ConversationViewModel(
         updateImageMsg(newMessageModel)
     }
 
+    fun sendAgentWork(block: suspend () -> Unit) {
+        curJob = viewModelScope.launch(Dispatchers.Default) {
+            flow<String?> {
+                block()
+            }.onStart {
+                printD("sendAgentWork>")
+            }
+                .onCompletion { cause ->
+//                    cause.message
+                }
+                .catch { e: Throwable ->
+                    printD(e.message)
+                }.collect { s ->
+                    printD(s)
+                }
+        }
+    }
+
     private suspend fun updateImageMsg(newMessageModel: MessageModel) {
         if (onlyDesktop()) //测试手机也行
-        setImageUseStatus(false) //重置
+            setImageUseStatus(false) //重置
         val params = TextCompletionsParam( //这里要抽出来顺序执行，openRepo内部又异步，当数据大导致参数属性竟然被扣了。。
             promptText = getPrompt(_currentConversation.value),
             messagesTurbo = getMessagesParamsTurbo(_currentConversation.value)
@@ -474,8 +497,8 @@ class ConversationViewModel(
             val message = messagesMap[conversationId]!!.reversed()[index]
             val partsReq = mutableListOf<String>() //所有的图片
 
-            if (_isTranslateObs.value){
-                if (index != messagesMap[conversationId]!!.size - 1){
+            if (_isTranslateObs.value) {
+                if (index != messagesMap[conversationId]!!.size - 1) {
                     continue
                 }
             }
@@ -719,6 +742,13 @@ class ConversationViewModel(
 
     fun setThinkUsed(flag: Boolean) { //深度思考不支持图，区分？其他应用又支持
         _thinkAiObs.value = flag
+    }
+
+    fun setAgentUsed(flag: Boolean) {
+        _agentAiObs.value = flag
+        setThinkUsed(false)
+        setTranslateMode(false)
+        deleteImage(0, true)
     }
 
     fun setTranslateMode(flag: Boolean) {

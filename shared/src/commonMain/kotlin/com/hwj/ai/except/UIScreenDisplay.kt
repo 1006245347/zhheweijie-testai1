@@ -51,3 +51,6 @@ expect object EnvLoader {
 //链接跳转浏览器
 @Composable
 expect fun switchUrlByBrowser(url:String)
+
+expect suspend fun AgentRunning(input:String)
+

@@ -10,11 +10,13 @@ plugins {
     alias(libs.plugins.jetbrainsCompose)
     alias(libs.plugins.ksp) apply false
     alias(libs.plugins.jvm) apply false
+    alias(libs.plugins.kotlinKapt) apply false
 }
 
 
 buildscript {
     dependencies {
         classpath(libs.buildkonfig.gradle.plugin)
+//        classpath(libs.objects.plguin)
     }
 }

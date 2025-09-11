@@ -24,6 +24,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import coil3.compose.AsyncImage
+import com.hwj.ai.agent.QuickAgent
 import com.hwj.ai.camera.PeekabooCameraView
 import com.hwj.ai.global.ThemeChatLite
 import com.hwj.ai.global.printD
@@ -178,4 +179,8 @@ actual fun switchUrlByBrowser(url: String) {
     if (Patterns.WEB_URL.matcher(url).matches()) {
         LocalContext.current.startActivity(Intent(Intent.ACTION_VIEW, android.net.Uri.parse(url)))
     }
+}
+
+actual suspend fun AgentRunning(input:String){
+    QuickAgent(input)
 }

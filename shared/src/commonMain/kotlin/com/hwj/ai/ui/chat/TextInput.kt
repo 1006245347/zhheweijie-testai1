@@ -60,9 +60,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
+import com.hwj.ai.agent.QuickAgent
 import com.hwj.ai.checkSystem
 import com.hwj.ai.createPermission
 import com.hwj.ai.data.local.PermissionPlatform
+import com.hwj.ai.except.AgentRunning
 import com.hwj.ai.except.ScreenShotPlatform
 import com.hwj.ai.except.ToolTipCase
 import com.hwj.ai.global.BackInnerColor1
@@ -81,6 +83,8 @@ import com.hwj.ai.global.isDarkTxt
 import com.hwj.ai.global.isLightTxt
 import com.hwj.ai.global.onlyDesktop
 import com.hwj.ai.models.MenuActModel
+import com.hwj.ai.ui.agent.AgentUtils
+import com.hwj.ai.ui.agent.chatAgent
 import com.hwj.ai.ui.global.KeyEventEnter
 import com.hwj.ai.ui.viewmodel.ChatViewModel
 import com.hwj.ai.ui.viewmodel.ConversationViewModel
@@ -98,23 +102,31 @@ fun TextInput(
 ) {
     val subScope = rememberCoroutineScope()
     val imagePathList by conversationViewModel.imageListState.collectAsState() //选中的图片
+    val agentAiState by conversationViewModel.agentAiState.collectAsState()
 
     TextInputIn(
         sendMessage = { text ->
             //判断是否在生成消息不让点击事件
             if (!conversationViewModel.getFabStatus()) {
                 conversationViewModel.setTranslateMode(false)
-                if (imagePathList.isNotEmpty()) {
-                    subScope.launch(Dispatchers.Default) {
-                        conversationViewModel.sendAnalyzeImageMsg(imagePathList.toList(), text)
+                if (agentAiState) {
+                    //开始代理规划拆分任务，多代理执行任务，RAG/记忆理解/工具调用/mcp工具
+                    conversationViewModel.sendAgentWork{
+                        AgentRunning(text) //
                     }
                 } else {
-                    conversationViewModel.sendTxtMessage(text)
-                    //test function
+                    if (imagePathList.isNotEmpty()) {
+                        subScope.launch(Dispatchers.Default) {
+                            conversationViewModel.sendAnalyzeImageMsg(imagePathList.toList(), text)
+                        }
+                    } else {
+                        conversationViewModel.sendTxtMessage(text)
+                        //test function
 //                    conversationViewModel.sendTxtToolMessage(
 //                        "What's the weather like in San Francisco, Tokyo, and Paris?",
 //                        toolWeather
 //                    )
+                    }
                 }
             }
         }, navigator
@@ -130,6 +142,7 @@ fun InputTopIn(state: LazyListState, navigator: Navigator) {
     val isShotState = chatViewModel.isShotState.collectAsState().value
     val conversationViewModel = koinViewModel(ConversationViewModel::class)
     val thinkCheckState = conversationViewModel.thinkAiState.collectAsState()
+    val agentAiState = conversationViewModel.agentAiState.collectAsState()
     val needPermissionCamera = remember { mutableStateOf(false) }
     val needPermissionGallery = remember { mutableStateOf(false) }
     val imageList = conversationViewModel.imageListState.collectAsState().value
@@ -141,6 +154,7 @@ fun InputTopIn(state: LazyListState, navigator: Navigator) {
         list.add(MenuActModel("拍摄"))
     } else {
         list.add(MenuActModel("截图"))
+
     }
     list.add(MenuActModel("翻译"))
 
@@ -180,29 +194,33 @@ fun InputTopIn(state: LazyListState, navigator: Navigator) {
                     modifier = Modifier.padding(start = 10.dp, bottom = 4.dp).size(72.dp, 30.dp),
                     contentPadding = PaddingValues(0.dp),//ButtonDefaults里带padding，坑
                     onClick = {
-                        when (list[index].title) {
-                            "相册" -> {
-                                needPermissionGallery.value = true
+                        if (agentAiState.value) {
+                            ToastUtils.show("使用代理无法进行使用功能")
+                        } else {
+                            when (list[index].title) {
+                                "相册" -> {
+                                    needPermissionGallery.value = true
 //                            subScope.launch { //测试入口
 //                                delay(3000)
 //                                chatViewModel.preWindow(true)
 //                            }
-                            }
+                                }
 
-                            "拍摄" -> {
-                                needPermissionCamera.value = true
-                            }
+                                "拍摄" -> {
+                                    needPermissionCamera.value = true
+                                }
 
-                            "翻译" -> { //自动设置模式？并重置回来？然后发生？ //重生咋搞
-                                conversationViewModel.sendTxtTranslateMsg()
-                            }
+                                "翻译" -> { //自动设置模式？并重置回来？然后发生？ //重生咋搞
+                                    conversationViewModel.sendTxtTranslateMsg()
+                                }
 
-                            "截图" -> {
-                                if (conversationViewModel.checkSelectedImg()) {
-                                    chatViewModel.shotByHotKey(false)
-                                    chatViewModel.shotScreen(true)
-                                } else {
-                                    ToastUtils.show("最多处理两张图片")
+                                "截图" -> {
+                                    if (conversationViewModel.checkSelectedImg()) {
+                                        chatViewModel.shotByHotKey(false)
+                                        chatViewModel.shotScreen(true)
+                                    } else {
+                                        ToastUtils.show("最多处理两张图片")
+                                    }
                                 }
                             }
                         }
@@ -222,7 +240,37 @@ fun InputTopIn(state: LazyListState, navigator: Navigator) {
         }
 
         Spacer(Modifier.weight(1f))
-
+        if (onlyDesktop()) {
+            Box(
+                Modifier.height(30.dp).padding(end = 10.dp).clip(RoundedCornerShape(20.dp))
+            ) {
+                Card(
+                    shape = RoundedCornerShape(20.dp),
+                    border = BorderStroke(
+                        1.dp, if (agentAiState.value) cBlue629DE8() else cDeepLine()
+                    )
+                ) {
+                    Text(
+                        text = "AI代理",
+                        fontSize = 11.sp,
+                        color = if (agentAiState.value) cBlue629DE8() else {
+                            if (isDark) isDarkTxt() else isLightTxt()
+                        },
+                        modifier = Modifier.background(
+                            color = if (agentAiState.value) cBlue244260FF() else MaterialTheme.colorScheme.background
+                        ).padding(bottom = 4.dp, start = 13.dp, end = 13.dp)
+                            .clickable(
+                                indication = null,
+                                interactionSource = remember { MutableInteractionSource() }) {
+                                if (conversationViewModel.getFabStatus()) {
+                                    return@clickable
+                                }    //清空一些其他数据？一些标志？
+                                conversationViewModel.setAgentUsed(!agentAiState.value)
+                            }
+                    )
+                }
+            }
+        }
         Box(
             Modifier.height(30.dp).padding(end = 10.dp).clip(RoundedCornerShape(20.dp))
         ) {
@@ -242,7 +290,8 @@ fun InputTopIn(state: LazyListState, navigator: Navigator) {
                         color = if (thinkCheckState.value) cBlue244260FF() else MaterialTheme.colorScheme.background
 //                            if (isDark) isDarkPanel() else isLightPanel()
                     ).padding(bottom = 4.dp, start = 13.dp, end = 13.dp)
-                        .clickable(indication = null,
+                        .clickable(
+                            indication = null,
                             interactionSource = remember { MutableInteractionSource() }) {
                             conversationViewModel.setThinkUsed(!thinkCheckState.value)
                         }
@@ -293,7 +342,8 @@ fun TextInputIn(
                 Modifier.padding(horizontal = 4.dp).padding(top = 6.dp, bottom = 10.dp)
             ) {
                 Row {
-                    TextField(value = conversationViewModel.inputTxt,
+                    TextField(
+                        value = conversationViewModel.inputTxt,
                         onValueChange = { newText ->
                             if (newText.text.length <= DATA_SIZE_INPUT_SEND) {
                                 conversationViewModel.onInputChange(newText)

@@ -502,9 +502,9 @@ fun Int.formattedNumber(): String {
 fun printD(log: String?, tag: String = logTAG) {
     globalScope.launch {
         if (log.isNullOrEmpty()) {
-            Napier.d("log_null", tag = tag)
+            Napier.d("日志log_null", tag = tag)
         } else {
-            Napier.d("$log", tag = tag)
+            Napier.d("日志$log", tag = tag)
         }
     }
 }
@@ -670,6 +670,9 @@ suspend fun getCacheLong(key: String): Long {
 
 suspend fun getCacheString(key: String): String? {
     return settingsCache.getStringOrNull(key)
+}
+suspend fun getCacheString(key: String,def: String):String?{
+    return settingsCache.getString(key,def)
 }
 
 suspend fun getCacheBoolean(key: String): Boolean {

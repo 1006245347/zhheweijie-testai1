@@ -5,7 +5,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.hwj.ai.models.MessageModel
 import com.hwj.ai.ui.chat.MessageCard
 
-
 /**
  * @author by jason-何伟杰，2025/2/10
  * des:@Preview是Android特有的，在/shared模块下无法预览composable函数，
@@ -38,10 +37,14 @@ fun PreviewMobile() {
 
 }
 
+//@Entity
+//data class  BB(var id: Long=0)
+
 
 //预览桌面端界面
 @Composable
 fun PreviewDesktop() {
+//myobjectb
 
 }
 

@@ -35,6 +35,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import com.hwj.ai.agent.QuickAgent
 import com.hwj.ai.camera.PeekabooCameraView
 import com.hwj.ai.camera.PeekabooTheme
 import com.hwj.ai.camera.toImageBitmap
@@ -206,4 +207,8 @@ actual object EnvLoader {
 actual fun switchUrlByBrowser(url: String) {
     val nsUrl = NSURL(string = url)
     UIApplication.sharedApplication.openURL(nsUrl)
+}
+
+actual suspend fun AgentRunning(input:String){
+    QuickAgent(input)
 }

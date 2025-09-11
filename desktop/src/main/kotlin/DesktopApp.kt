@@ -14,6 +14,7 @@ import com.hwj.ai.global.LocalAppResource
 import com.hwj.ai.global.rememberAppResource
 import com.hwj.ai.selection.GlobalMouseHook9
 import com.hwj.ai.test.WindowsSelectionUIATest
+import com.hwj.ai.utils.Utf8ConsoleAntilog
 import di.initKoin
 import io.github.aakira.napier.DebugAntilog
 import io.github.aakira.napier.Napier
@@ -31,8 +32,10 @@ lateinit var koin: Koin
 //control +  option +O       control + C 中断调试
 
 fun main() {
+
     //日志
-    Napier.base(DebugAntilog())//defaultTag = "yuy"
+//    Napier.base(DebugAntilog())//defaultTag = "yuy"
+    Napier.base(Utf8ConsoleAntilog())
     //依赖注入，不需要new对象，全模版生成
     koin = initKoin()
     koin.loadModules(
