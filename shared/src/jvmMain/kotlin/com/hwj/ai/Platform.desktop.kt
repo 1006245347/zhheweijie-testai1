@@ -36,6 +36,12 @@ import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.plugins.sse.SSE
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
+import java.nio.file.Path
+import kotlin.io.path.name
+import kotlin.io.path.readLines
+import kotlin.io.path.readText
+import kotlin.io.path.writeLines
+import kotlin.io.path.writeText
 
 class DesktopPlatform : Platform {
     override val name: String
@@ -226,3 +232,13 @@ actual fun createPermission(
     grantedAction()
 }
 
+actual class KFile(private val path: Path) {
+    actual val name: String get() = path.name
+
+    actual suspend fun readText(): String = path.readText()
+    actual suspend fun readLines(): List<String> = path.readLines()
+    actual suspend fun writeText(text: String) = path.writeText(text)
+    actual suspend fun writeLines(lines: List<String>) {
+        path.writeLines(lines)
+    }
+}

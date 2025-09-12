@@ -21,7 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.hwj.ai.agent.QuickAgent
+import com.hwj.ai.agent.quickAgent
 import com.hwj.ai.capture.LocalMainWindow
 import com.hwj.ai.capture.ScreenshotOverlay11
 import com.hwj.ai.capture.getPlatformCacheImgDir11
@@ -239,5 +239,5 @@ actual fun switchUrlByBrowser(url: String) {
 }
 
 actual suspend fun AgentRunning(input: String) {
-    QuickAgent(input)
+    quickAgent(input)
 }

@@ -3,7 +3,6 @@ import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
-
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidLibrary)
@@ -14,7 +13,7 @@ plugins {
     alias(libs.plugins.buildKonfig)
     alias(libs.plugins.sqlDelight)
     alias(libs.plugins.ksp)
-    alias(libs.plugins.kotlinKapt)// ✅ 添加 kapt 支持
+//    alias(libs.plugins.kotlinKapt)// ✅ 添加 kapt 支持
 //    id("io.objectbox") // Apply last //加了这个注解成功了 //ios编译时应该要去掉
 }
 
@@ -348,13 +347,13 @@ kotlin {
     }
 }
 
-tasks.withType(type = org.jetbrains.kotlin.gradle.tasks.KotlinCompile::class) {
-    compilerOptions{ jvmTarget.set(JvmTarget.JVM_17)}
-}
-
-tasks.withType(type = org.jetbrains.kotlin.gradle.internal.KaptGenerateStubsTask::class) {
-    compilerOptions{ jvmTarget.set(JvmTarget.JVM_17)}
-}
+//tasks.withType(type = org.jetbrains.kotlin.gradle.tasks.KotlinCompile::class) {
+//    compilerOptions{ jvmTarget.set(JvmTarget.JVM_17)}
+//}
+//
+//tasks.withType(type = org.jetbrains.kotlin.gradle.internal.KaptGenerateStubsTask::class) {
+//    compilerOptions{ jvmTarget.set(JvmTarget.JVM_17)}
+//}
 
 android {
     namespace = "com.hwj.ai"

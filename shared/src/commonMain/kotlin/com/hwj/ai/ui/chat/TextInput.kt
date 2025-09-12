@@ -60,7 +60,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
-import com.hwj.ai.agent.QuickAgent
 import com.hwj.ai.checkSystem
 import com.hwj.ai.createPermission
 import com.hwj.ai.data.local.PermissionPlatform
@@ -83,8 +82,6 @@ import com.hwj.ai.global.isDarkTxt
 import com.hwj.ai.global.isLightTxt
 import com.hwj.ai.global.onlyDesktop
 import com.hwj.ai.models.MenuActModel
-import com.hwj.ai.ui.agent.AgentUtils
-import com.hwj.ai.ui.agent.chatAgent
 import com.hwj.ai.ui.global.KeyEventEnter
 import com.hwj.ai.ui.viewmodel.ChatViewModel
 import com.hwj.ai.ui.viewmodel.ConversationViewModel

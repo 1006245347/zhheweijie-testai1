@@ -5,9 +5,6 @@ plugins {
     alias(libs.plugins.jvm)
     alias(libs.plugins.jetbrainsCompose)
     alias(libs.plugins.compose.compiler)
-    alias(libs.plugins.kotlinKapt)
-//    id("io.objectbox") // Apply last
-//    kotlin("kapt")
 }
 
 dependencies {
@@ -74,7 +71,7 @@ tasks.withType(type = org.jetbrains.kotlin.gradle.tasks.KotlinCompile::class) {
     compilerOptions{
         jvmTarget.set(JvmTarget.JVM_17)}
 }
-
-tasks.withType(type = org.jetbrains.kotlin.gradle.internal.KaptGenerateStubsTask::class) {
-    compilerOptions{ jvmTarget.set(JvmTarget.JVM_17)}
-}
+//
+//tasks.withType(type = org.jetbrains.kotlin.gradle.internal.KaptGenerateStubsTask::class) {
+//    compilerOptions{ jvmTarget.set(JvmTarget.JVM_17)}
+//}

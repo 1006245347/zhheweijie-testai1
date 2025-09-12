@@ -6,7 +6,7 @@ plugins {
     alias(libs.plugins.kotlinAndroid)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.ksp)
-    alias(libs.plugins.kotlinKapt)
+//    alias(libs.plugins.kotlinKapt)
 }
 
 //处理依赖库重复问题

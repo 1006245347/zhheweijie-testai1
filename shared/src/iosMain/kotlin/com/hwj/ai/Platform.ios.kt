@@ -24,8 +24,10 @@ import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.serialization.kotlinx.json.json
+import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.serialization.json.Json
 import platform.UIKit.UIDevice
+import platform.Foundation.*
 
 class IOSPlatform : Platform {
     override val name: String =
@@ -100,4 +102,25 @@ actual fun createPermission(
         else -> Permission.STORAGE
     }
     askPermission(p, grantedAction, deniedAction)
+}
+
+actual class KFile(private val filePath: String) {
+    actual val name: String get() = (filePath as NSString).lastPathComponent
+
+    @OptIn(ExperimentalForeignApi::class)
+    actual suspend fun readText(): String =
+        NSString.stringWithContentsOfFile(filePath, NSUTF8StringEncoding, null) as String
+
+    actual suspend fun readLines(): List<String> =
+        readText().split("\n")
+
+    @OptIn(ExperimentalForeignApi::class)
+    actual suspend fun writeText(text: String) {
+        val str = text as NSString
+        str.writeToFile(filePath, atomically = true, encoding = NSUTF8StringEncoding, error = null)
+    }
+
+    actual suspend fun writeLines(lines: List<String>) {
+        writeText(lines.joinToString("\n"))
+    }
 }

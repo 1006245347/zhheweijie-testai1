@@ -14,14 +14,12 @@ import kotlinx.datetime.Clock
  * // /baitong/chat/completions   bge-gree  https://baitong-aiw.gree.com/
  */
 
- open class OpenAiRemoteLLMClient(
-    apiKey: String,
-    settings: OpenAIClientSettings = OpenAIClientSettings(
+open class OpenAiRemoteLLMClient(
+    apiKey: String, settings: OpenAIClientSettings = OpenAIClientSettings(
         baseUrl = "https://baitong-it.gree.com",
         chatCompletionsPath = "aicodeOpen/baitong/chat/completions",
         embeddingsPath = "https://baitong-aiw.gree.com/openapi/v2/embeddings"
-    ),
-    baseClient: HttpClient = HttpClient() { }.config {
+    ), baseClient: HttpClient = HttpClient { }.config {
         install(Logging) {
             level = LogLevel.ALL
             logger = object : Logger {
@@ -30,6 +28,5 @@ import kotlinx.datetime.Clock
                 }
             }
         }
-    },
-    clock: Clock = Clock.System
+    }, clock: Clock = Clock.System
 ) : OpenAILLMClient(apiKey, settings, baseClient, clock)

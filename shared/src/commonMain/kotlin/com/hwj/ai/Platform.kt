@@ -40,5 +40,11 @@ expect fun createPermission(
     deniedAction: () -> Unit
 )
 
-
-
+//为了令向量写入IO通用，定义个中介文件对象
+expect class KFile{
+    val name : String
+    suspend fun readText(): String
+    suspend fun readLines(): List<String>
+    suspend fun writeText(text: String)
+    suspend fun writeLines(lines: List<String>)
+}

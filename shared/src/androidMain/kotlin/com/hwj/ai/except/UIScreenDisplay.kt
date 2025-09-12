@@ -24,7 +24,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import coil3.compose.AsyncImage
-import com.hwj.ai.agent.QuickAgent
+import com.hwj.ai.agent.quickAgent
 import com.hwj.ai.camera.PeekabooCameraView
 import com.hwj.ai.global.ThemeChatLite
 import com.hwj.ai.global.printD
@@ -182,5 +182,5 @@ actual fun switchUrlByBrowser(url: String) {
 }
 
 actual suspend fun AgentRunning(input:String){
-    QuickAgent(input)
+    quickAgent(input)
 }

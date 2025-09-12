@@ -1,27 +1,15 @@
 package com.hwj.ai.except
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Scaffold
 import androidx.compose.material.SnackbarHost
 import androidx.compose.material.SnackbarHostState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ContentCopy
-import androidx.compose.material.icons.filled.GeneratingTokens
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -35,22 +23,15 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
-import com.hwj.ai.agent.QuickAgent
+import com.hwj.ai.agent.quickAgent
 import com.hwj.ai.camera.PeekabooCameraView
-import com.hwj.ai.camera.PeekabooTheme
-import com.hwj.ai.camera.toImageBitmap
-import com.hwj.ai.global.PrimaryColor
 import com.hwj.ai.global.ThemeChatLite
-import com.hwj.ai.global.printD
-import com.hwj.ai.global.workInSub
 import com.hwj.ai.models.MessageModel
 import com.hwj.ai.ui.chat.BotCommonMsgMenu
-import com.hwj.ai.ui.viewmodel.ConversationViewModel
 import io.github.vinceglb.filekit.FileKit
 import io.github.vinceglb.filekit.compressImage
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.coroutines.launch
-import moe.tlaster.precompose.koin.koinViewModel
 import platform.Foundation.NSBundle
 import platform.Foundation.NSString
 import platform.Foundation.NSThread
@@ -210,5 +191,5 @@ actual fun switchUrlByBrowser(url: String) {
 }
 
 actual suspend fun AgentRunning(input:String){
-    QuickAgent(input)
+    quickAgent(input)
 }
