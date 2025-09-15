@@ -1,5 +1,6 @@
 package com.hwj.ai.ui.me
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -7,10 +8,10 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.selection.SelectionContainer
-import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material3.Button
@@ -20,6 +21,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -32,19 +35,29 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hwj.ai.except.getShotCacheDir
 import com.hwj.ai.global.CODE_HOT_KEY
 import com.hwj.ai.global.CODE_LANGUAGE_ZH
 import com.hwj.ai.global.CODE_SELECTION_USE
+import com.hwj.ai.global.DATA_APP_TOKEN
+import com.hwj.ai.global.DATA_EMBED_TOKEN
 import com.hwj.ai.global.PrimaryColor
 import com.hwj.ai.global.StrUtils
+import com.hwj.ai.global.cTransparent
 import com.hwj.ai.global.getCacheBoolean
+import com.hwj.ai.global.getCacheString
 import com.hwj.ai.global.isDarkTxt
 import com.hwj.ai.global.isLightTxt
 import com.hwj.ai.global.onlyDesktop
+import com.hwj.ai.global.printD
+import com.hwj.ai.global.printE
+import com.hwj.ai.global.printLog
 import com.hwj.ai.global.saveBoolean
+import com.hwj.ai.global.saveString
+import com.hwj.ai.ui.global.Corner8
 import com.hwj.ai.ui.global.DialogUtils
 import com.hwj.ai.ui.viewmodel.ChatViewModel
 import com.hwj.ai.ui.viewmodel.SettingsIntent
@@ -93,17 +106,18 @@ fun SettingsScreen(openState: MutableState<Boolean>) {
         dialogHeight = 400.dp
     ) {
         Column {
-            CenterAlignedTopAppBar(navigationIcon = {
-                IconButton(onClick = { openState.value = false }) {
-                    Icon(Icons.Filled.ArrowBackIosNew, "close", tint = PrimaryColor)
-                }
-            }, title = {
-                Text(text = "Settings", color = if (isDark) isDarkTxt() else isLightTxt())
-            }, colors = TopAppBarDefaults.topAppBarColors(
-                //smallTopAppBarColors
-                containerColor = MaterialTheme.colorScheme.background,
-                titleContentColor = PrimaryColor,
-            ), actions = {})
+            CenterAlignedTopAppBar(
+                navigationIcon = {
+                    IconButton(onClick = { openState.value = false }) {
+                        Icon(Icons.Filled.ArrowBackIosNew, "close", tint = PrimaryColor)
+                    }
+                }, title = {
+                    Text(text = "Settings", color = if (isDark) isDarkTxt() else isLightTxt())
+                }, colors = TopAppBarDefaults.topAppBarColors(
+                    //smallTopAppBarColors
+                    containerColor = MaterialTheme.colorScheme.background,
+                    titleContentColor = PrimaryColor,
+                ), actions = {})
 
             HorizontalDivider(
                 thickness = 0.5.dp,
@@ -158,7 +172,8 @@ fun SettingsScreen(openState: MutableState<Boolean>) {
 
                 Row {
                     SelectionContainer {
-                        Text(text = "截图缓存目录：${getShotCacheDir()}", fontSize = 11.sp,
+                        Text(
+                            text = "截图缓存目录：${getShotCacheDir()}", fontSize = 11.sp,
                             color = if (isDark) isDarkTxt() else isLightTxt(),
                             modifier = Modifier.padding(start = 1.dp, end = 10.dp)
                                 .clickable {
@@ -173,6 +188,58 @@ fun SettingsScreen(openState: MutableState<Boolean>) {
                     }
                 }
             }
+            //其他项
+            InputTextInner(isDark, "Chat token", DATA_APP_TOKEN)
+            InputTextInner(isDark, "Embed token", DATA_EMBED_TOKEN)
+        }
+    }
+    subScope.launch {
+        printLog("s>${getCacheString(DATA_APP_TOKEN)}")
+        printLog("s>${getCacheString(DATA_EMBED_TOKEN)}")
+    }
+}
+
+@Composable
+fun InputTextInner(isDark: Boolean, des: String, key: String) {
+    val scope = rememberCoroutineScope()
+    var inputStr by remember { mutableStateOf("") }
+    Row(Modifier.fillMaxWidth()) {
+        Text(des, fontSize = 10.sp)
+        TextField(
+            value = inputStr, onValueChange = { newValue ->
+                if (newValue.length < 200) {
+                    inputStr = newValue
+                } else {
+                    printE("too long!")
+
+                }
+            }, modifier = Modifier.padding(start = 2.dp, 2.dp, 2.dp, 2.dp)
+                .weight(1f).height(40.dp).background(cTransparent(), Corner8()), maxLines = 1,
+            placeholder = {
+                Text(
+                    "input api key",
+                    style = MaterialTheme.typography.bodySmall,
+                    fontSize = 12.sp,
+                    modifier = Modifier.background(cTransparent())
+                )
+            },
+            textStyle = TextStyle(
+                fontSize = 12.sp,
+                lineHeight = 22.sp,
+                color = if (isDark) isDarkTxt() else isLightTxt()
+            )
+        )
+        Button(onClick = {
+            scope.launch {
+                saveString(key, inputStr)
+            }
+        }) {
+            Text(
+                "OK",
+                fontSize = 12.sp,
+                color = if (isDark) isDarkTxt() else isLightTxt(),
+                modifier = Modifier.size(40.dp, 30.dp)
+            )
         }
     }
 }
@@ -188,17 +255,18 @@ fun testAVI(navigator: Navigator) {
     }
 
     Column {
-        CenterAlignedTopAppBar(navigationIcon = {
-            IconButton(onClick = { navigator.goBack() }) {
-                Icon(Icons.Filled.ArrowBackIosNew, "back", tint = PrimaryColor)
-            }
-        }, title = {
-            Text(text = "Settings")
-        }, colors = TopAppBarDefaults.topAppBarColors(
-            //smallTopAppBarColors
-            containerColor = MaterialTheme.colorScheme.background,
-            titleContentColor = PrimaryColor,
-        ), actions = {})
+        CenterAlignedTopAppBar(
+            navigationIcon = {
+                IconButton(onClick = { navigator.goBack() }) {
+                    Icon(Icons.Filled.ArrowBackIosNew, "back", tint = PrimaryColor)
+                }
+            }, title = {
+                Text(text = "Settings")
+            }, colors = TopAppBarDefaults.topAppBarColors(
+                //smallTopAppBarColors
+                containerColor = MaterialTheme.colorScheme.background,
+                titleContentColor = PrimaryColor,
+            ), actions = {})
         if (uiState.isLoading) {
             Text(text = "loading...")
         } else if (uiState.error != null) {

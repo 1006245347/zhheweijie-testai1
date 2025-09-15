@@ -11,6 +11,7 @@ import androidx.compose.ui.window.rememberTrayState
 import androidx.compose.ui.window.rememberWindowState
 import com.hwj.ai.PlatformWindowStart
 import com.hwj.ai.global.LocalAppResource
+import com.hwj.ai.global.initKermitLog
 import com.hwj.ai.global.rememberAppResource
 import com.hwj.ai.selection.GlobalMouseHook9
 import com.hwj.ai.test.WindowsSelectionUIATest
@@ -32,15 +33,15 @@ lateinit var koin: Koin
 //control +  option +O       control + C 中断调试
 
 fun main() {
-
-    //日志
-//    Napier.base(DebugAntilog())//defaultTag = "yuy"
-    Napier.base(Utf8ConsoleAntilog())
-    //依赖注入，不需要new对象，全模版生成
+    //依赖注入，不需要new对象，全模版生成。尽量放最前面
     koin = initKoin()
     koin.loadModules(
         listOf()
     )
+    //日志
+//    Napier.base(DebugAntilog("yuy"))//defaultTag = "yuy"
+    Napier.base(Utf8ConsoleAntilog())
+    initKermitLog() //这个方法是Utils.kt声明放在koin前面后报错
 
     return application {
         val windowState = rememberWindowState(
@@ -71,6 +72,7 @@ fun main() {
                     mainWindow.value?.isVisible = true
                 })
 
+            //正常启动
             PlatformWindowStart(windowState, isShowWindowState, onWindowChange = { w, isShow ->
                 mainWindow.value = w
                 //主要处理关闭窗口的响应，避免其他地方重复调用
@@ -80,6 +82,8 @@ fun main() {
                 isShowWindowState.value = false
                 exitApplication()
             }
+
+            //测试启动
 //        WindowsCaptureTest { exitApplication() } //测试截图
 //        WindowsSelectionTest { exitApplication() } //测试划词
 //        WindowsOcrTest{ exitApplication()} //测试ocr划词

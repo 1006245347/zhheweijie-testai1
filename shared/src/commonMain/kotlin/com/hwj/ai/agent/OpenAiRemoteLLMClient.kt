@@ -28,5 +28,5 @@ open class OpenAiRemoteLLMClient(
                 }
             }
         }
-    }, clock: Clock = Clock.System
+    }, clock: kotlin.time.Clock=kotlin.time.Clock.System
 ) : OpenAILLMClient(apiKey, settings, baseClient, clock)

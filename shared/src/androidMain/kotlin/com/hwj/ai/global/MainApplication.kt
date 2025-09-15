@@ -15,14 +15,17 @@ open class MainApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         appContext = this
-        if (BuildConfig.DEBUG){
-            Napier.base(DebugAntilog())
-        }
-        EnvLoader.init(appContext)
+
         initKoin {
             //不加这个上下文，单例注入无法成功
             androidContext(androidContext = this@MainApplication)
         }
+
+        if (BuildConfig.DEBUG){
+            Napier.base(DebugAntilog())
+            initKermitLog()
+        }
+        EnvLoader.init(appContext)
     }
 
     companion object {

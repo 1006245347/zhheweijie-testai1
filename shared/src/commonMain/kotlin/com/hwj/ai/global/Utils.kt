@@ -8,6 +8,8 @@ import androidx.compose.ui.text.capitalize
 import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
+import co.touchlab.kermit.Logger
+import co.touchlab.kermit.Severity
 import com.hwj.ai.except.DataSettings
 import com.russhwolf.settings.coroutines.FlowSettings
 import com.russhwolf.settings.coroutines.toBlockingSettings
@@ -24,9 +26,8 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlinx.datetime.Clock
+import kotlinx.coroutines.supervisorScope
 import kotlinx.datetime.DateTimeUnit
-import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
@@ -42,6 +43,8 @@ import moe.tlaster.precompose.viewmodel.viewModelScope
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
 import kotlin.jvm.JvmInline
+import kotlin.time.Clock
+import kotlin.time.Instant
 
 @Composable
 fun Dp.dpToPx() = with(LocalDensity.current) { this@dpToPx.toPx() }
@@ -55,7 +58,7 @@ fun differenceBetweenDays(
     maxDate: LocalDate = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date,
 ): Int {
     Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).time
-    return (maxDate.dayOfMonth - minDate.dayOfMonth)
+    return (maxDate.day - minDate.day)
 }
 
 fun LocalDate.plusDays(days: Int): LocalDate {
@@ -297,13 +300,13 @@ fun getLast52Weeks(): List<Pair<String, List<LocalDate>>> {
                 0,
                 3,
             )
-        } ${week.first().dayOfMonth} ${if (week.first().year != thisYear) week.first().year else ""}" +
+        } ${week.first().day} ${if (week.first().year != thisYear) week.first().year else ""}" +
                 " - ${
                     week.last().month.name.lowercase().capitalize(Locale.current).substring(
                         0,
                         3,
                     )
-                } ${week.last().dayOfMonth} ${if (week.last().year != thisYear) week.last().year else ""}" to week
+                } ${week.last().day} ${if (week.last().year != thisYear) week.last().year else ""}" to week
     }
     return weeks
 }
@@ -500,26 +503,41 @@ fun Int.formattedNumber(): String {
 
 //desktop端日志在 terminal显示
 fun printD(log: String?, tag: String = logTAG) {
+    if (!openLog) return
     globalScope.launch {
-        if (log.isNullOrEmpty()) {
-            Napier.d("日志log_null", tag = tag)
-        } else {
-            Napier.d("日志$log", tag = tag)
-        }
+//        if (log.isNullOrEmpty()) {
+//            Napier.d("日志log_null", tag = tag)
+//        } else {
+//            Napier.d("日志$log", tag = tag)
+//        }
+        printLog(log, tag)
     }
 }
 
 fun printD(log: String?, des: String? = null, tag: String = logTAG) {
+    if (!openLog) return
     globalScope.launch {
-        if (log.isNullOrEmpty()) {
-            Napier.d("log_null", tag = tag)
-        } else {
-            Napier.d("$log $des", tag = tag)
-        }
+//        if (log.isNullOrEmpty()) {
+//            Napier.d("log_null", tag = tag)
+//        } else {
+//            Napier.d("$log $des", tag = tag)
+//        }
+        printD("$des $log", tag)
     }
 }
 
+fun initKermitLog() {
+    Logger.setMinSeverity(Severity.Verbose)
+    Logger.setTag(logTAG)
+}
+
+fun printLog(msg: String?, tag: String = logTAG) {
+    if (!openLog) return
+    msg?.let { Logger.d(tag) { it } }
+}
+
 fun printE(log: String?, tag: String = logTAG) {
+    globalScope
     if (log.isNullOrEmpty()) {
         Napier.e("log_null", tag = tag)
     } else {
@@ -528,7 +546,7 @@ fun printE(log: String?, tag: String = logTAG) {
 }
 
 fun printE(throws: Throwable, des: String? = null, tag: String = logTAG) {
-    Napier.e(throwable = throws, tag = tag) { if (des==null) "Error>" else "Error>$des" }
+    Napier.e(throwable = throws, tag = tag) { if (des == null) "Error>" else "Error>$des" }
 }
 
 fun printList(list: List<Any>?, des: String? = null, tag: String = logTAG) {
@@ -553,7 +571,6 @@ fun ViewModel.workInSub(
         block()
     }
 }
-
 
 fun ViewModel.delayWork(
     delayMills: Long = 2000, defaultDispatcher: CoroutineDispatcher =
@@ -584,6 +601,8 @@ suspend fun encodeImageToBase64(platformFile: PlatformFile): String {
 suspend fun encodeImageToBase64(byteArray: ByteArray): String {
     return "data:image/jpeg;base64," + Base64.encode(byteArray)
 }
+
+//object globalScope : CoroutineScope by CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
 val globalScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 val settingsCache: FlowSettings = DataSettings().settingsCache
@@ -671,8 +690,9 @@ suspend fun getCacheLong(key: String): Long {
 suspend fun getCacheString(key: String): String? {
     return settingsCache.getStringOrNull(key)
 }
-suspend fun getCacheString(key: String,def: String):String?{
-    return settingsCache.getString(key,def)
+
+suspend fun getCacheString(key: String, def: String): String? {
+    return settingsCache.getString(key, def)
 }
 
 suspend fun getCacheBoolean(key: String): Boolean {

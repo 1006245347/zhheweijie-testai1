@@ -268,7 +268,7 @@ object GlobalMouseHook9 {
         var result: String? = null
         val cType = automation.focusedElement.controlType
         val point1 = mousePressedPos
-        println("controlType>$cType ${PatternID.Text.value} ${PatternID.Text2.value}") //50020 10014 10024
+//        println("controlType>$cType ${PatternID.Text.value} ${PatternID.Text2.value}") //50020 10014 10024
 
         if (appName.endsWith("Google Chrome")) {
             panel = automation.getDesktopObject(getP("Google Chrome"), 2)

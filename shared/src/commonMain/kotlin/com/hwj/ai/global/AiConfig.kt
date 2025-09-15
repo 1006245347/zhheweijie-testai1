@@ -14,7 +14,9 @@ const val urlToAuthor =
 
 const val conversationTestTag = "ConversationTestTag"
 
+internal const val openLog=true
 const val logTAG = "yuy"
+
 const val thinkingZw = "思考中..."
 
 //const val thinking = "thinking..."
@@ -35,7 +37,7 @@ const val DATA_MESSAGE_TAG = "DATA_MESSAGE_TAG"
 const val DATA_CONVERSATION_TAG = "DATA_CONVERSATION_TAG"
 const val DATA_USER_ID = "DATA_USER_ID"
 const val DATA_SIZE_INPUT_SEND = 300
-const val DATA_EMBED_KEY="DATA_EMBED_KEY"
+const val DATA_EMBED_TOKEN="DATA_EMBED_KEY"
 
 
 //标识

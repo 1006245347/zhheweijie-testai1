@@ -80,7 +80,6 @@ kotlin {
             //aallam openai  https://github.com/aallam/openai-kotlin
             implementation(libs.openai.client)
 
-
             implementation(libs.kotlin.datetime)
 
             //依赖注入
@@ -105,6 +104,7 @@ kotlin {
 
             //日志库,需要初始化 https://github.com/AAkira/Napier
             api(libs.napier)
+            api(libs.kermit)
 
             //key-value存储
             api(libs.multiplatform.settings)

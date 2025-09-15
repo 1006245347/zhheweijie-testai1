@@ -1,3 +1,4 @@
+import com.hwj.ai.global.initKermitLog
 import io.github.aakira.napier.Antilog
 import io.github.aakira.napier.DebugAntilog
 import io.github.aakira.napier.Napier
@@ -8,4 +9,8 @@ fun debugBuild() {
 
 fun releaseBuild(antilog: Antilog) {
     Napier.base(antilog)
+}
+
+fun initLog(){
+    initKermitLog()
 }
