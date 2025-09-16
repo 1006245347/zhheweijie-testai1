@@ -43,6 +43,7 @@ import com.hwj.ai.global.onlyDesktop
 import com.hwj.ai.global.printD
 import com.hwj.ai.global.printE
 import com.hwj.ai.global.printList
+import com.hwj.ai.global.printLog
 import com.hwj.ai.global.stopAnswer
 import com.hwj.ai.global.thinking
 import com.hwj.ai.global.translateEw
@@ -374,15 +375,14 @@ class ConversationViewModel(
                 block()
             }.onStart {
                 printD("sendAgentWork>")
-            }
-                .onCompletion { cause ->
+            }.onCompletion { cause ->
 //                    cause.message
-                }
-                .catch { e: Throwable ->
-                    printD(e.message)
-                }.collect { s ->
-                    printD(s)
-                }
+            }.catch { e: Throwable ->
+                e.printStackTrace()
+                printE(e.message)
+            }.collect { s ->
+                printD(s)
+            }
         }
     }
 

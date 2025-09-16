@@ -1,16 +1,17 @@
 # testai1
 
-#### 介绍
+#### Introduction
 
 Compose Multiplatform + Kotlin Multiplatform.
 A chat-prompt based app for Android, iOS, Desktop, Linux.
 
-#### 软件架构
+[English Version](./README.zh-CN.md)
+#### Introduction
 
-以compose multiplatform为UI框架，kotlin
-multiplatform为逻辑开发，实现Android、iOS、macOS、Windows、Linux端，以大模型api为接口调用数据，
-kotlin 2.1.0，jdk 21（17也是支持的），
-开发机器人聊天、文本问答、图片问答、截图、快捷键识别、翻译、历史保存、划词检测、深度思考、黑白主题切换。
+Using **Compose Multiplatform** as the UI framework and **Kotlin Multiplatform** for business logic, this project runs on Android, iOS, macOS, Windows, and Linux.  
+It integrates with LLM APIs for data interaction, built with **Kotlin 2.1.0** and **JDK 21** (JDK 17 is also supported).  
+Features include: chatbot conversations, text Q&A, image Q&A, screenshot recognition, global hotkeys, translation, history persistence, text selection detection, deep reasoning, and light/dark theme switching.
+
 
 #### Mobile App (Android & iOS)
 
@@ -25,31 +26,48 @@ kotlin 2.1.0，jdk 21（17也是支持的），
 <img src="media/w7.gif" />
 <img src="media/w8.gif" />
 
-## 平台功能
-我是使用硅基流动、deepseek、腾讯混元等大模型，文本问答用deepseek-v3，深度思考用deepseek-R1，图片问答用hunyuan-vision，助手工具问答Pro/Qwen/Qwen2.5-VL-7B-Instruct。
-### 全平台
-- [x] 1.多轮机器对话 ,支持多个大模型切换
-- [x] 2.本地会话记录缓存，文本、图片会话加载
-- [x] 3.黑暗模式切换，支持所有系统，支持代码框包裹
-- [x] 4.富文本对代码支持，对部分公式函数支持
-- [x] 5.系统图册选择后模型问答，支持每轮引用图片问答
-- [x] 6.desktop端截图后的模型问答，手机拍照回答图片的问答
-- [x] 7.多端编译，一套代码开发，适配不同机型和系统，磨平差异性
-- [x] 8.大模型自动调度，接入深度思考R1
-- [x] 9.消息对话内容可选择，可复制，可重新生成问答
-- [x] 10.图片预览
-- [x] 11.欢迎语动画welcome,支持lottie动画
-- [x] 12.消息列表、历史列表根据内容自适应滚动条
-- [x] 13.消息列表过长可一键置底
-- [x] 14.抽屉布局自适应，桌面端可隐藏，手机端是抽屉
-- [x] 15.点击头像跳转默认浏览器
-- [x] 16.设置回答用中文或英文，实时生效
-- [ ] 17.接入联网搜索，暂未有免费api，博查收费
-- [ ] 18.本地知识库构建，离线小模型处理，多场景搜索算法智能调用，更多助手工具的使用。
-### desktop端
-- [x] 1.截图功能，[第五弹](https://blog.csdn.net/j7a2son/article/details/147047202?spm=1001.2014.3001.5502)文章单独放出实现代码，后面再融入更多需求后扩展了，截图可windows/mac，Mac使用时就会询问权限，windows添加了全局快捷键Alt+A响应快速截图然后拉起应用直接问答。Alt+B全局拉起应用主窗口。
-- [x] 托盘隐藏最小化，托盘菜单有打开、退出，双击打开应用主窗口。
-- [x] 这次实现了类似豆包的AI划词工具，但是支持的应用有限，选中的速度也没它快，因为是纯Java实现，用了JNA+UIAutomation组合技术架构，获取系统钩子监听鼠标状态，部分win32应用，如记事本和notepad++直接可用user32消息命令检测所选文字，主要支持Chrome浏览器、Edge浏览器，火狐不知道为啥只能定位到首个标签页。
-- [x] 划词后，全局AI浮窗显示，可一键搜索、总结、复制，快速拉起主应用窗口进行问答。
+## Platform Features
+The app integrates with **SiliconFlow, DeepSeek, Tencent Hunyuan** and other LLMs.
+- Text Q&A → DeepSeek-V3
+- Deep Reasoning → DeepSeek-R1
+- Image Q&A → Hunyuan-Vision
+- Assistant Tools → Pro / Qwen / Qwen2.5-VL-7B-Instruct
 
-[AI应用文章](https://blog.csdn.net/j7a2son/article/details/147615057?spm=1001.2014.3001.5502)
+
+### Cross-platform
+- [x] Multi-round chatbot conversations, switchable between multiple LLMs
+- [x] Local conversation history caching for text and image sessions
+- [x] Dark mode support across all systems, with code block highlighting
+- [x] Rich-text rendering for code and partial math formulas
+- [x] Model Q&A with images selected from system gallery, supports multi-round references
+- [x] Screenshot-based Q&A on desktop, photo-based Q&A on mobile
+- [x] Single codebase compiled across platforms, adapting to different devices and systems
+- [x] Automated LLM scheduling with DeepSeek-R1 integration
+- [x] Conversation content is selectable, copyable, and regenerable
+- [x] Image preview support
+- [x] Welcome animation with Lottie support
+- [x] Adaptive scrollbars for message & history lists
+- [x] One-click scroll-to-bottom for long conversations
+- [x] Drawer layout adapts to device (hidden on desktop, slide-in on mobile)
+- [x] Avatar click opens default browser
+- [x] Real-time language setting for responses (Chinese/English)
+- [ ] Online search integration (API required, currently not free)
+- [ ] Local knowledge base construction, offline lightweight model processing, intelligent multi-scenario search algorithms, and extended assistant tools
+
+### Desktop Only
+- [x] Screenshot feature (see [article](https://blog.csdn.net/j7a2son/article/details/147047202?spm=1001.2014.3001.5502) for standalone implementation).
+    - Works on both Windows/macOS
+    - macOS requires permission prompts
+    - Windows supports global hotkeys:
+        - `Alt+A` → Quick screenshot + instant Q&A popup
+        - `Alt+B` → Open main app window
+- [x] Tray support with minimize-to-tray, menu (open/exit), double-click to restore main window
+- [x] Word selection tool (similar to Doubao AI but slower due to pure Java implementation).
+    - Built with **JNA + UIAutomation** architecture
+    - Uses system hooks to listen for mouse state
+    - Works directly with Win32 apps (Notepad, Notepad++) via `user32` APIs
+    - Browser support: Chrome, Edge (Firefox only detects the first tab)
+- [x] After word selection, a global AI floating window appears with quick actions: **search / summarize / copy / open app Q&A**
+
+
+[App For AI Article](https://blog.csdn.net/j7a2son/article/details/147615057?spm=1001.2014.3001.5502)

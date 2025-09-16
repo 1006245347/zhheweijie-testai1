@@ -2,6 +2,9 @@ package com.hwj.ai.agent
 
 import ai.koog.prompt.executor.clients.openai.OpenAIClientSettings
 import ai.koog.prompt.executor.clients.openai.OpenAILLMClient
+import ai.koog.prompt.executor.llms.SingleLLMPromptExecutor
+import ai.koog.prompt.executor.llms.all.simpleOpenAIExecutor
+import com.hwj.ai.global.printLog
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logger
@@ -28,5 +31,25 @@ open class OpenAiRemoteLLMClient(
                 }
             }
         }
-    }, clock: kotlin.time.Clock=kotlin.time.Clock.System
-) : OpenAILLMClient(apiKey, settings, baseClient, clock)
+    }
+) : OpenAILLMClient(apiKey, settings, baseClient) //kotlin.time.Clock
+
+fun createAiClient(apiKey: String): SingleLLMPromptExecutor {
+    return SingleLLMPromptExecutor(
+        OpenAILLMClient(
+            apiKey = apiKey, settings = OpenAIClientSettings(
+                baseUrl = "https://baitong-it.gree.com",
+                chatCompletionsPath = "aicodeOpen/baitong/chat/completions",
+                embeddingsPath = "https://baitong-aiw.gree.com/openapi/v2/embeddings"
+            ), baseClient = HttpClient().config {
+                install(Logging) {
+                    level = LogLevel.ALL
+                    logger = object : Logger {
+                        override fun log(message: String) {
+                            printLog(message)
+                        }
+                    }
+                }
+            })
+    )
+}

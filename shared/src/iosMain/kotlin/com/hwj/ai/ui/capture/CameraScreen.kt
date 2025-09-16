@@ -23,10 +23,8 @@ import com.hwj.ai.global.PrimaryColor
 import com.hwj.ai.global.createImageName
 import com.hwj.ai.global.printD
 import com.hwj.ai.ui.viewmodel.ConversationViewModel
-import io.github.vinceglb.filekit.CompressFormat
 import io.github.vinceglb.filekit.FileKit
 import io.github.vinceglb.filekit.PlatformFile
-import io.github.vinceglb.filekit.compressImage
 import io.github.vinceglb.filekit.filesDir
 import io.github.vinceglb.filekit.path
 import io.github.vinceglb.filekit.saveImageToGallery

@@ -424,7 +424,7 @@ fun EnterEventButton(isFabExpanded: Boolean, sendBlock: () -> Unit) {
             }
         },
         onClick = {
-            println("click>$isFabExpanded") //断网时初次点击
+//            println("click>$isFabExpanded") //断网时初次点击
             if (isFabExpanded) {
                 conversationViewModel.stopReceivingResults()
             } else {
