@@ -3,15 +3,21 @@ package com.hwj.ai.ui.me
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.selection.SelectionContainer
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material3.Button
@@ -105,7 +111,7 @@ fun SettingsScreen(openState: MutableState<Boolean>) {
         paddingStart = 10.dp,
         dialogHeight = 400.dp
     ) {
-        Column {
+        Column(Modifier.verticalScroll(rememberScrollState())) {
             CenterAlignedTopAppBar(
                 navigationIcon = {
                     IconButton(onClick = { openState.value = false }) {
@@ -189,13 +195,13 @@ fun SettingsScreen(openState: MutableState<Boolean>) {
                 }
             }
             //其他项
-            InputTextInner(isDark, "Chat token", DATA_APP_TOKEN)
-            InputTextInner(isDark, "Embed token", DATA_EMBED_TOKEN)
+            InputTextInner(isDark, "Chat\ntoken", DATA_APP_TOKEN)
+            InputTextInner(isDark, "Embed\ntoken", DATA_EMBED_TOKEN)
         }
     }
     subScope.launch {
-        printLog("s>${getCacheString(DATA_APP_TOKEN)}")
-        printLog("s>${getCacheString(DATA_EMBED_TOKEN)}")
+        printLog("chat>${getCacheString(DATA_APP_TOKEN)}")
+        printLog("embed>${getCacheString(DATA_EMBED_TOKEN)}")
     }
 }
 
@@ -203,42 +209,48 @@ fun SettingsScreen(openState: MutableState<Boolean>) {
 fun InputTextInner(isDark: Boolean, des: String, key: String) {
     val scope = rememberCoroutineScope()
     var inputStr by remember { mutableStateOf("") }
+    LaunchedEffect(Unit) {
+        var def = getCacheString(key)
+        def?.let { inputStr = def }
+    }
+
     Row(Modifier.fillMaxWidth()) {
-        Text(des, fontSize = 10.sp)
-        TextField(
+        Text(des, fontSize = 10.sp, modifier = Modifier.width(50.dp))
+        OutlinedTextField(
             value = inputStr, onValueChange = { newValue ->
                 if (newValue.length < 200) {
                     inputStr = newValue
                 } else {
                     printE("too long!")
-
                 }
-            }, modifier = Modifier.padding(start = 2.dp, 2.dp, 2.dp, 2.dp)
-                .weight(1f).height(40.dp).background(cTransparent(), Corner8()), maxLines = 1,
+            }, modifier = Modifier.padding(start = 2.dp, 0.dp, 2.dp, 0.dp)
+                .weight(1f).height(50.dp).background(cTransparent(), Corner8()), singleLine = true,
             placeholder = {
                 Text(
                     "input api key",
                     style = MaterialTheme.typography.bodySmall,
-                    fontSize = 12.sp,
-                    modifier = Modifier.background(cTransparent())
+                    fontSize = 13.sp,
+                    modifier = Modifier.background(cTransparent()).height(50.dp)
                 )
             },
             textStyle = TextStyle(
                 fontSize = 12.sp,
-                lineHeight = 22.sp,
+                lineHeight = 50.sp,
                 color = if (isDark) isDarkTxt() else isLightTxt()
             )
         )
-        Button(onClick = {
-            scope.launch {
-                saveString(key, inputStr)
-            }
-        }) {
+        Button(
+            onClick = {
+                scope.launch {
+                    saveString(key, inputStr)
+                }
+            }, contentPadding = PaddingValues(0.dp),
+            modifier = Modifier.size(45.dp, 35.dp)
+        ) {
             Text(
                 "OK",
                 fontSize = 12.sp,
-                color = if (isDark) isDarkTxt() else isLightTxt(),
-                modifier = Modifier.size(40.dp, 30.dp)
+                color = if (isDark) isDarkTxt() else isLightTxt()
             )
         }
     }

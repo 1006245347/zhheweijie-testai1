@@ -59,8 +59,7 @@ accompanist = "0.34.0"
 com4j = "2.3.0"
 compottie = "2.0.0"
 langchain4j = "1.0.1-beta6"
-koog = "0.4.1"
-kembeding = "0.1.0"
+koog = "0.4.2"
 objectbox = "4.3.1"
 
 

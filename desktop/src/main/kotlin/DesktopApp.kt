@@ -41,7 +41,7 @@ fun main() {
     //日志
 //    Napier.base(DebugAntilog("yuy"))//defaultTag = "yuy"
     Napier.base(Utf8ConsoleAntilog())
-    initKermitLog() //这个方法是Utils.kt声明放在koin前面后报错
+    initKermitLog() //这个方法是Utils.kt声明放在koin前面会报错
 
     return application {
         val windowState = rememberWindowState(

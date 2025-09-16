@@ -32,7 +32,7 @@ fun App(navigator: Navigator, setViews: @Composable () -> Unit = {}) {
     val welcomeScreenModel = koinViewModel(WelcomeScreenModel::class)
 
     Box(modifier = Modifier.fillMaxSize()) {
-        printD("OS>${getPlatform()}")
+        printD("OS>${getPlatform().name}")
          welcomeScreenModel.uiState.let { uiState ->
             when (uiState) {
                 AppUiState.Loading -> null
