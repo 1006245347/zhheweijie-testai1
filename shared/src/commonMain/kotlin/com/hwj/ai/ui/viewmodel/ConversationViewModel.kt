@@ -376,9 +376,8 @@ class ConversationViewModel(
             }.onStart {
                 printD("sendAgentWork>")
             }.onCompletion { cause ->
-//                    cause.message
             }.catch { e: Throwable ->
-                e.printStackTrace()
+//                e.printStackTrace()//这个可以打印完整的错误日志
                 printE(e.message)
             }.collect { s ->
                 printD(s)

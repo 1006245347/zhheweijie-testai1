@@ -138,13 +138,13 @@ val copyAndRenameApkTask by tasks.registering(Copy::class) {
     val destDir = File(rootDir, "apkBackup/compose_${versionName}")
     from("release/androidApp-release.apk")
     into(destDir)
-    rename { _ -> "compose_ark_${versionName}_${versionCode}_${createTime}.apk" }
+    rename { _ -> "compose_ai_${versionName}_${versionCode}_${createTime}.apk" }
     doLast {
         File(destDir, "App上传配置.txt").outputStream().bufferedWriter().use {
             it.appendLine("版本号:${versionCode}")
                 .appendLine("版本名称:${versionName}")
-                .appendLine("软件名称:格力方舟大全")
-                .appendLine("软件包名:com.lyentech.ark")
+                .appendLine("软件名称:chatbot")
+                .appendLine("软件包名:com.hwj.ai")
                 .appendLine("版本说明:kotlin multiplatform、compose-multiplatform")
                 .appendLine("发布时间:${createTime}")
                 .appendLine("git记录:${gitHash}")

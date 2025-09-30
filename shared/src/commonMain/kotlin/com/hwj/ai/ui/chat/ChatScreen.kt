@@ -129,7 +129,7 @@ fun ChatScreen(navigator: Navigator) {
                         chatViewModel.processGlobal(GlobalIntent.CheckDarkTheme)
                         drawerState.close()
                     }
-                }) {
+                }) { //脚手架的显示内容
                 Box(Modifier.fillMaxSize()) {
                     Column(modifier = Modifier.fillMaxSize()) {
                         AppBar(onClickMenu = { scope.launch { drawerState.open() } },

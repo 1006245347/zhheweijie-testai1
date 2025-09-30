@@ -285,7 +285,6 @@ fun BotCommonCardApp(message: MessageModel) {
     )
 }
 
-
 @Composable
 fun BotCommonMsgMenu(message: MessageModel) {
     val conversationViewModel = koinViewModel(ConversationViewModel::class)

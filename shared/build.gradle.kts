@@ -48,8 +48,6 @@ kotlin {
                 }
             }
         }
-
-
     }
 
     sourceSets {
@@ -345,14 +343,6 @@ kotlin {
         }
     }
 }
-
-//tasks.withType(type = org.jetbrains.kotlin.gradle.tasks.KotlinCompile::class) {
-//    compilerOptions{ jvmTarget.set(JvmTarget.JVM_17)}
-//}
-//
-//tasks.withType(type = org.jetbrains.kotlin.gradle.internal.KaptGenerateStubsTask::class) {
-//    compilerOptions{ jvmTarget.set(JvmTarget.JVM_17)}
-//}
 
 android {
     namespace = "com.hwj.ai"

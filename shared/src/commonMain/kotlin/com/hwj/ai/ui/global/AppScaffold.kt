@@ -28,6 +28,7 @@ import com.hwj.ai.global.cDeepLine
 import com.hwj.ai.global.isDarkTxt
 import com.hwj.ai.global.onlyDesktop
 import com.hwj.ai.global.onlyMobile
+import com.hwj.ai.global.printLog
 import com.hwj.ai.ui.viewmodel.ChatViewModel
 import com.hwj.ai.ui.viewmodel.ConversationViewModel
 import com.hwj.ai.ui.viewmodel.SettingsViewModel

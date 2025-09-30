@@ -5,7 +5,7 @@ ksp = "2.1.0-1.0.29"
 compose-compiler = "1.5.4"
 java = "17"
 compose = "1.8.2"
-kotlinxDatetime = "0.6.2"
+kotlinxDatetime = "0.7.1"
 compose-material3 = "1.3.1"
 activityCompose = "1.9.2"
 #这里有个大坑，compose的版本影响对应的渲染引擎版本，如果引入第三方UI框架版本差别太大会导致编译报错
@@ -221,7 +221,6 @@ langchain-execution = { group = "dev.langchain4j", name = "langchain4j-code-exec
 #使用本地模型进行AI服务
 #langchain-local-ai = { group = "dev.langchain4j", name = "langchain4j-local-ai", version.ref = "langchain4j" }
 koog-agents = { module = "ai.koog:koog-agents", version.ref = "koog" }
-
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

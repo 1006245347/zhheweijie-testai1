@@ -5,7 +5,7 @@
 Compose Multiplatform + Kotlin Multiplatform.
 A chat-prompt based app for Android, iOS, Desktop, Linux.
 
-[English Version](./README.zh-CN.md)
+[中文说明](./README.zh-CN.md)
 #### Introduction
 
 Using **Compose Multiplatform** as the UI framework and **Kotlin Multiplatform** for business logic, this project runs on Android, iOS, macOS, Windows, and Linux.  
@@ -70,4 +70,4 @@ The app integrates with **SiliconFlow, DeepSeek, Tencent Hunyuan** and other LLM
 - [x] After word selection, a global AI floating window appears with quick actions: **search / summarize / copy / open app Q&A**
 
 
-[App For AI Article](https://blog.csdn.net/j7a2son/article/details/147615057?spm=1001.2014.3001.5502)
+[AI Article For App](https://blog.csdn.net/j7a2son/article/details/147615057?spm=1001.2014.3001.5502)

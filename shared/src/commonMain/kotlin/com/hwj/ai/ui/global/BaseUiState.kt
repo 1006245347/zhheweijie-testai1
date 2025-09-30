@@ -17,14 +17,6 @@ open class BaseUiState2<T> {
         error = p3
 
     }
-
-//     constructor(d:T?){
-//         data=d
-//         isLoading=false
-//         error=null
-//     }
-
-    constructor(data: T?) {}
 }
 
 //全局用户意图
