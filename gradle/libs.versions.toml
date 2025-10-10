@@ -1,7 +1,9 @@
 [versions]
 agp = "8.5.2"
-kotlin = "2.1.0"
-ksp = "2.1.0-1.0.29"
+#kotlin = "2.1.0"
+#ksp = "2.1.0-1.0.29"
+kotlin = "2.2.10"
+ksp="2.2.10-2.0.2"
 compose-compiler = "1.5.4"
 java = "17"
 compose = "1.8.2"
@@ -59,7 +61,7 @@ accompanist = "0.34.0"
 com4j = "2.3.0"
 compottie = "2.0.0"
 langchain4j = "1.0.1-beta6"
-koog = "0.4.2"
+koog = "0.5.0"
 objectbox = "4.3.1"
 
 

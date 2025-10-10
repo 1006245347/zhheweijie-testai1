@@ -187,7 +187,7 @@ private fun DrawerHeader(
                 .weight(1f), verticalAlignment = CenterVertically
         ) {
             AsyncImage(
-                model = ImageRequest.Builder(LocalPlatformContext.current).data(urlToImageAppIcon)
+                model = ImageRequest.Builder(LocalPlatformContext.current).data(urlToImageAuthor)
                     .crossfade(true).build(),
                 contentDescription = "Header",
                 modifier = paddingSizeModifier.then(Modifier.clip(RoundedCornerShape(6.dp))),

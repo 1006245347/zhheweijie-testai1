@@ -154,7 +154,7 @@ actual fun BringMainWindowFront(){
 actual fun getShotCacheDir(): String? {
     return null
 }
-
+//中国人口 中国哪里美女多
 //你需要把 .env 文件加到 iOS 项目的资源里（Xcode -> 项目 -> Build Phases -> Copy Bundle Resources）
 actual object EnvLoader {
     @OptIn(ExperimentalForeignApi::class)

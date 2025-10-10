@@ -14,6 +14,40 @@ multiplatform为逻辑开发，实现Android、iOS、macOS、Windows、Linux端�
 kotlin 2.1.0，jdk 21（17也是支持的），
 开发机器人聊天、文本问答、图片问答、截图、快捷键识别、翻译、历史保存、划词检测、深度思考、黑白主题切换。
 
+#### 开发注意
+
+编译环境注意
+
+Android studio 2024-2025.1
+macOs sonoma 14.3.1
+Windows 11
+
+kotlin 2.2.0,(旧的2.1.0也可以) gradle8.5.0
+
+
+项目脚本环境
+1.Gradle.properties  内设置当前的系统的环境gradle的本地路径，这样可以指定不同的jdk版本,windows电脑和mac电脑的肯定不同，不然就取gradle_home
+2.jvmMain/resources/.env 是大模型的key,需要替换成自己的服务器和apikey，不然容易爆和过期
+
+
+
+编译命令
+Mac/windows 编译是在terminal实现，命令都写在 DesktopApp.kt类中
+
+系统适配桥接
+多平台定义的桥接接口除了Platform.kt类，在com.hwj.ai.except下的接口都是桥接，另外就是依赖注入di中的。
+
+错误提示
+项目是实验性验证多模态大模型的使用，包含接口数据结构的设计，界面UI的设计，引入了很多可能验证性依赖库。
+
+
+注意：
+1.当前没有使用的sqldelight,在开发web端的存储时一直报错最后放弃了，用了简单的saveKey方式存聊天历史。
+2.objectbox数据库在纯android成功，但是kmp中无法用ksp生成代码，最后弃用。
+3.验证ocr识别鼠标划词时引入bytedeco发现很难解决多行划词的不规则矩形，而且识别字错误多，最后弃用。
+4.iosApp运行要在xcode启动，xcode中引入自定义的编译文件类，如果只是在ide编写了swift的代码文件还是不能直接参与xcode的编译，要在项目信息中手动引入，对Android开发者简直噩梦。
+
+
 #### Mobile App (Android & iOS)
 
   <img src="media/w1.gif" /> <img src="media/w9.gif" />

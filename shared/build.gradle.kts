@@ -35,7 +35,7 @@ kotlin {
     ).forEach {
         it.binaries.framework {
             baseName = "shared"
-            isStatic = false
+            isStatic = true //啥时候改false
 //            linkerOpts("-Xbinary=bundleId=com.yourcompany.shared")
         }
     }
@@ -340,6 +340,9 @@ kotlin {
         framework {
             baseName = "LiteLibs"
             isStatic = true
+
+            // Only if you want to talk to Kermit from Swift
+            export("co.touchlab:kermit-simple:2.0.8")
         }
     }
 }

@@ -15,3 +15,7 @@ actual fun sharedPlatformModule(): Module = module {
     factory { ClipboardHelper(context=get()) }
 
 }
+
+actual fun startUp(){
+
+}

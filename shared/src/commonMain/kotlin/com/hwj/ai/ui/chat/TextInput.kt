@@ -106,7 +106,7 @@ fun TextInput(
             //判断是否在生成消息不让点击事件
             if (!conversationViewModel.getFabStatus()) {
                 conversationViewModel.setTranslateMode(false)
-                if (agentAiState) {
+                if (agentAiState) { //测试
                     //开始代理规划拆分任务，多代理执行任务，RAG/记忆理解/工具调用/mcp工具
                     conversationViewModel.sendAgentWork{
                         AgentRunning(text) //
@@ -237,7 +237,7 @@ fun InputTopIn(state: LazyListState, navigator: Navigator) {
         }
 
         Spacer(Modifier.weight(1f))
-        if (onlyDesktop()) {
+        if (onlyDesktop()&&false) { //禁掉吧，just for test koog quick use
             Box(
                 Modifier.height(30.dp).padding(end = 10.dp).clip(RoundedCornerShape(20.dp))
             ) {

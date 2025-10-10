@@ -12,6 +12,42 @@ Using **Compose Multiplatform** as the UI framework and **Kotlin Multiplatform**
 It integrates with LLM APIs for data interaction, built with **Kotlin 2.1.0** and **JDK 21** (JDK 17 is also supported).  
 Features include: chatbot conversations, text Q&A, image Q&A, screenshot recognition, global hotkeys, translation, history persistence, text selection detection, deep reasoning, and light/dark theme switching.
 
+Compilation Environment Notes
+
+Development Environment
+•	Android Studio: 2024–2025.1
+•	macOS: Sonoma 14.3.1
+•	Windows: 11
+•	Kotlin: 2.2.0 (older 2.1.0 also works)
+•	Gradle: 8.5.0
+
+Project Script Environment
+1.	In Gradle.properties, set the local Gradle path for your current system environment.
+This allows specifying different JDK versions — since the paths on Windows and macOS are definitely different.
+If not set, it defaults to GRADLE_HOME.
+2.	In jvmMain/resources/.env, configure your large language model’s server and API key.
+Replace them with your own, otherwise requests may fail or expire.
+
+      
+Build Command
+Compilation on both macOS and Windows is done through the terminal.
+All build commands are defined in the DesktopApp.kt class.
+
+System Adaptation & Bridging
+Apart from the Platform.kt file, all interfaces under com.hwj.ai.except are platform bridge interfaces.
+Dependency injection definitions under the di package are also part of this bridging system.
+
+Error Notices
+This project is an experimental validation of multimodal large-model usage.
+It includes API data structure design, UI design, and integrates many experimental dependencies for testing.
+
+Additional Notes:
+1.	SQLDelight is not used. It caused persistent errors during Web-side storage development, so it was replaced with a simpler saveKey-based chat history saving method.
+2.	ObjectBox worked fine on pure Android, but failed to generate code via KSP in KMP, so it was dropped.
+3.	During OCR text extraction validation, Bytedeco was tested but abandoned — it struggled with irregular multi-line selections and had high recognition error rates.
+4.	Running iOSApp must be done via Xcode.
+You must manually include any custom Swift source files in the Xcode project’s build settings.
+Simply creating Swift files in the IDE won’t make them part of the compilation automatically — a true nightmare for Android developers.
 
 #### Mobile App (Android & iOS)
 

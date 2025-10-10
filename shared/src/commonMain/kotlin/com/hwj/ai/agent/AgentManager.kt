@@ -13,7 +13,10 @@ import com.hwj.ai.global.getCacheString
 import com.hwj.ai.global.printD
 import com.hwj.ai.global.printLog
 
-
+/**
+ * @author by jason-何伟杰，2025/10/9
+ * des:只是为了测试koog的引入，从0.2.0到0.5.0变化都很大
+ */
 suspend fun quickAgent(input: String) {
 
     val apiKey = getCacheString(DATA_APP_TOKEN)
@@ -22,7 +25,7 @@ suspend fun quickAgent(input: String) {
 //    val remoteAiExecutor=createAiClient(apiKey)
 //    val remoteAiExecutor= simpleOpenAIExecutor(apiKey)
     val agent = AIAgent(
-        executor = remoteAiExecutor,
+        promptExecutor = remoteAiExecutor,
         systemPrompt = "You are a helpful assistant. Answer user questions concisely.",
         llmModel = OpenAIModels.Chat.GPT4o,
         temperature = 0.7,
@@ -36,7 +39,6 @@ suspend fun quickAgent(input: String) {
                 printLog("err??${ctx.throwable.message}")
             }
         }
-//        cc()
     }
 
     //它默认是非流式
@@ -44,9 +46,5 @@ suspend fun quickAgent(input: String) {
         printD("agent>$it")
 
     }
-}
-
-suspend fun AIAgentContext.cc(){
-    llm.writeSession {  }
 }
 

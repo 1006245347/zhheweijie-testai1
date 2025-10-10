@@ -13,8 +13,6 @@ plugins {
 configurations.all {
     resolutionStrategy.force("androidx.compose.ui:ui-test-junit4-android:1.7.6")
         .force("androidx.compose.ui:ui-test-android:1.7.6")
-        .force("io.modelcontextprotocol:kotlin-sdk-core-jvm:0.7.0")
-
     // FIXME exclude netty from Koog dependencies?
     exclude(group = "io.netty", module = "*")
 }
@@ -95,9 +93,9 @@ android {
             enableV1Signing = true
             enableV2Signing = true
             enableV3Signing = true
-            storeFile = file("../gree_pad_app.jks")
+            storeFile = file("../appkeystore.jks")
             storePassword = "123456"
-            keyAlias = "gree"
+            keyAlias = "jason"
             keyPassword = "123456"
         }
 
@@ -105,9 +103,9 @@ android {
             enableV1Signing = true
             enableV2Signing = true
             enableV3Signing = true
-            storeFile = file("../gree_pad_app.jks")
+            storeFile = file("../appkeystore.jks")
             storePassword = "123456"
-            keyAlias = "gree"
+            keyAlias = "jason"
             keyPassword = "123456"
         }
     }

@@ -9,8 +9,8 @@ struct iOSApp: App {
 
 init(){
 		KoinKt.doInitKoin()
-		NapierProxyKt.debugBuild()
-		NapierProxyKt.initLog()
+//		NapierProxyKt.debugBuild()
+//        KoinKt.startUp()
 }
 	var body: some Scene {
 		WindowGroup {

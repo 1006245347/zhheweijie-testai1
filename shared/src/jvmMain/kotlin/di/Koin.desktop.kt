@@ -14,3 +14,5 @@ actual fun sharedPlatformModule():Module= module{
     single { DatabaseDriverFactory() }
     factory { ClipboardHelper() }
 }
+
+actual fun startUp(){}

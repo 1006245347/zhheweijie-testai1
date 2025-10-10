@@ -95,3 +95,5 @@ val modelModule = module {
  * des:注意声明接口的完整路径，多个平台必须一致
  */
 expect fun sharedPlatformModule(): Module
+
+expect fun startUp()
